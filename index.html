@@ -73,31 +73,80 @@
           </div>
         </div>
 
-        <div class="hero-visual" aria-hidden="true">
-          <div class="visual-ring ring-one"></div>
-          <div class="visual-ring ring-two"></div>
-          <div class="phone-mock">
-            <div class="phone-notch"></div>
+        <div class="hero-visual">
+          <div class="visual-ring ring-one" aria-hidden="true"></div>
+          <div class="visual-ring ring-two" aria-hidden="true"></div>
+          <div class="phone-mock" id="interactivePhone" aria-label="هاتف TWINS GSM التفاعلي">
+            <div class="phone-notch" aria-hidden="true"></div>
             <div class="phone-screen">
-              <div class="screen-top">
-                <span class="screen-logo">TWINS</span>
-                <span class="screen-dot"></span>
+              <div class="phone-status" aria-hidden="true">
+                <span id="phoneClock">09:41</span>
+                <div class="phone-status-icons"><span>5G</span><span class="sig"></span><span class="bat"></span></div>
               </div>
-              <div class="screen-title">SYSTEM<br /><b>RESTORED</b></div>
-              <div class="progress"><i></i></div>
-              <div class="screen-row"><span>IMEI / Network</span><b>OK</b></div>
-              <div class="screen-row"><span>FRP / Lock</span><b>OK</b></div>
-              <div class="screen-row"><span>Flash / Boot</span><b>OK</b></div>
-              <div class="screen-badge">✓ تم بنجاح</div>
+
+              <div class="phone-home" id="phoneHome">
+                <div class="phone-brand-card">
+                  <span class="phone-brand-mark" aria-hidden="true"><i></i><i></i></span>
+                  <div>
+                    <b>TWINS <em>GSM</em></b>
+                    <small>اضغط على أي أيقونة للتواصل</small>
+                  </div>
+                </div>
+
+                <div class="phone-apps" aria-label="تطبيقات التواصل">
+                  <button type="button" class="phone-app" data-app="phone">
+                    <span class="app-icon app-phone" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1A19.5 19.5 0 0 1 3.2 9.8 19.8 19.8 0 0 1 .1 1.2 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.7c.1.9.4 1.7.7 2.5a2 2 0 0 1-.5 2.1L6 7.9a16 16 0 0 0 6.1 6.1l1.6-1.2a2 2 0 0 1 2.1-.5c.8.3 1.6.6 2.5.7A2 2 0 0 1 22 15z"/></svg></span>
+                    <span class="app-label">الهاتف</span>
+                  </button>
+                  <button type="button" class="phone-app" data-app="whatsapp">
+                    <span class="app-icon app-whatsapp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 3.1 17.6L2 22l4.5-1.2A11 11 0 1 0 20.5 3.5Zm-8.5 17a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-2.7.7.7-2.6-.2-.3a9.1 9.1 0 1 1 7.1 3.7Zm5-6.8c-.3-.1-1.7-.8-2-.9s-.5-.1-.7.2-.8.9-1 1.1-.4.2-.7.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.6l.5-.6.2-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.4 1 2.8 1.2 3 .2.3 2.1 3.2a9.6 9.6 0 0 0 3.4 3c1.3.5 1.8.6 2.4.5.8-.1 1.7-.7 2-1.4s.3-1.2.2-1.4-.3-.1-.6-.2Z"/></svg></span>
+                    <span class="app-label">واتساب</span>
+                  </button>
+                  <button type="button" class="phone-app" data-app="messages">
+                    <span class="app-icon app-messages" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                    <span class="app-label">الرسائل</span>
+                  </button>
+                  <button type="button" class="phone-app" data-app="instagram">
+                    <span class="app-icon app-instagram" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></span>
+                    <span class="app-label">إنستغرام</span>
+                  </button>
+                  <button type="button" class="phone-app" data-app="facebook">
+                    <span class="app-icon app-facebook" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></span>
+                    <span class="app-label">فيسبوك</span>
+                  </button>
+                  <button type="button" class="phone-app" data-app="tiktok">
+                    <span class="app-icon app-tiktok" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 8.5a4.5 4.5 0 0 1-3.5-1.7V16a6 6 0 1 1-6-6c.3 0 .7 0 1 .1V13a3 3 0 1 0 2 2.8V2h3a4.5 4.5 0 0 0 3.5 4.2z"/></svg></span>
+                    <span class="app-label">تيك توك</span>
+                  </button>
+                </div>
+
+                <div class="phone-dock" aria-label="اختصارات سريعة">
+                  <button type="button" class="dock-btn" data-app="phone" aria-label="اتصال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1A19.5 19.5 0 0 1 3.2 9.8 19.8 19.8 0 0 1 .1 1.2 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.7c.1.9.4 1.7.7 2.5a2 2 0 0 1-.5 2.1L6 7.9a16 16 0 0 0 6.1 6.1l1.6-1.2a2 2 0 0 1 2.1-.5c.8.3 1.6.6 2.5.7A2 2 0 0 1 22 15z"/></svg></button>
+                  <button type="button" class="dock-btn" data-app="whatsapp" aria-label="واتساب"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 3.1 17.6L2 22l4.5-1.2A11 11 0 1 0 20.5 3.5Zm-8.5 17a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-2.7.7.7-2.6-.2-.3a9.1 9.1 0 1 1 7.1 3.7Zm5-6.8c-.3-.1-1.7-.8-2-.9s-.5-.1-.7.2-.8.9-1 1.1-.4.2-.7.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.6l.5-.6.2-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.4 1 2.8 1.2 3 .2.3 2.1 3.2a9.6 9.6 0 0 0 3.4 3c1.3.5 1.8.6 2.4.5.8-.1 1.7-.7 2-1.4s.3-1.2.2-1.4-.3-.1-.6-.2Z"/></svg></button>
+                  <button type="button" class="dock-btn" data-app="tools" aria-label="أدواتنا"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.66 5.66L3 18l3 3 6.04-6.04a4 4 0 0 0 5.66-5.66l-3 3-2.7-2.7z"/></svg></button>
+                </div>
+              </div>
+
+              <div class="phone-app-view" id="phoneAppView" hidden>
+                <div class="phone-app-bar">
+                  <button type="button" class="phone-back" id="phoneBack" aria-label="رجوع">‹</button>
+                  <div class="phone-app-title-wrap">
+                    <b id="phoneAppTitle">واتساب</b>
+                    <small id="phoneAppSub">TWINS GSM</small>
+                  </div>
+                </div>
+                <div class="phone-app-body" id="phoneAppBody"></div>
+                <a class="phone-app-action" id="phoneAppAction" href="#" target="_blank" rel="noopener noreferrer">فتح</a>
+              </div>
             </div>
           </div>
-          <div class="float-card card-one">
-            <span class="float-icon">⚡</span>
-            <div><b>Bootloop</b><small>تم الإصلاح</small></div>
+          <div class="float-card card-one" aria-hidden="true">
+            <span class="float-icon">📱</span>
+            <div><b>تفاعلي</b><small>جرب الأيقونات</small></div>
           </div>
-          <div class="float-card card-two">
-            <span class="float-icon">🔓</span>
-            <div><b>FRP Unlock</b><small>تم التخطي</small></div>
+          <div class="float-card card-two" aria-hidden="true">
+            <span class="float-icon">💬</span>
+            <div><b>تواصل سريع</b><small>واتساب / اتصال</small></div>
           </div>
         </div>
       </div>

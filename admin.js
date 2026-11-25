@@ -5,7 +5,7 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  var app, auth, db;
+  var app, auth, db, storage;
   var currentSection = "overview";
   var toastTimer = null;
 
@@ -41,7 +41,7 @@
 
   var SCHEMAS = {
     tools: {
-      title: "الأدوات", icon: "⬇", desc: "ضيف أداة واربطها بملف داخل مجلد tools أو برابط خارجي.",
+      title: "الأدوات", icon: "⬇", desc: "ضيف أداة واربطها بملف داخل مجلد tools، رابط خارجي، أو ارفع الملف مباشرة إلى Firebase Storage.",
       listTitle: function (d) { return d.name || "أداة بدون اسم"; },
       listSub: function (d) { return (d.tag || d.category || "—") + " · " + (d.version || "v1.0") + " · " + (d.size || "—"); },
       fields: [
@@ -53,17 +53,20 @@
         { key: "size", label: "الحجم", type: "text" },
         { key: "order", label: "الترتيب", type: "number" },
         { key: "hot", label: "أداة مميزة", type: "checkbox" },
-        { key: "file", label: "مسار الملف أو رابط التحميل", type: "text", full: true, hint: "مثال: tools/my-tool.zip أو رابط خارجي مباشر. ارفع الملف أولاً داخل مجلد tools ثم انشر الموقع." }
+        { key: "file", label: "مسار الملف أو رابط التحميل", type: "text", full: true, hint: "مثال: tools/my-tool.zip أو رابط خارجي مباشر. يمكنك أيضاً رفع ملف بالأسفل وسيتم ملء الرابط تلقائياً." },
+        { key: "toolFile", label: "رفع ملف الأداة (اختياري)", type: "file", accept: ".zip,.rar,.7z,.pdf,.exe,.apk,.txt", storageDir: "tools", targetKey: "file", full: true, hint: "يُرفع إلى Firebase Storage ويضع رابط التحميل في حقل الملف." }
       ]
     },
     works: {
-      title: "الأعمال", icon: "🖼", desc: "الأجهزة اللي أصلحتها والمعرض على الصفحة الرئيسية.",
+      title: "الأعمال", icon: "🖼", desc: "الأجهزة اللي أصلحتها والمعرض على الصفحة الرئيسية. يمكنك رفع صورة حقيقية لكل عمل.",
       listTitle: function (d) { return d.model || "جهاز بدون اسم"; },
       listSub: function (d) { return (d.brand || "—") + " · " + (d.category || "—"); },
       fields: [
         { key: "brand", label: "البراند", type: "text", required: true },
         { key: "model", label: "الموديل", type: "text", required: true },
         { key: "category", label: "التصنيف (iphone / samsung / xiaomi / tablet / other)", type: "text", full: true },
+        { key: "image", label: "رابط صورة العمل", type: "text", full: true, hint: "يمكنك لصق رابط صورة، أو رفع صورة بالأسفل وسيتم ملء الرابط تلقائياً." },
+        { key: "workImage", label: "رفع صورة العمل (اختياري)", type: "file", accept: "image/*", storageDir: "works", targetKey: "image", full: true },
         { key: "desc", label: "وصف الشغل", type: "textarea", full: true },
         { key: "order", label: "الترتيب", type: "number" }
       ]
@@ -163,6 +166,7 @@
       app = firebase.apps.length ? firebase.app() : firebase.initializeApp(window.TWINS_FIREBASE_CONFIG);
       auth = firebase.auth();
       db = firebase.firestore();
+      storage = firebase.storage ? firebase.storage() : null;
     } catch (e) {
       showError("خطأ في إعداد Firebase: " + e.message);
       return;
@@ -284,9 +288,12 @@
       });
       html += '</select>';
     } else if (f.type === "file") {
-      html += '<label for="' + id + '">' + esc(f.label) + '</label><input type="file" id="' + id + '" accept=".zip,.pdf,.rar,.7z,.txt" />';
+      var accept = f.accept || ".zip,.pdf,.rar,.7z,.txt";
+      var current = doc && f.targetKey ? doc[f.targetKey] : (doc && doc.file ? doc.file : "");
+      html += '<label for="' + id + '">' + esc(f.label) + '</label><input type="file" id="' + id + '" accept="' + esc(accept) + '" />';
       if (f.hint) html += '<span class="hint">' + esc(f.hint) + '</span>';
-      if (doc && doc.file) html += '<span class="hint">الملف الحالي: ' + esc(doc.file) + '</span>';
+      if (current) html += '<span class="hint">الحالي: <a href="' + esc(current) + '" target="_blank" rel="noopener">فتح</a></span>';
+      if (f.targetKey && doc && doc[f.targetKey]) html += '<div class="hint" style="margin-top:6px"><img src="' + esc(doc[f.targetKey]) + '" alt="" style="max-width:140px;max-height:90px;border-radius:10px;border:1px solid var(--line);object-fit:cover" onerror="this.style.display=\'none\'"></div>';
     } else {
       html += '<label for="' + id + '">' + esc(f.label) + (f.required ? ' *' : '') + '</label>';
       html += '<input type="' + (f.type === "number" ? "number" : "text") + '" id="' + id + '" value="' + esc(v) + '" ' + (f.required ? "required" : "") + ' />';
@@ -375,38 +382,77 @@
     });
   }
 
+  function safeFileName(name) {
+    return String(name || "file").replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "file";
+  }
+
+  function uploadFileToStorage(file, dir) {
+    if (!storage) return Promise.reject(new Error("Firebase Storage غير مفعّل. فعّله من Firebase Console أو استخدم رابط مباشر."));
+    var path = dir + "/" + Date.now() + "-" + safeFileName(file.name);
+    var ref = storage.ref().child(path);
+    return ref.put(file).then(function () { return ref.getDownloadURL(); });
+  }
+
+  function collectUploads(form, section, schema) {
+    var tasks = [];
+    (schema.fields || []).forEach(function (f) {
+      if (f.type !== "file") return;
+      var input = $("#f_" + f.key, form);
+      if (!input || !input.files || !input.files[0]) return;
+      var file = input.files[0];
+      var dir = f.storageDir || section;
+      tasks.push(uploadFileToStorage(file, dir).then(function (url) {
+        return { targetKey: f.targetKey || "file", url: url, file: file };
+      }));
+    });
+    return Promise.all(tasks);
+  }
+
   function saveDoc(form) {
     var section = form.dataset.section;
     var id = form.dataset.id;
     var schema = SCHEMAS[section];
-    var data = {};
+    var submitBtn = $("#submitBtn", form);
+    if (submitBtn) submitBtn.disabled = true;
 
-    schema.fields.forEach(function (f) {
-      if (f.type === "file") return;
-      var el = $("#f_" + f.key, form);
-      if (!el) return;
-      if (f.type === "checkbox") data[f.key] = el.checked;
-      else if (f.type === "number") data[f.key] = Number(el.value || 0);
-      else data[f.key] = el.value.trim();
-    });
+    collectUploads(form, section, schema).then(function (uploads) {
+      var data = {};
+      schema.fields.forEach(function (f) {
+        if (f.type === "file") return;
+        var el = $("#f_" + f.key, form);
+        if (!el) return;
+        if (f.type === "checkbox") data[f.key] = el.checked;
+        else if (f.type === "number") data[f.key] = Number(el.value || 0);
+        else data[f.key] = el.value.trim();
+      });
 
-    if (section === "tools") {
-      if (!data.file) data.file = "#";
-      delete data.storagePath;
-    }
+      uploads.forEach(function (u) {
+        data[u.targetKey] = u.url;
+        if (section === "tools" && u.targetKey === "file") {
+          if (!data.size || data.size === "—") data.size = Math.max(1, Math.round(u.file.size / 1024 / 1024)) + " MB";
+        }
+      });
 
-    var saveTask = id
-      ? db.collection(section).doc(id).set(data, { merge: true })
-      : (function () {
-          if (typeof data.order !== "number") data.order = Date.now();
-          return db.collection(section).add(data);
-        })();
+      if (section === "tools") {
+        if (!data.file) data.file = "#";
+        delete data.storagePath;
+      }
 
-    saveTask.then(function () {
+      var saveTask = id
+        ? db.collection(section).doc(id).set(data, { merge: true })
+        : (function () {
+            if (typeof data.order !== "number") data.order = Date.now();
+            return db.collection(section).add(data);
+          })();
+
+      return saveTask;
+    }).then(function () {
       toast(id ? "تم حفظ التعديلات" : "تمت الإضافة بنجاح");
       renderCollection(section);
     }).catch(function (e) {
-      toast("خطأ: " + e.message);
+      toast("خطأ: " + (e && e.message ? e.message : e));
+    }).then(function () {
+      if (submitBtn) submitBtn.disabled = false;
     });
   }
 

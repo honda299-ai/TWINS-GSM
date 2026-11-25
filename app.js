@@ -227,9 +227,13 @@
     var list = currentWorkFilter === "all" ? works : works.filter(function (w) { return w.category === currentWorkFilter; });
 
     grid.innerHTML = list.map(function (w) {
+      var img = safeHref(w.image, "");
+      var visual = img && img !== "#" ?
+        '<div class="work-visual has-image"><img src="' + esc(img) + '" alt="' + esc((w.brand || "") + " " + (w.model || "")) + '" loading="lazy" onerror="this.parentElement.classList.remove(\'has-image\');this.remove();this.parentElement.innerHTML=\'<div class=\\\'work-device\\\'></div>\'"></div>' :
+        '<div class="work-visual"><div class="work-device"></div></div>';
       return '<article class="work-card reveal visible">' +
         '<span class="work-badge">✓ تم الإصلاح</span>' +
-        '<div class="work-visual"><div class="work-device"></div></div>' +
+        visual +
         '<div class="work-body"><small>' + esc(w.brand) + '</small><h3>' + esc(w.model) + '</h3><p>' + esc(w.desc) + '</p></div>' +
         '</article>';
     }).join("");
@@ -417,8 +421,141 @@
       }
     });
 
+    initInteractivePhone();
     var year = $("#year");
     if (year) year.textContent = new Date().getFullYear();
+  }
+
+  function initInteractivePhone() {
+    var phone = $("#interactivePhone");
+    if (!phone || phone.dataset.bound === "1") return;
+    phone.dataset.bound = "1";
+
+    var home = $("#phoneHome");
+    var view = $("#phoneAppView");
+    var body = $("#phoneAppBody");
+    var title = $("#phoneAppTitle");
+    var sub = $("#phoneAppSub");
+    var action = $("#phoneAppAction");
+    var back = $("#phoneBack");
+    var clock = $("#phoneClock");
+
+    function updateClock() {
+      if (!clock) return;
+      var d = new Date();
+      var h = String(d.getHours()).padStart(2, "0");
+      var m = String(d.getMinutes()).padStart(2, "0");
+      clock.textContent = h + ":" + m;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    function c() { return D.contact || {}; }
+    function telHref() {
+      var raw = String(c().phoneDisplay || c().whatsapp || "").replace(/[^\d+]/g, "");
+      return raw ? "tel:" + raw : "#";
+    }
+    function waMsg(text) {
+      var base = String(c().whatsapp || "").trim();
+      if (!base || base === "#") return "#";
+      var join = base.indexOf("?") > -1 ? "&" : "?";
+      return base + join + "text=" + encodeURIComponent(text || "السلام عليكم، محتاج مساعدة من TWINS GSM");
+    }
+
+    var apps = {
+      phone: function () {
+        return {
+          title: "الهاتف", sub: c().phoneDisplay || "اتصل بنا",
+          body: '<div class="phone-chat"><div class="phone-bubble in">أهلاً بك في <strong>TWINS GSM</strong> 👋<br>اضغط للاتصال المباشر وسنساعدك في مشكلة جهازك.</div><div class="phone-bubble out">عايز استفسار بخصوص صيانة سوفت وير.</div></div>',
+          action: telHref(), actionLabel: "اتصال الآن", disabled: telHref() === "#"
+        };
+      },
+      whatsapp: function () {
+        var href = waMsg("السلام عليكم، عندي جهاز محتاج صيانة سوفت وير من TWINS GSM");
+        return {
+          title: "واتساب", sub: "رد سريع",
+          body: '<div class="phone-chat"><div class="phone-bubble in">مرحبًا! معاك <strong>TWINS GSM</strong>.<br>ابعت نوع الجهاز والمشكلة وهنرد عليك.</div><div class="phone-bubble out">السلام عليكم، عندي مشكلة في جهازي ومحتاج مساعدة.</div></div>',
+          action: href, actionLabel: "فتح واتساب", disabled: href === "#"
+        };
+      },
+      messages: function () {
+        var raw = String(c().phoneDisplay || "").replace(/[^\d+]/g, "");
+        var href = raw ? "sms:" + raw + "?body=" + encodeURIComponent("السلام عليكم TWINS GSM، محتاج استفسار بخصوص جهاز") : "#";
+        return {
+          title: "الرسائل", sub: "SMS",
+          body: '<div class="phone-chat"><div class="phone-bubble in">تقدر تبعتلنا رسالة SMS بتفاصيل الجهاز والعطل.</div><div class="phone-bubble out">السلام عليكم، محتاج استفسار بخصوص جهازي.</div></div>',
+          action: href, actionLabel: "إرسال رسالة", disabled: href === "#"
+        };
+      },
+      instagram: function () {
+        var href = safeHref(c().instagram, "#");
+        return {
+          title: "إنستغرام", sub: "@twinsgsm",
+          body: '<div class="phone-chat"><div class="phone-bubble in">تابع شغلنا وآخر الحالات على إنستغرام.</div><div class="phone-bubble out">عايز أشوف شغلكم الأخير.</div></div>',
+          action: href, actionLabel: "فتح إنستغرام", disabled: href === "#"
+        };
+      },
+      facebook: function () {
+        var href = safeHref(c().facebook, "#");
+        return {
+          title: "فيسبوك", sub: "TWINS GSM",
+          body: '<div class="phone-chat"><div class="phone-bubble in">تابع صفحتنا على فيسبوك للعروض وآخر الأعمال.</div><div class="phone-bubble out">عايز أتابع الصفحة.</div></div>',
+          action: href, actionLabel: "فتح فيسبوك", disabled: href === "#"
+        };
+      },
+      tiktok: function () {
+        var href = safeHref(c().tiktok, "#");
+        return {
+          title: "تيك توك", sub: "فيديوهات سريعة",
+          body: '<div class="phone-chat"><div class="phone-bubble in">شوف فيديوهات الإصلاحات والنصائح على تيك توك.</div><div class="phone-bubble out">عايز أشوف الفيديوهات.</div></div>',
+          action: href, actionLabel: "فتح تيك توك", disabled: href === "#"
+        };
+      },
+      tools: function () {
+        return {
+          title: "أدوات TWINS", sub: "قسم الأدوات",
+          body: '<div class="phone-chat"><div class="phone-bubble in">استعرض أدوات TWINS GSM الجاهزة للتحميل.</div><div class="phone-bubble out">عايز أشوف الأدوات المتاحة.</div></div>',
+          action: "#tools", actionLabel: "الذهاب للأدوات", disabled: false, internal: true
+        };
+      }
+    };
+
+    function openApp(name) {
+      var fn = apps[name];
+      if (!fn) return;
+      var cfg = fn();
+      title.textContent = cfg.title;
+      sub.textContent = cfg.sub || "TWINS GSM";
+      body.innerHTML = cfg.body;
+      action.textContent = cfg.actionLabel || "فتح";
+      action.href = safeHref(cfg.action, "#");
+      action.classList.toggle("disabled", !!cfg.disabled);
+      if (cfg.internal) {
+        action.removeAttribute("target");
+        action.rel = "";
+      } else {
+        action.target = "_blank";
+        action.rel = "noopener noreferrer";
+      }
+      if (cfg.disabled) action.setAttribute("aria-disabled", "true"); else action.removeAttribute("aria-disabled");
+      home.hidden = true;
+      view.hidden = false;
+      logEvent("phone_app_open", { app: name });
+    }
+
+    function closeApp() {
+      view.hidden = true;
+      home.hidden = false;
+    }
+
+    phone.addEventListener("click", function (e) {
+      var appBtn = e.target.closest("[data-app]");
+      if (appBtn) { openApp(appBtn.getAttribute("data-app")); return; }
+      if (e.target.closest("#phoneBack")) closeApp();
+    });
+    if (action) action.addEventListener("click", function (e) {
+      if (action.classList.contains("disabled")) e.preventDefault();
+    });
   }
 
   /* ================= Boot ================= */

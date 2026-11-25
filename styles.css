@@ -1,4 +1,4 @@
-/* TWINS GSM — black & orange, RTL */
+/* TWINS GSM â€” black & orange, RTL */
 :root {
   --bg: #08090b;
   --bg-alt: #0c0e12;
@@ -154,27 +154,100 @@ img, svg { max-width: 100%; display: block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .phone-mock {
-  position: relative; width: 250px; height: 470px; border-radius: 38px; padding: 9px;
-  background: linear-gradient(160deg, #34383f, #0c0d10 45%, #2a2d33);
-  box-shadow: 0 35px 80px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08) inset;
-  transform: rotate(-3deg);
+  position: relative; width: 270px; height: 540px; border-radius: 42px; padding: 10px;
+  background: linear-gradient(160deg, #3a3f48, #0c0d10 45%, #272b31);
+  box-shadow: 0 35px 80px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08) inset, 0 0 60px rgba(255,122,26,.08);
+  transform: rotate(-2deg); transition: transform .35s ease;
 }
-.phone-notch { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 78px; height: 18px; border-radius: 0 0 12px 12px; background: #050506; z-index: 2; }
+.phone-mock:hover { transform: rotate(0deg) translateY(-4px); }
+.phone-notch { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 92px; height: 24px; border-radius: 14px; background: #050506; z-index: 5; }
 .phone-screen {
-  height: 100%; border-radius: 31px; padding: 54px 20px 20px; direction: ltr;
-  background: radial-gradient(circle at 50% 0%, #1d2027, #0a0b0e 60%);
-  border: 1px solid rgba(255,255,255,.05); overflow: hidden;
+  height: 100%; border-radius: 34px; position: relative; overflow: hidden;
+  background: radial-gradient(circle at 50% 0%, #232833, #0b0d12 62%);
+  border: 1px solid rgba(255,255,255,.05);
 }
-.screen-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 34px; }
-.screen-logo { color: var(--orange); font-weight: 900; font-size: 13px; letter-spacing: 2px; }
-.screen-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
-.screen-title { font-size: 13px; letter-spacing: 2px; color: var(--muted); line-height: 1.6; }
-.screen-title b { color: var(--text); font-size: 20px; letter-spacing: 1px; }
-.progress { height: 5px; border-radius: 5px; background: rgba(255,255,255,.08); margin: 24px 0; overflow: hidden; }
-.progress i { display: block; height: 100%; width: 92%; background: linear-gradient(90deg, var(--orange), var(--orange-2)); border-radius: 5px; box-shadow: 0 0 14px var(--orange); }
-.screen-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
-.screen-row b { color: var(--green); }
-.screen-badge { margin-top: 24px; text-align: center; padding: 9px; border-radius: 10px; background: rgba(56,211,159,.12); color: var(--green); font-size: 12px; font-weight: 800; }
+.phone-screen::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,122,26,.16), transparent 28%, transparent 72%, rgba(255,122,26,.08));
+  pointer-events: none;
+}
+.phone-status {
+  position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px 0; font-size: 11px; font-weight: 800; color: #f2f4f8; direction: ltr;
+}
+.phone-status-icons { display: flex; align-items: center; gap: 6px; font-size: 10px; color: rgba(255,255,255,.85); }
+.phone-status-icons .sig, .phone-status-icons .bat { display: inline-block; border: 1px solid rgba(255,255,255,.55); border-radius: 3px; position: relative; }
+.phone-status-icons .sig { width: 14px; height: 10px; border: 0; background: linear-gradient(90deg, #fff 0 25%, rgba(255,255,255,.25) 25% 50%, #fff 50% 75%, rgba(255,255,255,.25) 75%); opacity: .85; }
+.phone-status-icons .bat { width: 18px; height: 10px; }
+.phone-status-icons .bat::after { content: ""; position: absolute; inset: 2px; background: #65e0a3; border-radius: 1px; }
+
+.phone-home, .phone-app-view { position: absolute; inset: 0; padding: 48px 16px 16px; display: flex; flex-direction: column; }
+.phone-brand-card {
+  display: flex; align-items: center; gap: 10px; padding: 12px; margin-bottom: 16px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; backdrop-filter: blur(8px);
+}
+.phone-brand-mark {
+  width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, var(--orange), #ff5a00);
+  display: inline-flex; align-items: center; justify-content: center; gap: 3px; flex: 0 0 38px;
+}
+.phone-brand-mark i { width: 5px; height: 16px; border-radius: 3px; background: #0b0b0c; transform: skewX(-10deg); }
+.phone-brand-mark i:last-child { height: 11px; opacity: .7; }
+.phone-brand-card b { display: block; font-size: 14px; line-height: 1.2; color: #fff; }
+.phone-brand-card b em { font-style: normal; color: var(--orange); }
+.phone-brand-card small { display: block; font-size: 10px; color: rgba(255,255,255,.62); margin-top: 2px; }
+
+.phone-apps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 10px; padding: 4px 2px; }
+.phone-app, .dock-btn, .phone-back { appearance: none; border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; }
+.phone-app { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 4px 0; border-radius: 14px; transition: transform .2s; }
+.phone-app:hover { transform: translateY(-2px); }
+.phone-app:active { transform: scale(.96); }
+.phone-app:focus-visible, .dock-btn:focus-visible, .phone-back:focus-visible, .phone-app-action:focus-visible { outline: 2px solid rgba(255,122,26,.7); outline-offset: 2px; }
+.app-icon {
+  width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; color: #fff;
+  box-shadow: 0 10px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.app-icon svg, .dock-btn svg { width: 24px; height: 24px; }
+.app-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.88); }
+.app-phone { background: linear-gradient(160deg, #59d98b, #1ca35a); }
+.app-whatsapp { background: linear-gradient(160deg, #40d66d, #17a84e); }
+.app-messages { background: linear-gradient(160deg, #6ea8ff, #3478f6); }
+.app-instagram { background: radial-gradient(circle at 30% 110%, #ffd776, #f56040 30%, #c13584 60%, #5a4df3); }
+.app-facebook { background: linear-gradient(160deg, #2f86ff, #0b5ed7); }
+.app-tiktok { background: linear-gradient(160deg, #222, #000); box-shadow: 0 10px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.1), -2px -2px 0 rgba(37,244,238,.35), 2px 2px 0 rgba(254,44,85,.35); }
+
+.phone-dock {
+  margin-top: auto; display: flex; justify-content: center; gap: 14px; padding: 12px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); border-radius: 24px; backdrop-filter: blur(12px);
+}
+.dock-btn {
+  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: #fff; transition: transform .2s, background .2s;
+}
+.dock-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,.08); }
+.dock-btn[data-app="phone"] { color: #59d98b; }
+.dock-btn[data-app="whatsapp"] { color: #40d66d; }
+.dock-btn[data-app="tools"] { color: var(--orange); }
+
+.phone-app-view { background: linear-gradient(180deg, #151922, #0d1016); gap: 12px; }
+.phone-app-view[hidden] { display: none !important; }
+.phone-app-bar { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.phone-back { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.06); color: #fff; font-size: 24px; line-height: 1; display: grid; place-items: center; }
+.phone-back:hover { background: rgba(255,255,255,.12); }
+.phone-app-title-wrap b { display: block; font-size: 14px; color: #fff; line-height: 1.2; }
+.phone-app-title-wrap small { font-size: 11px; color: rgba(255,255,255,.55); }
+.phone-app-body {
+  flex: 1; overflow: auto; padding: 12px; border-radius: 18px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+}
+.phone-chat { display: flex; flex-direction: column; gap: 10px; }
+.phone-bubble { max-width: 88%; padding: 10px 12px; border-radius: 14px; font-size: 12px; line-height: 1.6; }
+.phone-bubble.in { background: rgba(255,255,255,.08); color: #eff2f7; align-self: flex-start; border-bottom-right-radius: 4px; }
+.phone-bubble.out { background: rgba(255,122,26,.18); color: #fff4eb; align-self: flex-end; border-bottom-left-radius: 4px; }
+.phone-bubble strong { color: var(--orange); }
+.phone-app-action {
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 14px;
+  background: var(--orange); color: #0b0b0c; font-size: 13px; font-weight: 900; text-decoration: none;
+}
+.phone-app-action:hover { background: var(--orange-2); }
+.phone-app-action.disabled { opacity: .55; pointer-events: none; background: rgba(255,255,255,.12); color: #fff; }
 
 .float-card {
   position: absolute; display: flex; align-items: center; gap: 10px; padding: 12px 15px;
@@ -250,10 +323,13 @@ img, svg { max-width: 100%; display: block; }
   background: var(--surface); min-height: 260px; display: flex; flex-direction: column; justify-content: end;
 }
 .work-visual {
-  position: absolute; inset: 0; display: grid; place-items: center;
+  position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden;
   background: radial-gradient(circle at 70% 20%, rgba(255,122,26,.22), transparent 55%), linear-gradient(145deg, #171a20, #0b0c0f);
 }
-.work-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(5,6,8,.92)); }
+.work-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(5,6,8,.92)); pointer-events:none; }
+.work-visual.has-image { background:#0d1016; }
+.work-visual img { width:100%; height:100%; object-fit:cover; display:block; transition: transform .35s ease; }
+.work-card:hover .work-visual img { transform: scale(1.03); }
 .work-device {
   width: 86px; height: 148px; border-radius: 16px; border: 2px solid rgba(255,255,255,.18);
   background: linear-gradient(160deg, #2a2e35, #0c0d10); position: relative; transform: rotate(-6deg);
@@ -307,7 +383,7 @@ img, svg { max-width: 100%; display: block; }
 .tool-card h3 { margin: 0; font-size: 17px; }
 .tool-card p { margin: 0; color: var(--muted); font-size: 13px; flex: 1; }
 .tool-meta { display: flex; gap: 14px; color: var(--muted-2); font-size: 11px; font-weight: 700; }
-.tool-meta span::before { content: "•"; color: var(--orange); margin-inline-end: 5px; }
+.tool-meta span::before { content: "â€¢"; color: var(--orange); margin-inline-end: 5px; }
 .tool-download {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 14px;
