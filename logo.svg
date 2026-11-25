@@ -1,0 +1,32 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0d12"/>
+      <stop offset="100%" stop-color="#08090b"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff8d3a"/>
+      <stop offset="100%" stop-color="#ff6a00"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="40" y="40" width="1120" height="550" rx="28" fill="none" stroke="rgba(255,122,26,.18)" stroke-width="2"/>
+  <g transform="translate(600,270)">
+    <g filter="url(#glow)">
+      <rect x="-170" y="-78" width="118" height="156" rx="28" fill="none" stroke="url(#orange)" stroke-width="12"/>
+      <rect x="52" y="-78" width="118" height="156" rx="28" fill="none" stroke="url(#orange)" stroke-width="12"/>
+      <rect x="-132" y="-40" width="42" height="80" rx="12" fill="rgba(255,122,26,.12)" stroke="#ff7a1a" stroke-width="4"/>
+      <rect x="90" y="-40" width="42" height="80" rx="12" fill="rgba(255,122,26,.12)" stroke="#ff7a1a" stroke-width="4"/>
+      <path d="M-52 0H52" stroke="#ff7a1a" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="0" cy="0" r="16" fill="#ff7a1a"/>
+      <circle cx="0" cy="0" r="7" fill="#0b0d12"/>
+      <path d="M-52 -52V52M52 -52V52" stroke="rgba(255,255,255,.28)" stroke-width="6" stroke-linecap="round"/>
+    </g>
+  </g>
+  <text x="600" y="430" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="86" font-weight="900" letter-spacing="4" fill="#FFFFFF">TWINS <tspan fill="#FF7A1A">GSM</tspan></text>
+  <text x="600" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" letter-spacing="6" fill="rgba(255,255,255,.62)">SOFTWARE • NETWORK • SOLUTIONS</text>
+</svg>
