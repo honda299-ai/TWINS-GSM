@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TWINS GSM | حسابي</title>
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#08090b" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,36 +16,88 @@
 <body class="account-body">
 
   <!-- Auth -->
-  <section class="account-wrap" id="authView">
-    <div class="auth-card">
-      <div class="auth-logo">
-        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
-        <div><strong>TWINS <em>GSM</em></strong><small>MEMBER AREA</small></div>
-      </div>
-      <h1>منطقة الأعضاء</h1>
-      <p>سجّل الدخول عشان تشوف الأدوات والأسعار وتاريخك.</p>
+  <main class="account-wrap" id="authView">
+    <div class="auth-shell">
+      <section class="auth-panel auth-brand-panel" aria-label="TWINS GSM">
+        <a class="auth-brand" href="index.html" aria-label="العودة للرئيسية">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+          <div><strong>TWINS <em>GSM</em></strong><small>SOFTWARE & NETWORK SOLUTIONS</small></div>
+        </a>
+        <div class="auth-brand-copy">
+          <span class="section-label">MEMBER ACCESS</span>
+          <h2>حسابك في TWINS GSM</h2>
+          <p>سجّل دخولك لمتابعة الأسعار، تحميل الأدوات، إرسال طلبات الصيانة، ومراجعة تاريخك في مكان واحد.</p>
+        </div>
+        <ul class="auth-features">
+          <li><span class="auth-feature-icon">✓</span><div><b>أسعار حصرية للأعضاء</b><small>اطّلع على أسعار الخدمات المحدثة من لوحة التحكم.</small></div></li>
+          <li><span class="auth-feature-icon">↓</span><div><b>تحميل الأدوات بسهولة</b><small>وصول سريع للأدوات المتاحة مع تسجيل تاريخ التحميل.</small></div></li>
+          <li><span class="auth-feature-icon">⚡</span><div><b>متابعة الطلبات</b><small>أرسل طلب صيانة وتابع حالته من حسابك.</small></div></li>
+        </ul>
+      </section>
 
-      <div class="auth-tabs" id="authTabs">
-        <button type="button" class="active" data-mode="login">تسجيل الدخول</button>
-        <button type="button" data-mode="register">حساب جديد</button>
-      </div>
+      <section class="auth-card" aria-labelledby="authTitle">
+        <div class="auth-card-head">
+          <span class="section-label">ACCOUNT</span>
+          <h1 id="authTitle">تسجيل الدخول</h1>
+          <p id="authSubtitle">أدخل بياناتك للوصول إلى منطقة الأعضاء.</p>
+        </div>
 
-      <form id="authForm">
-        <label>الإيميل
-          <input type="email" id="authEmail" autocomplete="username" required placeholder="you@example.com" />
-        </label>
-        <label>كلمة المرور
-          <input type="password" id="authPassword" autocomplete="current-password" required minlength="6" placeholder="6 حروف على الأقل" />
-        </label>
-        <label id="nameField" hidden>الاسم (اختياري)
-          <input type="text" id="authName" placeholder="اسمك" />
-        </label>
-        <button class="btn btn-primary btn-block" type="submit" id="authSubmit">دخول ←</button>
-        <p class="auth-error" id="authError" hidden></p>
-      </form>
-      <a class="back-link" href="index.html">← الرجوع للموقع</a>
+        <div class="auth-tabs" id="authTabs" role="tablist" aria-label="نوع العملية">
+          <button type="button" class="active" data-mode="login" role="tab" aria-selected="true">تسجيل الدخول</button>
+          <button type="button" data-mode="register" role="tab" aria-selected="false">إنشاء حساب</button>
+        </div>
+
+        <div class="auth-status" id="authStatus" hidden></div>
+
+        <form id="authForm" novalidate>
+          <div class="field" id="nameField" hidden>
+            <label for="authName">الاسم</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">👤</span>
+              <input type="text" id="authName" autocomplete="name" placeholder="اسمك الكامل" maxlength="60" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="authEmail">البريد الإلكتروني</label>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">✉</span>
+              <input type="email" id="authEmail" autocomplete="username" required inputmode="email" placeholder="name@example.com" />
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-row">
+              <label for="authPassword">كلمة المرور</label>
+              <button type="button" class="text-btn" id="forgotBtn">نسيت كلمة المرور؟</button>
+            </div>
+            <div class="input-wrap">
+              <span class="input-icon" aria-hidden="true">🔒</span>
+              <input type="password" id="authPassword" autocomplete="current-password" required minlength="6" placeholder="6 أحرف على الأقل" />
+              <button type="button" class="password-toggle" id="passwordToggle" aria-label="إظهار كلمة المرور">إظهار</button>
+            </div>
+            <p class="field-hint" id="passwordHint">استخدم 6 أحرف على الأقل.</p>
+          </div>
+
+          <p class="auth-error" id="authError" role="alert" aria-live="polite" hidden></p>
+
+          <button class="btn btn-primary btn-block auth-submit" type="submit" id="authSubmit">
+            <span class="btn-label">دخول</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <div class="auth-divider"><span>أو</span></div>
+
+        <div class="auth-alt">
+          <p id="authAltText">ليس لديك حساب؟</p>
+          <button type="button" class="text-btn strong" id="authAltBtn">أنشئ حسابًا جديدًا</button>
+        </div>
+
+        <a class="back-link" href="index.html">← الرجوع للموقع</a>
+      </section>
     </div>
-  </section>
+  </main>
 
   <!-- Dashboard -->
   <div class="account-shell" id="accountView" hidden>
@@ -64,30 +117,35 @@
       <div>
         <section class="account-card">
           <h2>أسعار الخدمات</h2>
-          <p>الأسعار بتتحدث من لوحة التحكم، وتظهر لك هنا بعد التسجيل.</p>
-          <table class="price-table"><tbody id="priceTable"></tbody></table>
+          <p>الأسعار يتم تحديثها من لوحة التحكم وتظهر للأعضاء المسجلين.</p>
+          <div class="table-wrap">
+            <table class="price-table"><tbody id="priceTable"></tbody></table>
+          </div>
         </section>
 
         <section class="account-card">
           <h2>الأدوات المتاحة للتحميل</h2>
-          <p>كل تحميل بيتسجّل في تاريخك.</p>
+          <p>كل عملية تحميل يتم تسجيلها في تاريخ حسابك.</p>
           <div class="mini-list" id="memberTools"></div>
         </section>
 
         <section class="account-card">
           <h2>طلباتي</h2>
-          <p>اعمل طلب صيانة وتابع حالته مع الوقت.</p>
-          <form id="requestForm" style="margin-bottom:18px">
-            <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:12px">الخدمة
-              <select id="reqService" required style="width:100%;margin-top:6px;padding:11px 13px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text)"></select>
+          <p>أرسل طلب صيانة وتابع حالته.</p>
+          <form id="requestForm" class="stack-form">
+            <label class="field compact">
+              <span>الخدمة</span>
+              <select id="reqService" required></select>
             </label>
-            <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:12px">نوع الجهاز
-              <input id="reqDevice" required placeholder="مثلاً iPhone 11" style="width:100%;margin-top:6px;padding:11px 13px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text)" />
+            <label class="field compact">
+              <span>نوع الجهاز</span>
+              <input id="reqDevice" required placeholder="مثال: iPhone 11" maxlength="80" />
             </label>
-            <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:12px">وصف المشكلة
-              <textarea id="reqNote" placeholder="اكتب المشكلة بالتفصيل" style="width:100%;margin-top:6px;padding:11px 13px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);min-height:76px"></textarea>
+            <label class="field compact">
+              <span>وصف المشكلة</span>
+              <textarea id="reqNote" placeholder="اكتب المشكلة بالتفصيل" maxlength="500"></textarea>
             </label>
-            <button class="btn btn-primary btn-sm" type="submit">إرسال الطلب ←</button>
+            <button class="btn btn-primary btn-sm" type="submit" id="requestSubmit">إرسال الطلب ←</button>
           </form>
           <div class="mini-list" id="myRequests"></div>
         </section>

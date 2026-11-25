@@ -13,11 +13,20 @@
   var toolQuery = "";
   var workBound = false;
   var toolsBound = false;
+  var faqBound = false;
 
   function esc(value) {
     return String(value == null ? "" : value)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+
+  function safeHref(url, fallback) {
+    var raw = String(url == null ? "" : url).trim();
+    if (!raw) return fallback || "#";
+    if (/^(https?:\/\/|mailto:|tel:|\/|\.\/|\.\.\/|#)/i.test(raw)) return raw;
+    if (/^[a-zA-Z0-9_\-./]+$/.test(raw)) return raw; // relative local paths like tools/file.zip
+    return fallback || "#";
   }
 
   var icons = {
@@ -154,8 +163,9 @@
     var c = D.contact || {};
     var wa = c.whatsapp || "#";
     $$('#headerWhatsapp, #heroWhatsapp, #reviewWhatsapp, #faqWhatsapp, #contactWhatsapp').forEach(function (el) {
-      el.href = wa;
+      el.href = safeHref(wa);
       el.setAttribute("data-analytics", "whatsapp");
+      el.rel = "noopener noreferrer";
     });
     if ($("#contactPhone")) $("#contactPhone").textContent = c.phoneDisplay || "—";
     if ($("#contactEmail")) $("#contactEmail").textContent = c.email || "—";
@@ -168,7 +178,7 @@
     ];
     var row = $("#socialRow");
     if (row) row.innerHTML = socials.map(function (s) {
-      return '<a href="' + esc(s.href) + '" target="_blank" rel="noopener">' + esc(s.label) + '</a>';
+      return '<a href="' + esc(safeHref(s.href)) + '" target="_blank" rel="noopener noreferrer">' + esc(s.label) + '</a>';
     }).join("");
   }
 
@@ -256,19 +266,20 @@
 
     var list = (D.tools || []).filter(function (t) {
       var okCat = currentToolFilter === "all" || t.category === currentToolFilter;
-      var text = (t.name + " " + t.desc + " " + (t.tag || "")).toLowerCase();
+      var text = [t.name, t.desc, t.tag].join(" ").toLowerCase();
       return okCat && text.indexOf(toolQuery) !== -1;
     });
 
     grid.innerHTML = list.map(function (t) {
-      var soon = !t.file || t.file === "#";
+      var file = safeHref(t.file, "#");
+      var soon = !file || file === "#";
       return '<article class="tool-card reveal visible">' +
         '<div class="tool-top"><span class="tool-icon">' + svg("download") + '</span>' +
         '<span class="tool-tag' + (t.hot ? ' hot' : '') + '">' + esc(t.tag || "أداة") + '</span></div>' +
         '<h3>' + esc(t.name) + '</h3>' +
         '<p>' + esc(t.desc) + '</p>' +
         '<div class="tool-meta"><span>' + esc(t.version || "v1.0") + '</span><span>' + esc(t.size || "—") + '</span></div>' +
-        '<a class="tool-download' + (soon ? ' disabled' : '') + '" href="' + (soon ? "#" : esc(t.file)) + '"' + (soon ? '' : ' download') + ' data-tool="' + esc(t.name) + '">' +
+        '<a class="tool-download' + (soon ? ' disabled' : '') + '" href="' + esc(soon ? "#" : file) + '"' + (soon ? ' aria-disabled="true" tabindex="-1"' : ' download rel="noopener noreferrer"') + ' data-tool="' + esc(t.name) + '">' +
         svg("download") + '<span>' + (soon ? "قريباً" : "تحميل الأداة") + '</span></a>' +
         '</article>';
     }).join("");
@@ -338,6 +349,7 @@
         '<div class="faq-a"><p>' + esc(f.a) + '</p></div></div>';
     }).join("");
 
+    if (faqBound) return;
     list.addEventListener("click", function (e) {
       var btn = e.target.closest(".faq-q");
       if (!btn) return;
@@ -352,6 +364,7 @@
         btn.setAttribute("aria-expanded", "true");
       }
     });
+    faqBound = true;
   }
 
   /* ================= Reveal ================= */
