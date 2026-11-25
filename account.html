@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TWINS GSM | حسابي</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="account.css" />
+</head>
+<body class="account-body">
+
+  <!-- Auth -->
+  <section class="account-wrap" id="authView">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+        <div><strong>TWINS <em>GSM</em></strong><small>MEMBER AREA</small></div>
+      </div>
+      <h1>منطقة الأعضاء</h1>
+      <p>سجّل الدخول عشان تشوف الأدوات والأسعار وتاريخك.</p>
+
+      <div class="auth-tabs" id="authTabs">
+        <button type="button" class="active" data-mode="login">تسجيل الدخول</button>
+        <button type="button" data-mode="register">حساب جديد</button>
+      </div>
+
+      <form id="authForm">
+        <label>الإيميل
+          <input type="email" id="authEmail" autocomplete="username" required placeholder="you@example.com" />
+        </label>
+        <label>كلمة المرور
+          <input type="password" id="authPassword" autocomplete="current-password" required minlength="6" placeholder="6 حروف على الأقل" />
+        </label>
+        <label id="nameField" hidden>الاسم (اختياري)
+          <input type="text" id="authName" placeholder="اسمك" />
+        </label>
+        <button class="btn btn-primary btn-block" type="submit" id="authSubmit">دخول ←</button>
+        <p class="auth-error" id="authError" hidden></p>
+      </form>
+      <a class="back-link" href="index.html">← الرجوع للموقع</a>
+    </div>
+  </section>
+
+  <!-- Dashboard -->
+  <div class="account-shell" id="accountView" hidden>
+    <header class="account-top">
+      <div>
+        <span class="section-label">MEMBER AREA</span>
+        <h1>أهلاً بك 👋</h1>
+        <p id="accountEmail">—</p>
+      </div>
+      <div class="account-top-actions">
+        <a class="btn btn-ghost btn-sm" href="index.html">الموقع الرئيسي</a>
+        <button class="btn btn-outline btn-sm" type="button" id="logoutBtn">تسجيل خروج</button>
+      </div>
+    </header>
+
+    <div class="account-grid">
+      <div>
+        <section class="account-card">
+          <h2>أسعار الخدمات</h2>
+          <p>الأسعار بتتحدث من لوحة التحكم، وتظهر لك هنا بعد التسجيل.</p>
+          <table class="price-table"><tbody id="priceTable"></tbody></table>
+        </section>
+
+        <section class="account-card">
+          <h2>الأدوات المتاحة للتحميل</h2>
+          <p>كل تحميل بيتسجّل في تاريخك.</p>
+          <div class="mini-list" id="memberTools"></div>
+        </section>
+
+        <section class="account-card">
+          <h2>طلباتي</h2>
+          <p>اعمل طلب صيانة وتابع حالته مع الوقت.</p>
+          <form id="requestForm" style="margin-bottom:18px">
+            <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:12px">الخدمة
+              <select id="reqService" required style="width:100%;margin-top:6px;padding:11px 13px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text)"></select>
+            </label>
+            <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:12px">نوع الجهاز
+              <input id="reqDevice" required placeholder="مثلاً iPhone 11" style="width:100%;margin-top:6px;padding:11px 13px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text)" />
+            </label>
+            <label style="display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:12px">وصف المشكلة
+              <textarea id="reqNote" placeholder="اكتب المشكلة بالتفصيل" style="width:100%;margin-top:6px;padding:11px 13px;border-radius:10px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);min-height:76px"></textarea>
+            </label>
+            <button class="btn btn-primary btn-sm" type="submit">إرسال الطلب ←</button>
+          </form>
+          <div class="mini-list" id="myRequests"></div>
+        </section>
+
+        <section class="account-card">
+          <h2>تاريخ التحميلات</h2>
+          <div class="mini-list" id="myDownloads"></div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="account-card profile-card">
+          <span class="avatar-big" id="profileLetter">T</span>
+          <b id="profileName">عضو TWINS</b>
+          <small id="profileEmail">—</small>
+        </section>
+        <section class="account-card">
+          <h2>ملخص حسابك</h2>
+          <div class="mini-list" id="accountSummary"></div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore-compat.js"></script>
+  <script src="account.js"></script>
+</body>
+</html>
