@@ -30,9 +30,12 @@
       <label>كلمة المرور
         <input type="password" id="adminPassword" autocomplete="current-password" required placeholder="••••••••" />
       </label>
+      <button type="button" class="pw-toggle" id="adminPwToggle" aria-pressed="false">إظهار كلمة المرور</button>
       <button class="btn btn-primary btn-block" type="submit" id="loginBtn">دخول ←</button>
       <p class="login-error" id="loginError" role="alert" hidden></p>
+      <p class="login-diag" id="loginDiag"></p>
       <a class="back-link" href="index.html">← الرجوع للموقع</a>
+      <a class="back-link" href="control.html">لوحة تحكم مبسّطة ←</a>
     </form>
   </section>
 
@@ -46,6 +49,7 @@
       <nav class="admin-nav" id="adminNav" aria-label="أقسام لوحة التحكم"></nav>
       <div class="sidebar-bottom">
         <a href="index.html" target="_blank" rel="noopener">عرض الموقع ↗</a>
+        <a href="control.html">لوحة مبسّطة ⚡</a>
         <button type="button" id="logoutBtn">تسجيل خروج</button>
       </div>
     </aside>

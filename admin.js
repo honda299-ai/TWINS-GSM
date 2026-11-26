@@ -38,6 +38,52 @@
     el.hidden = !msg;
   }
 
+  function friendlyLoginError(err) {
+    var code = (err && err.code) ? String(err.code) : "";
+    var map = {
+      "auth/invalid-credential": "الإيميل أو كلمة المرور غلط. لو غيّرت الباسورد، جرّب الجديد.",
+      "auth/wrong-password": "كلمة المرور غلط.",
+      "auth/user-not-found": "مفيش حساب بالايميل ده في Firebase Authentication.",
+      "auth/user-disabled": "الحساب ده معطّل من Firebase Console.",
+      "auth/too-many-requests": "محاولات كثيرة جداً — الحساب مقفول مؤقتاً. استنى دقائق أو أعد تعيين الباسورد.",
+      "auth/network-request-failed": "مش قادر أوصل بـ Firebase — تأكد من الإنترنت ومن الدومين المصرح به.",
+      "auth/unauthorized-domain": "الدومين ده مش مضاف في Firebase → Authentication → Settings → Authorized Domains.",
+      "auth/web-storage-unsupported": "المتصفح بيمنع تخزين Firebase. افتح الموقع من رابط حقيقي (مش ملف محلي) أو فعّل الكوكيز.",
+      "auth/invalid-api-key": "إعدادات firebase-config.js غلط أو المشروع اتقفل.",
+      "auth/operation-not-allowed": "تسجيل الدخول بالإيميل والباسورد مش مفعّل في Firebase Authentication.",
+      "auth/timeout": "الطلب استغرق أكتر من 15 ثانية ومفيش رد من Firebase — غالباً الدومين مش مصرّح أو الشبكة محجوبة."
+    };
+    return map[code] || (err && err.message ? err.message : "خطأ غير متوقع. حاول تاني.");
+  }
+
+  function setLoginBusy(busy) {
+    var btn = $("#loginBtn");
+    if (!btn) return;
+    btn.disabled = !!busy;
+    btn.textContent = busy ? "جاري الدخول…" : "دخول ←";
+  }
+
+  function withTimeout(promise, ms) {
+    return Promise.race([
+      promise,
+      new Promise(function (_, reject) {
+        setTimeout(function () {
+          var e = new Error("timeout");
+          e.code = "auth/timeout";
+          reject(e);
+        }, ms || 15000);
+      })
+    ]);
+  }
+
+  function fillLoginDiagnostic() {
+    var el = $("#loginDiag");
+    if (!el) return;
+    var cfg = window.TWINS_FIREBASE_CONFIG || {};
+    var where = location.host || "ملف محلي (file://) — الدخول مش هيشتغل من هنا";
+    el.textContent = "المشروع: " + (cfg.projectId || "—") + " · الرابط: " + where;
+  }
+
   /* ---------------- Schema ---------------- */
 
   var SCHEMAS = {
@@ -173,20 +219,35 @@
       return;
     }
 
+    fillLoginDiagnostic();
+
+    var pwToggle = $("#adminPwToggle");
+    if (pwToggle) {
+      pwToggle.addEventListener("click", function () {
+        var input = $("#adminPassword");
+        var show = input.type === "password";
+        input.type = show ? "text" : "password";
+        pwToggle.textContent = show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور";
+        pwToggle.setAttribute("aria-pressed", String(show));
+        input.focus();
+      });
+    }
+
     $("#loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
       showError("");
-      var btn = $("#loginBtn");
-      btn.disabled = true;
-      btn.textContent = "جاري الدخول…";
-      auth.signInWithEmailAndPassword($("#adminEmail").value.trim(), $("#adminPassword").value)
-        .catch(function (err) {
-          showError(err.code === "auth/invalid-credential" ? "الإيميل أو كلمة المرور غلط." : err.message);
-        })
-        .then(function () {
-          btn.disabled = false;
-          btn.textContent = "دخول ←";
-        });
+      setLoginBusy(true);
+
+      var email = $("#adminEmail").value.trim();
+      var password = $("#adminPassword").value;
+      var task = withTimeout(auth.signInWithEmailAndPassword(email, password), 15000);
+
+      task.catch(function (err) {
+        var code = (err && err.code) ? String(err.code) : "unknown";
+        showError(friendlyLoginError(err) + "  (" + code + ")");
+      }).then(function () {
+        setLoginBusy(false);
+      });
     });
 
     $("#logoutBtn").addEventListener("click", function () {
@@ -228,7 +289,13 @@
         $("#userEmail").textContent = (isPrimary ? "👑 Honda Store · " : "") + email;
         renderNav();
         setSection("overview");
+      }).catch(function (err) {
+        showError("تعذر التحقق من الصلاحية: " + friendlyLoginError(err));
+        setLoginBusy(false);
       });
+    }, function (err) {
+      showError(friendlyLoginError(err));
+      setLoginBusy(false);
     });
 
     renderNav();

@@ -1,0 +1,66 @@
+/* TWINS GSM — Quick control panel */
+.ctrl-intro {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+  padding: 16px 18px; margin-bottom: 22px; font-size: 13px; line-height: 1.8;
+}
+.ctrl-intro b { color: var(--orange); }
+.ctrl-intro p { margin: 6px 0 0; color: var(--muted); }
+
+.ctrl-section {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  padding: 20px; margin-bottom: 20px; scroll-margin-top: 18px;
+}
+.ctrl-section.is-target { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-soft); }
+.ctrl-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 14px;
+}
+.ctrl-head h2 { margin: 0 0 4px; font-size: 17px; }
+.ctrl-head p { margin: 0; color: var(--muted-2); font-size: 12px; line-height: 1.7; }
+.ctrl-head .icon { color: var(--orange); font-size: 20px; margin-inline-end: 8px; }
+
+.ctrl-form { border-top: 1px dashed var(--line); padding-top: 16px; margin-bottom: 16px; }
+.ctrl-form h3 { margin: 0 0 14px; font-size: 14px; }
+.ctrl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.ctrl-field.full { grid-column: 1 / -1; }
+.ctrl-field label { display: block; font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+.ctrl-field input[type="text"], .ctrl-field input[type="number"],
+.ctrl-field textarea, .ctrl-field select {
+  width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line-strong);
+  background: var(--bg); color: var(--text); outline: none; font-family: inherit; font-size: 13px;
+}
+.ctrl-field input:focus, .ctrl-field textarea:focus, .ctrl-field select:focus {
+  border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-soft);
+}
+.ctrl-field textarea { min-height: 84px; resize: vertical; }
+.ctrl-field .hint { display: block; font-size: 11px; color: var(--muted-2); margin-top: 5px; line-height: 1.6; }
+.ctrl-field.checkbox { display: flex; align-items: center; gap: 8px; }
+.ctrl-field.checkbox label { margin: 0; }
+.ctrl-file-row { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; }
+.ctrl-file-row input[type="file"] { max-width: 220px; font-size: 11px; color: var(--muted); }
+.ctrl-preview {
+  display: block; max-width: 180px; max-height: 110px; object-fit: cover;
+  border-radius: 10px; border: 1px solid var(--line); margin-top: 8px;
+}
+.ctrl-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+.ctrl-list { display: grid; gap: 8px; }
+.ctrl-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+}
+.ctrl-row .thumb {
+  width: 46px; height: 46px; border-radius: 9px; object-fit: cover; border: 1px solid var(--line);
+  background: var(--surface); flex: 0 0 auto;
+}
+.ctrl-row .main { min-width: 0; flex: 1; }
+.ctrl-row .main b { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctrl-row .main small { display: block; color: var(--muted-2); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctrl-row .btns { display: flex; gap: 6px; flex: 0 0 auto; }
+.ctrl-row .btns .icon-btn.active { border-color: var(--orange); color: var(--orange); }
+.ctrl-empty, .mini-empty { color: var(--muted-2); font-size: 12px; padding: 14px 0; }
+
+@media (max-width: 720px) {
+  .ctrl-grid { grid-template-columns: 1fr; }
+  .ctrl-file-row { grid-template-columns: 1fr; }
+}

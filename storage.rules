@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// قواعد رفع الصور وملفات الأدوات من لوحة التحكم.
+// القراءة عامة عشان الزوار يشوفوا الصور وينزّلوا الأدوات.
+// الرفع للأدمن الأساسي فقط؛ الشركاء يقدروا يستخدموا روابط خارجية بدل الرفع.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isPrimaryAdmin() {
+      return request.auth != null &&
+             request.auth.token.email == 'hondastore299@gmail.com';
+    }
+
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if isPrimaryAdmin();
+    }
+  }
+}

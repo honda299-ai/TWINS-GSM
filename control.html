@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TWINS GSM — لوحة التحكم المبسّطة</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="control.css" />
+</head>
+<body class="admin-body">
+
+  <!-- Login -->
+  <section class="login-wrap" id="loginView">
+    <form class="login-card" id="loginForm">
+      <div class="login-logo">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+        <div><strong>TWINS <em>GSM</em></strong><small>QUICK CONTROL</small></div>
+      </div>
+      <h1>لوحة التحكم المبسّطة</h1>
+      <p>دخول الأدمن أو الشريك المعتمد — من هنا تتحكم في كل الموقع.</p>
+
+      <label>الإيميل
+        <input type="email" id="loginEmail" autocomplete="username" required placeholder="hondastore299@gmail.com" />
+      </label>
+      <label>كلمة المرور
+        <input type="password" id="loginPassword" autocomplete="current-password" required placeholder="••••••••" />
+      </label>
+      <button type="button" class="pw-toggle" id="pwToggle" aria-pressed="false">إظهار كلمة المرور</button>
+      <button class="btn btn-primary btn-block" type="submit" id="loginBtn">دخول ←</button>
+      <p class="login-error" id="loginError" role="alert" hidden></p>
+      <p class="login-diag" id="loginDiag"></p>
+      <a class="back-link" href="index.html">← الرجوع للموقع</a>
+      <a class="back-link" href="admin.html">اللوحة الكاملة ←</a>
+    </form>
+  </section>
+
+  <!-- Panel -->
+  <div class="admin-shell" id="panelView" hidden>
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+        <div><strong>TWINS <em>GSM</em></strong><small>QUICK CONTROL</small></div>
+      </div>
+      <nav class="admin-nav" id="ctrlNav" aria-label="قايمه أقسام الموقع"></nav>
+      <div class="sidebar-bottom">
+        <a href="index.html" target="_blank" rel="noopener">عرض الموقع ↗</a>
+        <a href="admin.html">اللوحة الكاملة ⚙</a>
+        <button type="button" id="logoutBtn">تسجيل خروج</button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <span class="section-label">لوحة التحكم المبسّطة</span>
+          <h1 id="pageTitle">قايمه الموقع</h1>
+        </div>
+        <div class="topbar-actions">
+          <span class="user-pill" id="userEmail">—</span>
+          <button class="menu-toggle" id="menuToggle" aria-label="فتح القايمه" aria-expanded="false"><span></span><span></span><span></span></button>
+        </div>
+      </header>
+      <section class="admin-content" id="ctrlContent">
+        <div class="ctrl-intro">
+          <b>إزاي تستخدمها؟</b>
+          <p>اختار القسم من القايمه على اليسار، اضغط «+ إضافة»، اكتب الاسم والوصف، ولو محتاج صورة إما الصق رابطها أو ارفعها من جهازك (لازم تفعّل Firebase Storage). أي تعديل يظهر على الموقع فوراً.</p>
+        </div>
+        <div id="sectionHost"><div class="empty-state">جاري تحميل الأقسام…</div></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.4.0/firebase-storage-compat.js"></script>
+  <script src="control.js"></script>
+</body>
+</html>
