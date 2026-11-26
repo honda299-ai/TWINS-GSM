@@ -193,6 +193,7 @@
       titleKey: "title", listTitle: function (d) { return d.title || "عنصر"; },
       listSub: function (d) { return [d.username ? "👤 " + d.username : "", d.url ? "🔗 رابط" : ""].filter(Boolean).join(" · ") || "—"; },
       fields: [
+        { key: "image", label: "صورة (اختياري — بتظهر أعلى الكارت)", type: "image", opts: { maxW: 900, maxH: 600, maxBytes: 140 * 1024 }, hint: "الأفضل صورة أفقية. بتتضغط تلقائياً." },
         { key: "title", label: "العنوان", type: "text", required: true, full: true },
         { key: "url", label: "رابط التحميل / الدخول (اختياري)", type: "text", full: true, ltr: true },
         { key: "username", label: "اليوزر", type: "text", ltr: true },
@@ -207,6 +208,7 @@
       titleKey: "name", listTitle: function (d) { return d.name || "أداة بدون اسم"; },
       listSub: function (d) { return [d.tag, d.version || "v1.0", d.size, d.file && d.file !== "#" ? "✓ فيه ملف" : "قريباً"].filter(Boolean).join(" · "); },
       fields: [
+        { key: "image", label: "صورة (اختياري — بتظهر أعلى الكارت)", type: "image", opts: { maxW: 900, maxH: 600, maxBytes: 140 * 1024 }, hint: "الأفضل صورة أفقية. بتتضغط تلقائياً." },
         { key: "name", label: "اسم الأداة", type: "text", required: true, full: true },
         { key: "desc", label: "الوصف", type: "textarea", full: true },
         { key: "category", label: "التصنيف", type: "ref", ref: "toolCategories" },
@@ -251,6 +253,7 @@
       title: "الخدمات والأسعار", desc: "كروت قسم الخدمات. السعر بيظهر للأعضاء المسجلين فقط.", titleKey: "title",
       listTitle: function (d) { return d.title || "خدمة بدون اسم"; }, listSub: function (d) { return (d.price ? d.price + " · " : "") + (d.desc || ""); },
       fields: [
+        { key: "image", label: "صورة (اختياري — بتظهر أعلى الكارت)", type: "image", opts: { maxW: 900, maxH: 600, maxBytes: 140 * 1024 }, hint: "الأفضل صورة أفقية. بتتضغط تلقائياً." },
         { key: "title", label: "عنوان الخدمة", type: "text", required: true, full: true },
         { key: "tag", label: "الوسم (مثلاً FRP)", type: "text" },
         { key: "icon", label: "الأيقونة", type: "select", options: ICONS, def: "bolt" },

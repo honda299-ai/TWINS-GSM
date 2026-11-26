@@ -38,7 +38,7 @@
           var left = exp ? Math.ceil((exp - new Date()) / 864e5) : 0;
           pane.innerHTML = '<div class="pro-ok">' + (isAdm ? "👑 صلاحية أدمن — وصول كامل" : "👑 عضويتك PRO نشطة — باقي " + left + " يوم") + '</div><div class="pro-grid">' +
             (items.length ? items.map(function (i) {
-              return '<div class="pro-item"><b>' + esc(i.title) + '</b>' + (i.notes ? '<small>' + esc(i.notes) + '</small>' : "") +
+              return '<div class="pro-item">' + (i.image && /^(data:image\/|https:\/\/)/.test(i.image) ? '<img class="card-img" src="' + esc(i.image) + '" alt="" loading="lazy" />' : "") + '<b>' + esc(i.title) + '</b>' + (i.notes ? '<small>' + esc(i.notes) + '</small>' : "") +
                 (i.url && /^https?:\/\//i.test(i.url) ? '<a class="btn btn-primary btn-sm" target="_blank" rel="noopener noreferrer" href="' + esc(i.url) + '">فتح / تحميل ↗</a>' : "") + secret("اليوزر", i.username) + secret("الباسورد", i.password) + '</div>';
             }).join("") : '<div class="empty-state">لسه مفيش محتوى PRO. هيتضاف قريب.</div>') + '</div>';
         });

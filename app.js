@@ -328,6 +328,8 @@
     grid.innerHTML = (D.services || []).map(function (s, i) {
       return '<article class="card reveal" style="transition-delay:' + (i * 60) + 'ms">' +
         '<span class="card-number">0' + (i + 1) + '</span>' +
+        (s.image && safeImg(s.image) ? '<img class="card-img" src="' + esc(safeImg(s.image)) + '" alt="" loading="lazy" />' : '') +
+        
         '<div class="card-icon">' + svg(s.icon) + '</div>' +
         '<h3>' + esc(s.title) + '</h3>' +
         '<p>' + esc(s.desc) + '</p>' +
@@ -406,6 +408,7 @@
       var file = safeHref(t.file, "#");
       var soon = !file || file === "#";
       return '<article class="tool-card reveal visible">' +
+        (t.image && safeImg(t.image) ? '<img class="card-img" src="' + esc(safeImg(t.image)) + '" alt="" loading="lazy" />' : '') +
         '<div class="tool-top"><span class="tool-icon">' + svg("download") + '</span>' +
         '<span class="tool-tag' + (t.hot ? ' hot' : '') + '">' + esc(t.tag || "أداة") + '</span></div>' +
         '<h3>' + esc(t.name) + '</h3>' +
