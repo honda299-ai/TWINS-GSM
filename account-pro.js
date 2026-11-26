@@ -9,6 +9,13 @@
   function secret(label, val) {
     return val ? '<div>' + esc(label) + ': <code data-v="' + esc(val) + '" class="mask">••••••••</code> <button type="button" class="text-btn" data-show>إظهار</button> <button type="button" class="text-btn" data-copy>نسخ</button></div>' : "";
   }
+  function itemsHtml(items) {
+    return items.filter(function (x) { return x.active !== false; }).sort(function (a, b) { return (a.order || 0) - (b.order || 0); }).map(function (i) {
+      return '<div class="pro-item"><b>' + esc(i.title) + '</b>' + (i.notes ? '<small>' + esc(i.notes) + '</small>' : "") +
+        (i.url && /^https?:\/\//i.test(i.url) ? '<div><a class="btn btn-ghost btn-sm" target="_blank" rel="noopener noreferrer" href="' + esc(i.url) + '">فتح / تحميل ↗</a></div>' : "") +
+        secret("اليوزر", i.username) + secret("الباسورد", i.password) + '</div>';
+    }).join("");
+  }
   function render(user) {
     var card = $("#proCard"), body = $("#proBody"), badge = $("#proBadge");
     if (!card) return;
@@ -27,6 +34,10 @@
           db.collection("requests").add({ uid: user.uid, email: user.email || "", service: "ترقية PRO", device: "—", note: "طلب عضوية PRO", status: "جديد", createdAt: firebase.firestore.FieldValue.serverTimestamp() })
             .then(function () { body.insertAdjacentHTML("beforeend", "<p>✅ وصل طلبك.</p>"); });
         };
+        body.insertAdjacentHTML("beforeend", '<div class="pro-vault" id="freeVault"></div>');
+        db.collection("proVault").where("forAll", "==", true).get().then(function (s) {
+          var h = itemsHtml(s.docs.map(function (x) { return x.data(); })); $("#freeVault").innerHTML = h ? "<b>متاح لكل الأعضاء:</b>" + h : "";
+        }).catch(function () {});
         return;
       }
       var days = exp ? Math.ceil((exp - now) / 864e5) : 0;

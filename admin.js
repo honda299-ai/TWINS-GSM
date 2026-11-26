@@ -190,6 +190,7 @@ window.ADM = (function () {
     { id: "proVault", label: "محتوى PRO", ico: "🔐" },
     { id: "users", label: "الأعضاء المسجلين", ico: "👥" },
     { id: "downloads", label: "سجل التحميلات", ico: "📈" },
+    { id: "comments", label: "التعليقات والموافقة", ico: "💬" },
     { g: "النظام" },
     { id: "admins", label: "الشركاء / الأدمنز", ico: "🔑" },
     { id: "backup", label: "نسخ احتياطي واستيراد", ico: "💾" }

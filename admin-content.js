@@ -198,6 +198,7 @@
         { key: "username", label: "اليوزر", type: "text", ltr: true },
         { key: "password", label: "الباسورد", type: "text", ltr: true },
         { key: "notes", label: "ملاحظات للعضو", type: "textarea", full: true },
+        { key: "forAll", label: "يظهر لكل الأعضاء المسجلين (لو مقفول: لأعضاء PRO بس)", type: "checkbox", full: true },
         ACTIVE
       ]
     },

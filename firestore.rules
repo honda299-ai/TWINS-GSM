@@ -53,8 +53,20 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     match /proVault/{id} {
-      allow read: if isAdmin() || hasPro();
+      allow read: if isAdmin() || hasPro() || (resource.data.get('forAll', false) == true && request.auth != null && request.auth.token.email_verified == true && notBlocked());
       allow write: if isAdmin();
+    }
+
+    // التعليقات: تظهر للزوار بعد موافقتك فقط
+    match /comments/{id} {
+      allow read: if isAdmin() || resource.data.status == 'approved' || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if request.auth != null && notBlocked() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.text is string && request.resource.data.text.size() >= 5 && request.resource.data.text.size() <= 400
+        && request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60;
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
     }
 
     match /users/{uid} {

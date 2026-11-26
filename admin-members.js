@@ -99,3 +99,28 @@
     });
   });
 })();
+
+/* التعليقات: موافقة / إخفاء / حذف */
+(function (A) {
+  A.views.comments = function (root) {
+    var $ = A.$, esc = A.esc, docs = [];
+    root.innerHTML = '<div class="panel-head"><div><h2>التعليقات والموافقة</h2><p>التعليق مابيظهرش للزوار غير بعد موافقتك.</p></div></div><div class="toolbar"><select id="cF"><option value="pending">بانتظار الموافقة</option><option value="approved">المنشورة</option><option value="hidden">المخفية</option><option value="">الكل</option></select></div><div class="item-list" id="cList"><div class="empty-state">جاري التحميل…</div></div>';
+    function draw() {
+      var f = $("#cF").value, l = docs.filter(function (d) { return !f || (d.status || "pending") === f; });
+      $("#cList").innerHTML = l.length ? l.map(function (d) {
+        var st = d.status || "pending";
+        return '<div class="item-row"><div class="item-main"><b>' + esc(d.name || "عضو") + ' <span class="pill ' + (st === "approved" ? "ok" : st === "hidden" ? "warn" : "new") + '">' + (st === "approved" ? "منشور" : st === "hidden" ? "مخفي" : "بانتظار") + '</span> ' + "★".repeat(d.rating | 0) + '</b><small>' + esc(d.text) + '</small></div><div class="item-actions">' +
+          (st !== "approved" ? '<button class="btn btn-primary btn-sm" data-s="approved" data-id="' + d._id + '">قبول</button>' : '<button class="btn btn-ghost btn-sm" data-s="hidden" data-id="' + d._id + '">إخفاء</button>') +
+          ' <button class="btn btn-ghost btn-sm" data-x="' + d._id + '">حذف</button></div></div>';
+      }).join("") : '<div class="empty-state">لا توجد تعليقات.</div>';
+    }
+    function load() { A.col("comments").get().then(function (s) { docs = s.docs.map(function (d) { var x = d.data(); x._id = d.id; return x; }).sort(function (a, b) { return (b.createdAt && b.createdAt.seconds || 0) - (a.createdAt && a.createdAt.seconds || 0); }); draw(); }).catch(function (e) { $("#cList").innerHTML = '<div class="empty-state">' + esc(A.errMsg(e)) + '</div>'; }); }
+    $("#cF").addEventListener("change", draw);
+    $("#cList").addEventListener("click", function (e) {
+      var s = e.target.closest("[data-s]"), x = e.target.closest("[data-x]");
+      if (s) A.col("comments").doc(s.getAttribute("data-id")).update({ status: s.getAttribute("data-s") }).then(function () { A.toast("تم"); load(); }).catch(function (er) { A.toast(A.errMsg(er), true); });
+      if (x) A.confirm("حذف التعليق؟", "هيتمسح نهائياً.", { ok: "حذف" }).then(function (ok) { if (ok) A.col("comments").doc(x.getAttribute("data-x")).delete().then(function () { A.toast("تم الحذف"); load(); }); });
+    });
+    load();
+  };
+})(window.ADM);
