@@ -5,19 +5,45 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "**/*.md"
+      "**/*.md",
+      "firestore.rules",
+      "account-preview-*.png",
+      "live-account.png"
     ],
     "headers": [
       {
+        "source": "**",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "SAMEORIGIN"
+          }
+        ]
+      },
+      {
         "source": "**/*.@(zip|pdf)",
         "headers": [
-          { "key": "Content-Disposition", "value": "attachment" }
+          {
+            "key": "Content-Disposition",
+            "value": "attachment"
+          }
         ]
       },
       {
         "source": "**/*.@(js|css|svg)",
         "headers": [
-          { "key": "Cache-Control", "value": "public, max-age=3600" }
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
         ]
       }
     ]

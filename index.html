@@ -9,6 +9,8 @@
   <meta property="og:title" content="TWINS GSM | حلول السوفت وير والشبكات" />
   <meta property="og:description" content="حلول السوفت وير والـ GSM في مكان واحد. أعمالنا، خدماتنا، وأدواتنا للتحميل." />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="" id="ogImage" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,29 +20,34 @@
 <body>
   <a class="skip-link" href="#main">تخطَّ إلى المحتوى</a>
 
+  <div class="announce" id="announceBar" hidden>
+    <a id="announceLink" href="#"><span data-cms="announce_text"></span></a>
+    <button type="button" class="announce-close" id="announceClose" aria-label="إغلاق">×</button>
+  </div>
+
   <header class="site-header" id="siteHeader">
     <div class="container header-inner">
       <a class="brand" href="#top" aria-label="TWINS GSM - الصفحة الرئيسية">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
         <span class="brand-text">
-          <strong>TWINS <em>GSM</em></strong>
-          <small>SOFTWARE & NETWORK SOLUTIONS</small>
+          <strong><span data-cms="brand_first">TWINS</span> <em data-cms="brand_second">GSM</em></strong>
+          <small data-cms="brand_tagline">SOFTWARE & NETWORK SOLUTIONS</small>
         </span>
       </a>
 
       <nav class="main-nav" id="mainNav" aria-label="القائمة الرئيسية">
-        <a href="#services">الخدمات</a>
-        <a href="#work">أعمالنا</a>
-        <a href="#tools">الأدوات</a>
-        <a href="#reviews">الآراء</a>
-        <a href="#contact">تواصل معنا</a>
+        <a href="#services" data-cms="nav_services">الخدمات</a>
+        <a href="#work" data-cms="nav_work">أعمالنا</a>
+        <a href="#tools" data-cms="nav_tools">الأدوات</a>
+        <a href="#reviews" data-cms="nav_reviews">الآراء</a>
+        <a href="#contact" data-cms="nav_contact">تواصل معنا</a>
       </nav>
 
       <a class="btn btn-ghost btn-sm header-account" id="accountBtn" href="account.html">حسابي</a>
 
       <a class="btn btn-primary btn-sm header-cta" id="headerWhatsapp" href="#" target="_blank" rel="noopener">
         <span class="btn-icon" aria-hidden="true">✆</span>
-        كلمنا واتساب
+        <span data-cms="header_cta">كلمنا واتساب</span>
       </a>
 
       <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mainNav">
@@ -55,25 +62,26 @@
       <div class="hero-glow" aria-hidden="true"></div>
       <div class="container hero-grid">
         <div class="hero-copy">
-          <div class="eyebrow"><span class="pulse"></span> متخصصون في السوفت وير والـ GSM</div>
-          <h1>نعيد جهازك<br /><span>للحياة من جديد</span></h1>
-          <p class="hero-lead">
+          <div class="eyebrow"><span class="pulse"></span> <span data-cms="hero_eyebrow">متخصصون في السوفت وير والـ GSM</span></div>
+          <h1><span data-cms="hero_title1">نعيد جهازك</span><br /><span class="accent" data-cms="hero_title2">للحياة من جديد</span></h1>
+          <p class="hero-lead" data-cms="hero_lead">
             من الشاشة السوداء والـ Bootloop لفك الحمايات وإصلاح الشبكة…
             خبرة عملية وحلول مجربة مع ضمان وحفظ كامل لبياناتك.
           </p>
           <div class="hero-actions">
             <a class="btn btn-primary" id="heroWhatsapp" href="#" target="_blank" rel="noopener">
-              ابدأ طلبك الآن <span aria-hidden="true">←</span>
+              <span data-cms="hero_cta1">ابدأ طلبك الآن</span> <span aria-hidden="true">←</span>
             </a>
-            <a class="btn btn-ghost" href="#work">شاهد أعمالنا</a>
+            <a class="btn btn-ghost" href="#work" data-cms="hero_cta2">شاهد أعمالنا</a>
           </div>
           <div class="hero-trust">
             <div class="avatars" aria-hidden="true"><span>A</span><span>M</span><span>T</span><span>+</span></div>
-            <p><strong>+502</strong> جهاز تم إصلاحه بنجاح<br /><small>ثقة عملائنا في كل مكان</small></p>
+            <p><strong data-cms="hero_trust_num">+502</strong> <span data-cms="hero_trust_text">جهاز تم إصلاحه بنجاح</span><br /><small data-cms="hero_trust_sub">ثقة عملائنا في كل مكان</small></p>
           </div>
         </div>
 
-        <div class="hero-visual">
+        <div class="hero-visual" id="heroVisual">
+          <figure class="hero-image" id="heroImage" hidden><img id="heroImageEl" alt="" decoding="async" /></figure>
           <div class="visual-ring ring-one" aria-hidden="true"></div>
           <div class="visual-ring ring-two" aria-hidden="true"></div>
           <div class="phone-mock" id="interactivePhone" aria-label="هاتف TWINS GSM التفاعلي">
@@ -88,7 +96,7 @@
                 <div class="phone-brand-card">
                   <span class="phone-brand-mark" aria-hidden="true"><i></i><i></i></span>
                   <div>
-                    <b>TWINS <em>GSM</em></b>
+                    <b><span data-cms="brand_first">TWINS</span> <em data-cms="brand_second">GSM</em></b>
                     <small>اضغط على أي أيقونة للتواصل</small>
                   </div>
                 </div>
@@ -153,47 +161,47 @@
     </section>
 
     <!-- Stats -->
-    <section class="stats" aria-label="أرقامنا">
+    <section class="stats" id="stats" data-section="stats" aria-label="أرقامنا">
       <div class="container stats-grid" id="statsGrid"></div>
     </section>
 
     <!-- Services -->
-    <section class="section" id="services">
+    <section class="section" id="services" data-section="services">
       <div class="container">
         <div class="section-head">
           <div>
-            <span class="section-label">SERVICES / خدماتنا</span>
-            <h2>كل ما يخص السوفت وير في مكان واحد</h2>
+            <span class="section-label" data-cms="sec_services_label">SERVICES / خدماتنا</span>
+            <h2 data-cms="sec_services_title">كل ما يخص السوفت وير في مكان واحد</h2>
           </div>
-          <p>حلول دقيقة لكل عطل، من إصلاح النظام إلى استرجاع الجهاز للشبكة بدون تعقيد.</p>
+          <p data-cms="sec_services_sub">حلول دقيقة لكل عطل، من إصلاح النظام إلى استرجاع الجهاز للشبكة بدون تعقيد.</p>
         </div>
         <div class="cards-grid" id="servicesGrid"></div>
       </div>
     </section>
 
     <!-- Why us / steps -->
-    <section class="section section-alt" id="process">
+    <section class="section section-alt" id="process" data-section="process">
       <div class="container">
         <div class="section-head">
           <div>
-            <span class="section-label">HOW WE WORK / طريقة العمل</span>
-            <h2>ثلاث خطوات وجهازك يرجع يشتغل</h2>
+            <span class="section-label" data-cms="sec_process_label">HOW WE WORK / طريقة العمل</span>
+            <h2 data-cms="sec_process_title">ثلاث خطوات وجهازك يرجع يشتغل</h2>
           </div>
-          <p>لا تنتظر كتير… تواصل، نشخّص، ونبدأ الحل فوراً.</p>
+          <p data-cms="sec_process_sub">لا تنتظر كتير… تواصل، نشخّص، ونبدأ الحل فوراً.</p>
         </div>
         <div class="steps-grid" id="stepsGrid"></div>
       </div>
     </section>
 
     <!-- Portfolio -->
-    <section class="section" id="work">
+    <section class="section" id="work" data-section="work">
       <div class="container">
         <div class="section-head">
           <div>
-            <span class="section-label">PORTFOLIO / معرض الأعمال</span>
-            <h2>شغل حقيقي… ونتائج موثقة</h2>
+            <span class="section-label" data-cms="sec_work_label">PORTFOLIO / معرض الأعمال</span>
+            <h2 data-cms="sec_work_title">شغل حقيقي… ونتائج موثقة</h2>
           </div>
-          <p>نماذج من الأجهزة اللي تعاملنا معها ورجّعناها للعمل.</p>
+          <p data-cms="sec_work_sub">نماذج من الأجهزة اللي تعاملنا معها ورجّعناها للعمل.</p>
         </div>
         <div class="filter-bar" id="workFilters" role="group" aria-label="تصفية الأعمال"></div>
         <div class="work-grid" id="workGrid"></div>
@@ -201,14 +209,14 @@
     </section>
 
     <!-- Tools -->
-    <section class="section section-alt" id="tools">
+    <section class="section section-alt" id="tools" data-section="tools">
       <div class="container">
         <div class="section-head">
           <div>
-            <span class="section-label">TOOLS / أدواتنا</span>
-            <h2>التول بتاعتنا… جاهزة للتحميل</h2>
+            <span class="section-label" data-cms="sec_tools_label">TOOLS / أدواتنا</span>
+            <h2 data-cms="sec_tools_title">التول بتاعتنا… جاهزة للتحميل</h2>
           </div>
-          <p>أدوات وملفات نستخدمها في الشغل، متاحة لك تنزلها وتستخدمها بسهولة.</p>
+          <p data-cms="sec_tools_sub">أدوات وملفات نستخدمها في الشغل، متاحة لك تنزلها وتستخدمها بسهولة.</p>
         </div>
 
         <div class="tools-toolbar">
@@ -222,8 +230,8 @@
         <div class="tools-gate" id="toolsGate" hidden>
           <span class="gate-icon" aria-hidden="true">🔒</span>
           <div>
-            <h3>التحميل للأعضاء المسجلين فقط</h3>
-            <p>سجّل الدخول أو اعمل حساب جديد عشان تشوف الأدوات والأسعار وتاريخ تحميلاتك.</p>
+            <h3 data-cms="gate_title">التحميل للأعضاء المسجلين فقط</h3>
+            <p data-cms="gate_text">سجّل الدخول أو اعمل حساب جديد عشان تشوف الأدوات والأسعار وتاريخ تحميلاتك.</p>
           </div>
           <a class="btn btn-primary" href="account.html">دخول / تسجيل ←</a>
         </div>
@@ -234,58 +242,58 @@
     </section>
 
     <!-- Reviews -->
-    <section class="section" id="reviews">
+    <section class="section" id="reviews" data-section="reviews">
       <div class="container">
         <div class="section-head">
           <div>
-            <span class="section-label">TESTIMONIALS / آراء العملاء</span>
-            <h2>كلام الناس… أصدق من أي إعلان</h2>
+            <span class="section-label" data-cms="sec_reviews_label">TESTIMONIALS / آراء العملاء</span>
+            <h2 data-cms="sec_reviews_title">كلام الناس… أصدق من أي إعلان</h2>
           </div>
-          <p>آراء حقيقية من عملائنا بعد استلام أجهزتهم.</p>
+          <p data-cms="sec_reviews_sub">آراء حقيقية من عملائنا بعد استلام أجهزتهم.</p>
         </div>
         <div class="reviews-grid" id="reviewsGrid"></div>
         <div class="review-cta">
           <div>
-            <h3>استخدمت خدمتنا؟</h3>
-            <p>يسعدنا نسمع رأيك ونضيفه هنا.</p>
+            <h3 data-cms="review_cta_title">استخدمت خدمتنا؟</h3>
+            <p data-cms="review_cta_text">يسعدنا نسمع رأيك ونضيفه هنا.</p>
           </div>
-          <a class="btn btn-outline" id="reviewWhatsapp" href="#" target="_blank" rel="noopener">شاركنا رأيك</a>
+          <a class="btn btn-outline" id="reviewWhatsapp" href="#" target="_blank" rel="noopener" data-cms="review_cta_btn">شاركنا رأيك</a>
         </div>
       </div>
     </section>
 
     <!-- FAQ -->
-    <section class="section section-alt" id="faq">
+    <section class="section section-alt" id="faq" data-section="faq">
       <div class="container faq-layout">
         <div class="faq-intro">
-          <span class="section-label">FAQ / أسئلة شائعة</span>
-          <h2>عندك سؤال؟ إحنا جاوبنا</h2>
-          <p>ولو لقيت سؤالك مش موجود، كلّمنا مباشرة على واتساب.</p>
-          <a class="btn btn-primary" id="faqWhatsapp" href="#" target="_blank" rel="noopener">اسألنا الآن ←</a>
+          <span class="section-label" data-cms="sec_faq_label">FAQ / أسئلة شائعة</span>
+          <h2 data-cms="sec_faq_title">عندك سؤال؟ إحنا جاوبنا</h2>
+          <p data-cms="sec_faq_sub">ولو لقيت سؤالك مش موجود، كلّمنا مباشرة على واتساب.</p>
+          <a class="btn btn-primary" id="faqWhatsapp" href="#" target="_blank" rel="noopener"><span data-cms="faq_cta">اسألنا الآن</span> ←</a>
         </div>
         <div class="faq-list" id="faqList"></div>
       </div>
     </section>
 
     <!-- Contact -->
-    <section class="contact" id="contact">
+    <section class="contact" id="contact" data-section="contact">
       <div class="container contact-inner">
         <div>
-          <span class="section-label">CONTACT / تواصل معنا</span>
-          <h2>جهازك محتاج حل؟<br /><span>إحنا هنا</span></h2>
-          <p>ابعثلنا نوع الجهاز ووصف المشكلة على واتساب وهنرد عليك في أسرع وقت.</p>
+          <span class="section-label" data-cms="sec_contact_label">CONTACT / تواصل معنا</span>
+          <h2><span data-cms="contact_title1">جهازك محتاج حل؟</span><br /><span class="accent" data-cms="contact_title2">إحنا هنا</span></h2>
+          <p data-cms="contact_lead">ابعثلنا نوع الجهاز ووصف المشكلة على واتساب وهنرد عليك في أسرع وقت.</p>
         </div>
         <div class="contact-card">
           <div class="contact-line">
             <span class="contact-icon" aria-hidden="true">✆</span>
-            <div><small>واتساب</small><b id="contactPhone">+20 100 000 0000</b></div>
+            <div><small>واتساب</small><b id="contactPhone" dir="ltr">+20 100 000 0000</b></div>
           </div>
           <div class="contact-line">
             <span class="contact-icon" aria-hidden="true">✉</span>
-            <div><small>إيميل</small><b id="contactEmail">hello@twinsgsm.example</b></div>
+            <div><small>إيميل</small><b id="contactEmail" dir="ltr">hello@twinsgsm.example</b></div>
           </div>
           <div class="social-row" id="socialRow"></div>
-          <a class="btn btn-primary btn-block" id="contactWhatsapp" href="#" target="_blank" rel="noopener">ابدأ محادثة واتساب ←</a>
+          <a class="btn btn-primary btn-block" id="contactWhatsapp" href="#" target="_blank" rel="noopener"><span data-cms="contact_cta">ابدأ محادثة واتساب</span> ←</a>
         </div>
       </div>
     </section>
@@ -295,12 +303,22 @@
     <div class="container footer-inner">
       <div class="footer-brand">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
-        <div><strong>TWINS <em>GSM</em></strong><small>SOFTWARE & NETWORK SOLUTIONS</small></div>
+        <div><strong><span data-cms="brand_first">TWINS</span> <em data-cms="brand_second">GSM</em></strong><small data-cms="brand_tagline">SOFTWARE & NETWORK SOLUTIONS</small></div>
       </div>
-      <p>© <span id="year"></span> TWINS GSM. كل الحقوق محفوظة.</p>
-      <p class="footer-note">صُنع بحب للشغل الصح 💛 · <a href="account.html" style="text-decoration:underline">حسابي</a> · <a href="admin.html" style="text-decoration:underline">لوحة التحكم</a></p>
+      <p>© <span id="year"></span> <span data-cms="brand_full">TWINS GSM</span>. <span data-cms="footer_copy">كل الحقوق محفوظة.</span></p>
+      <p class="footer-note"><span data-cms="footer_note">صُنع بحب للشغل الصح 💛</span> · <a href="account.html">حسابي</a> · <a href="admin.html">لوحة التحكم</a></p>
     </div>
   </footer>
+
+  <a class="float-wa" id="floatWa" href="#" target="_blank" rel="noopener noreferrer" aria-label="تواصل عبر واتساب" hidden>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.1 17.6L2 22l4.5-1.2A11 11 0 1 0 20.5 3.5Zm-8.5 17a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-2.7.7.7-2.6-.2-.3a9.1 9.1 0 1 1 7.1 3.7Zm5-6.8c-.3-.1-1.7-.8-2-.9s-.5-.1-.7.2-.8.9-1 1.1-.4.2-.7.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.6l.5-.6.2-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.4 1 2.8 1.2 3 .2.3 2.1 3.2a9.6 9.6 0 0 0 3.4 3c1.3.5 1.8.6 2.4.5.8-.1 1.7-.7 2-1.4s.3-1.2.2-1.4-.3-.1-.6-.2Z"/></svg>
+    <span data-cms="float_wa_text">كلمنا واتساب</span>
+  </a>
+
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="عرض الصورة">
+    <button type="button" class="lightbox-close" id="lightboxClose" aria-label="إغلاق">×</button>
+    <figure><img id="lightboxImg" alt="" /><figcaption id="lightboxCap"></figcaption></figure>
+  </div>
 
   <!-- Firebase (compat SDK) — عدّل firebase-config.js قبل النشر -->
   <script src="firebase-config.js"></script>

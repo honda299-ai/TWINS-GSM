@@ -1,655 +1,341 @@
-/* TWINS GSM — Admin Panel (Firebase Auth + Firestore + Storage) */
-(function () {
+/* TWINS GSM — Admin core: auth, router, modal, image compression, seeding */
+window.ADM = (function () {
   "use strict";
+
+  var A = { views: {}, db: null, auth: null, user: null, isPrimary: false, current: "overview" };
+  A.PRIMARY = "hondastore299@gmail.com";
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  A.$ = $; A.$$ = $$;
 
-  var app, auth, db, storage;
-  var currentSection = "overview";
-  var toastTimer = null;
-  var PRIMARY_ADMIN = "hondastore299@gmail.com";
+  A.esc = function (v) {
+    return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  };
+  var esc = A.esc;
 
-  function esc(v) {
-    return String(v == null ? "" : v)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-  }
-
-  function toast(msg) {
-    var el = $("#toast");
-    if (!el) return;
-    el.textContent = msg;
-    el.hidden = false;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { el.hidden = true; }, 3200);
-  }
-
-  function fmt(ts) {
+  A.fmt = function (ts) {
     if (!ts) return "—";
-    try { return ts.toDate ? ts.toDate().toLocaleString("ar-EG") : new Date(ts).toLocaleString("ar-EG"); }
+    try { return (ts.toDate ? ts.toDate() : new Date(ts)).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }); }
     catch (e) { return "—"; }
-  }
-
-  function showError(msg) {
-    var el = $("#loginError");
-    if (!el) return;
-    el.textContent = msg;
-    el.hidden = !msg;
-  }
-
-  /* ---------------- Schema ---------------- */
-
-  var SCHEMAS = {
-    tools: {
-      title: "الأدوات", icon: "⬇", desc: "ضيف أداة واربطها بملف داخل مجلد tools أو رابط خارجي مباشر.",
-      listTitle: function (d) { return d.name || "أداة بدون اسم"; },
-      listSub: function (d) { return (d.tag || d.category || "—") + " · " + (d.version || "v1.0") + " · " + (d.size || "—"); },
-      fields: [
-        { key: "name", label: "اسم الأداة", type: "text", required: true, full: true },
-        { key: "desc", label: "الوصف", type: "textarea", full: true },
-        { key: "category", label: "التصنيف (frp / network / flash)", type: "text" },
-        { key: "tag", label: "الوسم الظاهر على الكارت", type: "text" },
-        { key: "version", label: "الإصدار", type: "text" },
-        { key: "size", label: "الحجم", type: "text" },
-        { key: "order", label: "الترتيب", type: "number" },
-        { key: "hot", label: "أداة مميزة", type: "checkbox" },
-        { key: "file", label: "مسار الملف أو رابط التحميل", type: "text", full: true, hint: "مثال: tools/twins-frp-helper.zip أو رابط تحميل مباشر." },
-        { key: "toolFile", label: "رفع ملف الأداة إلى Storage", type: "file", accept: ".zip,.rar,.7z,.pdf,.exe,.apk,.txt", storageDir: "tools", targetKey: "file", full: true }
-      ]
-    },
-    works: {
-      title: "الأعمال", icon: "🖼", desc: "الأجهزة اللي أصلحتها والمعرض على الصفحة الرئيسية.",
-      listTitle: function (d) { return d.model || "جهاز بدون اسم"; },
-      listSub: function (d) { return (d.brand || "—") + " · " + (d.category || "—"); },
-      fields: [
-        { key: "brand", label: "البراند", type: "text", required: true },
-        { key: "model", label: "الموديل", type: "text", required: true },
-        { key: "category", label: "التصنيف (iphone / samsung / xiaomi / tablet / other)", type: "text", full: true },
-        { key: "image", label: "رابط صورة العمل", type: "text", full: true, hint: "لصق رابط مباشر للصورة، أو ارفعها من الزرار تحت." },
-        { key: "workImage", label: "رفع صورة العمل (بديل للرابط)", type: "file", accept: "image/*", storageDir: "works", targetKey: "image", full: true },
-        { key: "desc", label: "وصف الشغل", type: "textarea", full: true },
-        { key: "order", label: "الترتيب", type: "number" }
-      ]
-    },
-    testimonials: {
-      title: "آراء العملاء", icon: "⭐", desc: "اعرض كلام عملائك الحقيقي.",
-      listTitle: function (d) { return d.name || "عميل"; },
-      listSub: function (d) { return d.text || ""; },
-      fields: [
-        { key: "name", label: "الاسم", type: "text", required: true },
-        { key: "role", label: "الوصف (مثلاً: عميل)", type: "text" },
-        { key: "text", label: "الرأي", type: "textarea", required: true, full: true },
-        { key: "order", label: "الترتيب", type: "number" }
-      ]
-    },
-    services: {
-      title: "الخدمات", icon: "⚙", desc: "البطاقات اللي بتظهر في قسم الخدمات.",
-      listTitle: function (d) { return d.title || "خدمة بدون اسم"; },
-      listSub: function (d) { return (d.price ? d.price + " · " : "") + (d.desc || ""); },
-      fields: [
-        { key: "title", label: "عنوان الخدمة", type: "text", required: true },
-        { key: "tag", label: "الوسم (مثلاً FRP)", type: "text" },
-        { key: "icon", label: "الأيقونة", type: "select", options: ["bolt", "lock", "globe", "signal", "laptop", "shield"] },
-        { key: "desc", label: "الوصف", type: "textarea", required: true, full: true },
-        { key: "price", label: "السعر (مثلاً 150 ج.م)", type: "text" },
-        { key: "priceNote", label: "ملاحظة السعر", type: "text" },
-        { key: "order", label: "الترتيب", type: "number" }
-      ]
-    },
-    stats: {
-      title: "الإحصائيات", icon: "📊", desc: "الأرقام الظاهرة تحت الهيرو.",
-      listTitle: function (d) { return d.value || "—"; },
-      listSub: function (d) { return d.label || ""; },
-      fields: [
-        { key: "value", label: "القيمة (مثلاً +502)", type: "text", required: true },
-        { key: "label", label: "الوصف", type: "text", required: true },
-        { key: "order", label: "الترتيب", type: "number" }
-      ]
-    },
-    faqs: {
-      title: "الأسئلة الشائعة", icon: "❓", desc: "الأسئلة والأجوبة في آخر الصفحة.",
-      listTitle: function (d) { return d.q || "سؤال بدون عنوان"; },
-      listSub: function (d) { return d.a || ""; },
-      fields: [
-        { key: "q", label: "السؤال", type: "text", required: true, full: true },
-        { key: "a", label: "الإجابة", type: "textarea", required: true, full: true },
-        { key: "order", label: "الترتيب", type: "number" }
-      ]
-    },
-    toolCategories: {
-      title: "تصنيفات الأدوات", icon: "🏷", desc: "فلتر البحث في قسم الأدوات.",
-      listTitle: function (d) { return d.label || "—"; },
-      listSub: function (d) { return "id: " + (d.id || "—"); },
-      fields: [
-        { key: "label", label: "الاسم الظاهر", type: "text", required: true },
-        { key: "id", label: "المعرّف (مثلاً frp)", type: "text", required: true },
-        { key: "order", label: "الترتيب", type: "number" }
-      ]
-    },
-    workCategories: {
-      title: "تصنيفات الأعمال", icon: "🏷", desc: "فلتر معرض الأعمال.",
-      listTitle: function (d) { return d.label || "—"; },
-      listSub: function (d) { return "id: " + (d.id || "—"); },
-      fields: [
-        { key: "label", label: "الاسم الظاهر", type: "text", required: true },
-        { key: "id", label: "المعرّف (مثلاً iphone)", type: "text", required: true },
-        { key: "order", label: "الترتيب", type: "number" }
-      ]
-    }
   };
 
-  var NAV = [
-    { id: "overview", label: "نظرة عامة", icon: "▦" },
-    { id: "tools", label: "الأدوات", icon: "⬇" },
-    { id: "works", label: "الأعمال", icon: "🖼" },
-    { id: "testimonials", label: "الآراء", icon: "⭐" },
-    { id: "services", label: "الخدمات", icon: "⚙" },
-    { id: "stats", label: "الإحصائيات", icon: "📊" },
-    { id: "faqs", label: "الأسئلة الشائعة", icon: "❓" },
-    { id: "toolCategories", label: "تصنيفات الأدوات", icon: "🏷" },
-    { id: "workCategories", label: "تصنيفات الأعمال", icon: "🏷" },
-    { id: "requests", label: "طلبات العملاء", icon: "📥" },
-    { id: "users", label: "الأعضاء المسجلين", icon: "👥" },
-    { id: "downloads", label: "سجل التحميلات", icon: "📈" },
-    { id: "admins", label: "الشركاء / الأدمنز", icon: "🔑" },
-    { id: "site", label: "بيانات التواصل", icon: "✆" }
-  ];
+  var toastTimer;
+  A.toast = function (msg, isError) {
+    var el = $("#toast");
+    el.textContent = msg;
+    el.className = "toast" + (isError ? " error" : "");
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.hidden = true; }, isError ? 5200 : 3000);
+  };
 
-  /* ---------------- Auth ---------------- */
+  A.errMsg = function (e) {
+    var c = e && e.code ? e.code : "";
+    if (c === "permission-denied") return "مفيش صلاحية. تأكد إن قواعد Firestore (firestore.rules) منشورة.";
+    if (c === "unavailable") return "مفيش اتصال بالإنترنت.";
+    return (e && e.message) || "حصل خطأ غير متوقع.";
+  };
 
-  function init() {
-    if (!window.firebase || !window.TWINS_FIREBASE_CONFIG) {
-      showError("Firebase مش محمّل — تأكد من الاتصال بالإنترنت.");
-      return;
-    }
-    try {
-      app = firebase.apps.length ? firebase.app() : firebase.initializeApp(window.TWINS_FIREBASE_CONFIG);
-      auth = firebase.auth();
-      db = firebase.firestore();
-      storage = firebase.storage ? firebase.storage() : null;
-    } catch (e) {
-      showError("خطأ في إعداد Firebase: " + e.message);
-      return;
-    }
+  /* ---------------- Modal ---------------- */
 
-    $("#loginForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      showError("");
-      var btn = $("#loginBtn");
-      btn.disabled = true;
-      btn.textContent = "جاري الدخول…";
+  A.modal = {
+    open: function (html, wide) {
+      var box = $("#modalBox");
+      box.className = "modal-box" + (wide ? " wide" : "");
+      box.innerHTML = html;
+      $("#modal").hidden = false;
+      var f = box.querySelector("[autofocus],button,input");
+      if (f) f.focus();
+      return box;
+    },
+    close: function () { $("#modal").hidden = true; $("#modalBox").innerHTML = ""; }
+  };
 
-      auth.signInWithEmailAndPassword($("#adminEmail").value.trim(), $("#adminPassword").value)
-        .then(function () {
-          btn.disabled = false;
-          btn.textContent = "دخول ←";
-        })
-        .catch(function (err) {
-          console.error("Login Error:", err);
-          var msg = err.message;
-          if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
-              msg = "الإيميل أو كلمة المرور غلط.";
-          } else if (err.code === "auth/unauthorized-domain") {
-              msg = "الدومين ده مش مضاف في Firebase Auth (Authorized domains).";
-          }
-          showError(msg);
-          btn.disabled = false;
-          btn.textContent = "دخول ←";
-        });
+  A.confirm = function (title, text, opts) {
+    opts = opts || {};
+    return new Promise(function (resolve) {
+      var box = A.modal.open('<h3>' + esc(title) + '</h3><p>' + esc(text || "") + '</p>' +
+        '<div class="modal-actions"><button class="btn ' + (opts.danger === false ? "btn-primary" : "btn-danger") + '" data-ok autofocus>' + esc(opts.ok || "تأكيد") + '</button>' +
+        '<button class="btn btn-ghost" data-no>إلغاء</button></div>');
+      function done(v) { A.modal.close(); resolve(v); }
+      box.querySelector("[data-ok]").onclick = function () { done(true); };
+      box.querySelector("[data-no]").onclick = function () { done(false); };
+      A._modalCancel = function () { done(false); };
     });
+  };
 
-    $("#logoutBtn").addEventListener("click", function () {
-      auth.signOut();
-    });
+  /* ---------------- Image compression (بدون Firebase Storage) ---------------- */
 
-    var adminToggle = $("#adminMenuToggle");
-    adminToggle.addEventListener("click", function () {
-      var open = document.body.classList.toggle("admin-menu-open");
-      adminToggle.setAttribute("aria-expanded", String(open));
-    });
+  var webpOk = (function () {
+    try { return document.createElement("canvas").toDataURL("image/webp").indexOf("data:image/webp") === 0; } catch (e) { return false; }
+  })();
 
-    auth.onAuthStateChanged(function (user) {
-      if (!user) {
-        $("#loginView").hidden = false;
-        $("#adminView").hidden = true;
+  A.bytesOf = function (dataUrl) { return Math.round(String(dataUrl || "").length * 0.75); };
+  A.kb = function (b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + " ميجا" : Math.round(b / 1024) + " كيلوبايت"; };
+
+  A.compress = function (file, o) {
+    o = Object.assign({ maxW: 1200, maxH: 1200, maxBytes: 230 * 1024 }, o || {});
+    return new Promise(function (resolve, reject) {
+      if (!file || !/^image\/(png|jpe?g|webp|gif)$/i.test(file.type)) {
+        reject(new Error("نوع الملف غير مدعوم. استخدم صورة PNG أو JPG أو WebP."));
         return;
       }
-
-      var email = (user.email || "").toLowerCase();
-      var isPrimary = email === PRIMARY_ADMIN;
-
-      var checkAccess = isPrimary
-        ? Promise.resolve(true)
-        : (db ? db.collection("admins").doc(email).get().then(function (doc) {
-            return doc.exists && doc.data().active !== false;
-          }).catch(function (err) { console.error(err); return false; }) : Promise.resolve(false));
-
-      checkAccess.then(function (allowed) {
-        if (!allowed) {
-          auth.signOut();
-          showError("الحساب ده (" + email + ") ملوش صلاحية أدمن.");
-          $("#loginView").hidden = false;
-          $("#adminView").hidden = true;
-          return;
+      if (file.size > 25 * 1024 * 1024) { reject(new Error("الصورة كبيرة جداً (أقصى حجم 25 MB).")); return; }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("تعذر قراءة الصورة.")); };
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var scale = Math.min(1, o.maxW / img.width, o.maxH / img.height);
+        var w = Math.max(1, Math.round(img.width * scale));
+        var h = Math.max(1, Math.round(img.height * scale));
+        var type = webpOk ? "image/webp" : "image/jpeg";
+        var q = 0.84, data = "";
+        for (var i = 0; i < 8; i++) {
+          var c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          var ctx = c.getContext("2d");
+          if (type === "image/jpeg") { ctx.fillStyle = "#101216"; ctx.fillRect(0, 0, w, h); }
+          ctx.drawImage(img, 0, 0, w, h);
+          data = c.toDataURL(type, q);
+          if (A.bytesOf(data) <= o.maxBytes) break;
+          if (q > 0.52) q -= 0.1; else { w = Math.round(w * 0.85); h = Math.round(h * 0.85); }
         }
-        $("#loginView").hidden = true;
-        $("#adminView").hidden = false;
-        $("#userEmail").textContent = (isPrimary ? "👑 Honda Store · " : "") + email;
-        renderNav();
-        setSection("overview");
-      }).catch(function(err){
-          console.error("Access Check Error:", err);
-          showError("حصل مشكلة في التحقق من الصلاحيات.");
-          auth.signOut();
-      });
+        if (A.bytesOf(data) > 900 * 1024) { reject(new Error("الصورة لسه كبيرة بعد الضغط. جرّب صورة أصغر.")); return; }
+        resolve({ data: data, w: w, h: h, bytes: A.bytesOf(data), name: file.name });
+      };
+      img.src = url;
     });
+  };
 
-    renderNav();
-  }
+  /* ---------------- Data helpers ---------------- */
+
+  A.col = function (n) { return A.db.collection(n); };
+
+  A.list = function (name) {
+    return A.col(name).get().then(function (snap) {
+      return snap.docs.map(function (d, i) {
+        var x = d.data() || {}; x._id = d.id;
+        if (typeof x.order !== "number") x.order = i;
+        return x;
+      }).sort(function (a, b) { return a.order - b.order; });
+    });
+  };
+
+  function chunk(arr, n) { var out = []; for (var i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; }
+
+  A.batchRun = function (ops, size) {
+    // ops: [{type:'set'|'delete', ref, data}] — مقسمة على دفعات صغيرة (الصور بتزوّد الحجم)
+    return chunk(ops, size || 20).reduce(function (p, part) {
+      return p.then(function () {
+        var b = A.db.batch();
+        part.forEach(function (o) { if (o.type === "delete") b.delete(o.ref); else if (o.merge) b.set(o.ref, o.data, { merge: true }); else b.set(o.ref, o.data); });
+        return b.commit();
+      });
+    }, Promise.resolve());
+  };
+
+  var SEED_NAMES = ["stats", "services", "steps", "works", "workCategories", "tools", "toolCategories", "testimonials", "faqs"];
+  A.SEED_NAMES = SEED_NAMES;
+
+  // استيراد محتوى data.js إلى Firestore عشان يبقى قابل للتعديل من اللوحة
+  A.seed = function (names, replace) {
+    var D = window.TWINS_DATA || {};
+    names = names || SEED_NAMES;
+    var ops = [];
+    return Promise.all(names.map(function (n) { return A.col(n).get(); })).then(function (snaps) {
+      names.forEach(function (n, idx) {
+        var snap = snaps[idx];
+        if (snap.size && !replace) return;
+        if (replace) snap.docs.forEach(function (d) { ops.push({ type: "delete", ref: d.ref }); });
+        (D[n] || []).forEach(function (item, i) {
+          ops.push({ type: "set", ref: A.col(n).doc(), data: Object.assign({}, item, { order: i + 1, active: true }) });
+        });
+      });
+      if (!snaps.length) return null;
+      return A.batchRun(ops, 400);
+    }).then(function () { return ops.filter(function (o) { return o.type === "set"; }).length; });
+  };
+
+  A.seedContact = function () {
+    var c = (window.TWINS_DATA || {}).contact || {};
+    return A.db.doc("site/contact").get().then(function (d) {
+      if (d.exists) return false;
+      return A.db.doc("site/contact").set(c).then(function () { return true; });
+    });
+  };
 
   /* ---------------- Navigation ---------------- */
 
+  A.NAV = [
+    { g: "عام" },
+    { id: "overview", label: "نظرة عامة", ico: "▦" },
+    { g: "محتوى الموقع" },
+    { id: "settings", label: "إعدادات الموقع", ico: "🎛" },
+    { id: "services", label: "الخدمات والأسعار", ico: "⚙" },
+    { id: "steps", label: "خطوات العمل", ico: "🧭" },
+    { id: "works", label: "معرض الأعمال", ico: "🖼" },
+    { id: "tools", label: "الأدوات", ico: "⬇" },
+    { id: "testimonials", label: "آراء العملاء", ico: "⭐" },
+    { id: "faqs", label: "الأسئلة الشائعة", ico: "❓" },
+    { id: "stats", label: "الإحصائيات", ico: "📊" },
+    { id: "toolCategories", label: "تصنيفات الأدوات", ico: "🏷" },
+    { id: "workCategories", label: "تصنيفات الأعمال", ico: "🏷" },
+    { g: "الوسائط" },
+    { id: "media", label: "مكتبة الصور", ico: "📷" },
+    { g: "العملاء" },
+    { id: "requests", label: "طلبات العملاء", ico: "📥", badge: true },
+    { id: "users", label: "الأعضاء المسجلين", ico: "👥" },
+    { id: "downloads", label: "سجل التحميلات", ico: "📈" },
+    { g: "النظام" },
+    { id: "admins", label: "الشركاء / الأدمنز", ico: "🔑" },
+    { id: "backup", label: "نسخ احتياطي واستيراد", ico: "💾" }
+  ];
+
   function renderNav() {
-    var nav = $("#adminNav");
-    nav.innerHTML = NAV.map(function (n) {
-      return '<button type="button" data-section="' + n.id + '" class="' + (n.id === currentSection ? 'active' : '') + '">' +
-        '<span aria-hidden="true">' + n.icon + '</span><span>' + n.label + '</span></button>';
+    var group = "";
+    $("#adminNav").innerHTML = A.NAV.map(function (n) {
+      if (n.g) return '<div class="nav-group">' + esc(n.g) + '</div>';
+      return '<button type="button" data-section="' + n.id + '" class="' + (n.id === A.current ? "active" : "") + '">' +
+        '<span class="ico" aria-hidden="true">' + n.ico + '</span><span>' + esc(n.label) + '</span>' +
+        (n.badge ? '<span class="badge" id="badge_' + n.id + '" hidden></span>' : "") + '</button>';
     }).join("");
   }
 
-  function setSection(id) {
-    currentSection = id;
-    $$("#adminNav button").forEach(function (b) {
-      b.classList.toggle("active", b.getAttribute("data-section") === id);
-    });
+  A.setBadge = function (id, n) {
+    var el = $("#badge_" + id);
+    if (!el) return;
+    el.textContent = n; el.hidden = !n;
+  };
+
+  A.refreshBadges = function () {
+    A.col("requests").where("status", "==", "جديد").get()
+      .then(function (s) { A.setBadge("requests", s.size); })
+      .catch(function () { /* تجاهل */ });
+  };
+
+  A.go = function (id, noHash) {
+    var item = null, grp = "";
+    A.NAV.forEach(function (n) { if (n.g) grp = n.g; else if (n.id === id) item = { n: n, g: grp }; });
+    if (!item) { id = "overview"; item = { n: A.NAV[1], g: "عام" }; }
+    A.current = id;
+    $$("#adminNav button").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-section") === id); });
     document.body.classList.remove("admin-menu-open");
-
-    var item = NAV.filter(function (n) { return n.id === id; })[0];
-    $("#pageTitle").textContent = item ? item.label : "لوحة التحكم";
-
-    if (id === "overview") renderOverview();
-    else if (id === "site") renderSite();
-    else if (id === "requests") renderRequests();
-    else if (id === "users") renderUsers();
-    else if (id === "downloads") renderDownloads();
-    else if (id === "admins") renderAdmins();
-    else renderCollection(id);
-  }
-
-  $("#adminNav") && $("#adminNav").addEventListener("click", function (e) {
-    var btn = e.target.closest("button[data-section]");
-    if (btn) setSection(btn.getAttribute("data-section"));
-  });
-
-  /* ---------------- Overview ---------------- */
-
-  function renderOverview() {
-    var content = $("#adminContent");
-    content.innerHTML = '<div class="overview-grid" id="overviewGrid"><div class="overview-card">جاري التحميل…</div></div>' +
-      '<div class="overview-note">أهلاً بك يا Honda Store 👑 الموقع بيقرأ تلقائياً من Firestore. أي تعديل أو أداة بتنشرها هنا بتظهر فوراً على الموقع.</div>';
-
-    var names = ["tools", "works", "testimonials", "services", "stats", "faqs", "toolCategories", "workCategories", "users", "requests", "downloads", "admins"];
-    Promise.all(names.map(function (name) {
-      return db.collection(name).get().then(function (s) { return { name: name, count: s.size }; }).catch(function () { return { name: name, count: 0 }; });
-    })).then(function (results) {
-      var labels = { users: "الأعضاء", requests: "الطلبات", downloads: "التحميلات", admins: "الشركاء" };
-      $("#overviewGrid").innerHTML = results.map(function (r) {
-        var label = (SCHEMAS[r.name] && SCHEMAS[r.name].title) || labels[r.name] || r.name;
-        return '<div class="overview-card"><b>' + r.count + '</b><span>' + esc(label) + '</span></div>';
-      }).join("");
-    });
-  }
-
-  /* ---------------- Fields ---------------- */
-
-  function fieldHtml(f, value, doc) {
-    var v = value == null ? "" : value;
-    var id = "f_" + f.key;
-    var cls = "form-field" + (f.full ? " full" : "") + (f.type === "checkbox" ? " checkbox-field" : "");
-    var html = '<div class="' + cls + '">';
-
-    if (f.type === "checkbox") {
-      html += '<input type="checkbox" id="' + id + '" ' + (v === true ? "checked" : "") + ' />';
-      html += '<label for="' + id + '">' + esc(f.label) + '</label>';
-    } else if (f.type === "textarea") {
-      html += '<label for="' + id + '">' + esc(f.label) + (f.required ? ' *' : '') + '</label>';
-      html += '<textarea id="' + id + '" ' + (f.required ? "required" : "") + '>' + esc(v) + '</textarea>';
-    } else if (f.type === "select") {
-      html += '<label for="' + id + '">' + esc(f.label) + '</label><select id="' + id + '">';
-      (f.options || []).forEach(function (o) {
-        html += '<option value="' + esc(o) + '" ' + (v === o ? "selected" : "") + '>' + esc(o) + '</option>';
-      });
-      html += '</select>';
-    } else if (f.type === "file") {
-      var accept = f.accept || ".zip,.pdf,.rar,.7z,.txt";
-      var current = doc && f.targetKey ? doc[f.targetKey] : (doc && doc.file ? doc.file : "");
-      html += '<label for="' + id + '">' + esc(f.label) + '</label><input type="file" id="' + id + '" accept="' + esc(accept) + '" />';
-      if (f.hint) html += '<span class="hint">' + esc(f.hint) + '</span>';
-      if (current && current !== "#") html += '<span class="hint">الحالي: <a href="' + esc(current) + '" target="_blank" rel="noopener">فتح</a></span>';
-      if (f.targetKey === "image" && doc && doc[f.targetKey]) {
-        html += '<div class="hint" style="margin-top:6px"><img src="' + esc(doc[f.targetKey]) + '" alt="" style="max-width:140px;max-height:90px;border-radius:10px;border:1px solid var(--line);object-fit:cover" onerror="this.style.display=\'none\'"></div>';
-      }
-    } else {
-      html += '<label for="' + id + '">' + esc(f.label) + (f.required ? ' *' : '') + '</label>';
-      html += '<input type="' + (f.type === "number" ? "number" : "text") + '" id="' + id + '" value="' + esc(v) + '" ' + (f.required ? "required" : "") + ' />';
-      if (f.hint) html += '<span class="hint">' + esc(f.hint) + '</span>';
+    $("#pageTitle").textContent = item.n.label;
+    $("#pageCrumb").textContent = item.g;
+    if (!noHash && location.hash !== "#" + id) { try { history.pushState(null, "", "#" + id); } catch (e) { location.hash = id; } }
+    var box = $("#adminContent");
+    box.innerHTML = '<div class="empty-state">جاري التحميل…</div>';
+    window.scrollTo(0, 0);
+    var view = A.views[id];
+    if (view) {
+      try { view(box); } catch (e) { box.innerHTML = '<div class="empty-state">خطأ في عرض القسم: ' + esc(e.message) + '</div>'; console.error(e); }
     }
+  };
 
-    html += '</div>';
-    return html;
+  /* ---------------- Boot ---------------- */
+
+  function loginError(msg) { var e = $("#loginError"); e.textContent = msg || ""; e.hidden = !msg; if (msg) $("#loginOk").hidden = true; }
+  function loginOk(msg) { var e = $("#loginOk"); e.textContent = msg || ""; e.hidden = !msg; if (msg) $("#loginError").hidden = true; }
+
+  function authMessage(err) {
+    var m = {
+      "auth/invalid-credential": "الإيميل أو كلمة المرور غلط.",
+      "auth/invalid-email": "صيغة الإيميل مش صحيحة.",
+      "auth/user-not-found": "مفيش حساب بالإيميل ده.",
+      "auth/wrong-password": "كلمة المرور غلط.",
+      "auth/too-many-requests": "محاولات كتير. استنى شوية وجرّب تاني.",
+      "auth/network-request-failed": "مفيش اتصال بالإنترنت.",
+      "auth/unauthorized-domain": "الدومين ده مش مضاف في Firebase → Authentication → Authorized domains."
+    };
+    return m[err && err.code] || (err && err.message) || "حصل خطأ.";
   }
 
-  function renderForm(section, doc) {
-    var schema = SCHEMAS[section];
-    var form = $("#adminForm");
-    if (!form || !schema) return;
+  function onUser(user) {
+    if (!user) {
+      A.user = null;
+      $("#loginView").hidden = false; $("#adminView").hidden = true;
+      return;
+    }
+    var email = (user.email || "").toLowerCase();
+    A.isPrimary = email === A.PRIMARY;
+    var check = A.isPrimary ? Promise.resolve(true) :
+      A.db.collection("admins").doc(email).get().then(function (d) { return d.exists && d.data().active !== false; }).catch(function () { return false; });
 
-    form.hidden = false;
-    form.dataset.section = section;
-    form.dataset.id = doc && doc._id ? doc._id : "";
-    $("#formTitle").textContent = doc ? "تعديل: " + (schema.listTitle(doc) || "") : "إضافة جديد";
-
-    $("#formFields").innerHTML = schema.fields.map(function (f) {
-      return fieldHtml(f, doc ? doc[f.key] : (f.type === "number" ? 0 : (f.type === "checkbox" ? false : "")), doc);
-    }).join("");
-
-    $("#cancelEdit").hidden = false;
-    $("#submitBtn").textContent = doc ? "حفظ التعديلات" : "إضافة";
-    form.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  /* ---------------- Collection CRUD ---------------- */
-
-  function renderCollection(section) {
-    var schema = SCHEMAS[section];
-    var content = $("#adminContent");
-    if (!schema) return;
-
-    content.innerHTML =
-      '<div class="panel-head"><div><h2>' + esc(schema.title) + '</h2><p>' + esc(schema.desc) + '</p></div>' +
-      '<button class="btn btn-primary btn-sm" type="button" id="addNewBtn">+ إضافة جديد</button></div>' +
-      '<form class="form-card" id="adminForm" hidden>' +
-      '<h3 id="formTitle">إضافة جديد</h3><div class="form-grid" id="formFields"></div>' +
-      '<div class="form-actions"><button class="btn btn-primary" type="submit" id="submitBtn">إضافة</button>' +
-      '<button class="btn btn-ghost" type="button" id="cancelEdit" hidden>إلغاء</button></div></form>' +
-      '<div class="item-list" id="itemList"><div class="empty-state">جاري التحميل…</div></div>';
-
-    $("#addNewBtn").addEventListener("click", function () { renderForm(section, null); });
-    $("#cancelEdit").addEventListener("click", function () { $("#adminForm").hidden = true; });
-    $("#adminForm").addEventListener("submit", function (e) { e.preventDefault(); saveDoc(e.currentTarget); });
-
-    db.collection(section).get().then(function (snap) {
-      var docs = snap.docs.map(function (d) {
-        var data = d.data() || {};
-        data._id = d.id;
-        if (typeof data.order !== "number") data.order = 0;
-        return data;
-      }).sort(function (a, b) { return a.order - b.order; });
-
-      var list = $("#itemList");
-      if (!docs.length) {
-        list.innerHTML = '<div class="empty-state">مفيش عناصر هنا لسه. اضغط «إضافة جديد».</div>';
+    check.then(function (ok) {
+      if (!ok) {
+        A.auth.signOut();
+        loginError("الحساب (" + email + ") ملوش صلاحية أدمن.");
+        $("#loginView").hidden = false; $("#adminView").hidden = true;
         return;
       }
-      list.innerHTML = docs.map(function (d) {
-        return '<div class="item-row"><div class="item-main"><b>' + esc(schema.listTitle(d)) + '</b>' +
-          '<small>' + esc(schema.listSub(d)) + '</small></div><div class="item-actions">' +
-          '<button class="icon-btn" type="button" data-edit="' + esc(d._id) + '" title="تعديل">✎</button>' +
-          '<button class="icon-btn danger" type="button" data-delete="' + esc(d._id) + '" title="حذف">🗑</button>' +
-          '</div></div>';
-      }).join("");
-
-      $$("[data-edit]", list).forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          renderForm(section, docs.filter(function (d) { return d._id === btn.getAttribute("data-edit"); })[0]);
-        });
-      });
-      $$("[data-delete]", list).forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          if (!confirm("متأكد إنك عايز تمسح العنصر ده؟")) return;
-          var id = btn.getAttribute("data-delete");
-          db.collection(section).doc(id).delete()
-            .then(function () { toast("تم الحذف"); renderCollection(section); })
-            .catch(function (e) { toast("خطأ في الحذف: " + e.message); });
-        });
-      });
-    }).catch(function (e) {
-      $("#itemList").innerHTML = '<div class="empty-state">خطأ في التحميل: ' + esc(e.message) + '</div>';
+      A.user = user;
+      loginError("");
+      $("#loginView").hidden = true; $("#adminView").hidden = false;
+      $("#userEmail").textContent = (A.isPrimary ? "👑 " : "") + email;
+      renderNav();
+      A.refreshBadges();
+      var start = (location.hash || "").replace("#", "") || "overview";
+      A.go(start, true);
     });
   }
 
-  function safeFileName(name) {
-    return String(name || "file").replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || "file";
-  }
+  A.start = function () {
+    if (!window.firebase || !window.TWINS_FIREBASE_CONFIG) { loginError("Firebase مش محمّل — تأكد من الاتصال بالإنترنت."); return; }
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(window.TWINS_FIREBASE_CONFIG);
+      A.auth = firebase.auth();
+      A.db = firebase.firestore();
+    } catch (e) { loginError("خطأ في إعداد Firebase: " + e.message); return; }
 
-  function uploadFileToStorage(file, dir) {
-    if (!storage) return Promise.reject(new Error("Firebase Storage غير مفعّل. استخدم حقل الرابط المباشر بدلاً من الرفع."));
-    var path = dir + "/" + Date.now() + "-" + safeFileName(file.name);
-    var ref = storage.ref().child(path);
-    return ref.put(file).then(function () { return ref.getDownloadURL(); });
-  }
-
-  function collectUploads(form, section, schema) {
-    var tasks = [];
-    (schema.fields || []).forEach(function (f) {
-      if (f.type !== "file") return;
-      var input = $("#f_" + f.key, form);
-      if (!input || !input.files || !input.files[0]) return;
-      var file = input.files[0];
-      var dir = f.storageDir || section;
-      tasks.push(uploadFileToStorage(file, dir).then(function (url) {
-        return { targetKey: f.targetKey || "file", url: url, file: file };
-      }));
-    });
-    return Promise.all(tasks);
-  }
-
-  function saveDoc(form) {
-    var section = form.dataset.section;
-    var id = form.dataset.id;
-    var schema = SCHEMAS[section];
-    var submitBtn = $("#submitBtn", form);
-    if (submitBtn) submitBtn.disabled = true;
-
-    collectUploads(form, section, schema).then(function (uploads) {
-      var data = {};
-      schema.fields.forEach(function (f) {
-        if (f.type === "file") return;
-        var el = $("#f_" + f.key, form);
-        if (!el) return;
-        if (f.type === "checkbox") data[f.key] = el.checked;
-        else if (f.type === "number") data[f.key] = Number(el.value || 0);
-        else data[f.key] = el.value.trim();
-      });
-
-      uploads.forEach(function (u) {
-        data[u.targetKey] = u.url;
-        if (section === "tools" && u.targetKey === "file") {
-          if (!data.size || data.size === "—") data.size = Math.max(1, Math.round(u.file.size / 1024 / 1024)) + " MB";
-        }
-      });
-
-      if (section === "tools") {
-        if (!data.file) data.file = "#";
-        delete data.storagePath;
-      }
-
-      var saveTask = id
-        ? db.collection(section).doc(id).set(data, { merge: true })
-        : (function () {
-            if (typeof data.order !== "number") data.order = Date.now();
-            return db.collection(section).add(data);
-          })();
-
-      return saveTask;
-    }).then(function () {
-      toast(id ? "تم حفظ التعديلات" : "تمت الإضافة بنجاح");
-      renderCollection(section);
-    }).catch(function (e) {
-      toast("خطأ: " + (e && e.message ? e.message : e));
-    }).then(function () {
-      if (submitBtn) submitBtn.disabled = false;
-    });
-  }
-
-  /* ---------------- Clients / partners ---------------- */
-
-  function renderRequests() {
-    var content = $("#adminContent");
-    content.innerHTML = '<div class="panel-head"><div><h2>طلبات العملاء</h2><p>تابع طلبات الصيانة وغيّر حالتها.</p></div></div>' +
-      '<div class="item-list" id="reqList"><div class="empty-state">جاري التحميل…</div></div>';
-
-    db.collection("requests").orderBy("createdAt", "desc").get().then(function (snap) {
-      var list = $("#reqList");
-      if (!snap.size) { list.innerHTML = '<div class="empty-state">مفيش طلبات لسه.</div>'; return; }
-      list.innerHTML = snap.docs.map(function (d) {
-        var r = d.data() || {};
-        return '<div class="item-row"><div class="item-main"><b>' + esc(r.device || "جهاز") + ' — ' + esc(r.service || "خدمة") + ' (' + esc(r.status || "جديد") + ')</b>' +
-          '<small>' + esc(r.email || "—") + ' · ' + esc(r.note || "") + ' · ' + fmt(r.createdAt) + '</small></div>' +
-          '<div class="item-actions">' +
-          '<button class="icon-btn" type="button" data-status="' + esc(d.id) + '" data-value="جديد" title="جديد">↺</button>' +
-          '<button class="icon-btn" type="button" data-status="' + esc(d.id) + '" data-value="قيد التنفيذ" title="قيد التنفيذ">◷</button>' +
-          '<button class="icon-btn" type="button" data-status="' + esc(d.id) + '" data-value="تم التنفيذ" title="تم التنفيذ">✓</button>' +
-          '</div></div>';
-      }).join("");
-
-      $$("[data-status]", list).forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          db.collection("requests").doc(btn.getAttribute("data-status"))
-            .update({ status: btn.getAttribute("data-value") })
-            .then(function () { toast("تم تحديث الحالة"); renderRequests(); })
-            .catch(function (e) { toast("خطأ: " + e.message); });
-        });
-      });
-    }).catch(function (e) {
-      $("#reqList").innerHTML = '<div class="empty-state">خطأ: ' + esc(e.message) + '</div>';
-    });
-  }
-
-  function renderUsers() {
-    var content = $("#adminContent");
-    content.innerHTML = '<div class="panel-head"><div><h2>الأعضاء المسجلين</h2><p>كل من عمل حساب على الموقع.</p></div></div>' +
-      '<div class="item-list" id="usersList"><div class="empty-state">جاري التحميل…</div></div>';
-
-    db.collection("users").orderBy("createdAt", "desc").get().then(function (snap) {
-      var list = $("#usersList");
-      if (!snap.size) { list.innerHTML = '<div class="empty-state">لسه مفيش أعضاء.</div>'; return; }
-      list.innerHTML = snap.docs.map(function (d) {
-        var u = d.data() || {};
-        return '<div class="item-row"><div class="item-main"><b>' + esc(u.name || u.email || "عضو") + '</b>' +
-          '<small>' + esc(u.email || "—") + ' · ' + esc(u.role || "member") + ' · ' + fmt(u.createdAt) + '</small></div></div>';
-      }).join("");
-    }).catch(function () {
-      $("#usersList").innerHTML = '<div class="empty-state">خطأ في التحميل.</div>';
-    });
-  }
-
-  function renderDownloads() {
-    var content = $("#adminContent");
-    content.innerHTML = '<div class="panel-head"><div><h2>سجل التحميلات</h2><p>آخر الأدوات اللي الأعضاء نزلوها.</p></div></div>' +
-      '<div class="item-list" id="downloadsList"><div class="empty-state">جاري التحميل…</div></div>';
-
-    db.collection("downloads").orderBy("createdAt", "desc").limit(100).get().then(function (snap) {
-      var list = $("#downloadsList");
-      if (!snap.size) { list.innerHTML = '<div class="empty-state">لسه مفيش تحميلات.</div>'; return; }
-      list.innerHTML = snap.docs.map(function (d) {
-        var r = d.data() || {};
-        return '<div class="item-row"><div class="item-main"><b>' + esc(r.toolName || "أداة") + '</b>' +
-          '<small>' + esc(r.email || "—") + ' · ' + fmt(r.createdAt) + '</small></div></div>';
-      }).join("");
-    }).catch(function () {
-      $("#downloadsList").innerHTML = '<div class="empty-state">خطأ في التحميل.</div>';
-    });
-  }
-
-  function renderAdmins() {
-    var content = $("#adminContent");
-    content.innerHTML =
-      '<div class="panel-head"><div><h2>الشركاء / الأدمنز</h2><p>ضيف شريك بالايميل الخاص بيه، هيقدر يتحكم في بيانات الموقع.</p></div></div>' +
-      '<form class="form-card" id="adminPartnerForm"><h3>إضافة شريك</h3><div class="form-grid">' +
-      fieldHtml({ key: "email", label: "إيميل الشريك", type: "text", required: true, full: true }, "") +
-      fieldHtml({ key: "name", label: "الاسم", type: "text" }, "") +
-      '</div><div class="form-actions"><button class="btn btn-primary" type="submit">إضافة / تحديث</button></div></form>' +
-      '<div class="item-list" id="partnerList"><div class="empty-state">جاري التحميل…</div></div>';
-
-    db.collection("admins").get().then(function (snap) {
-      var list = $("#partnerList");
-      var docs = snap.docs.map(function (d) { var x = d.data() || {}; x._id = d.id; return x; });
-      var hasPrimary = docs.some(function (d) { return d._id === PRIMARY_ADMIN; });
-      var rows = docs.map(function (d) {
-        var isPrimary = d._id === PRIMARY_ADMIN;
-        return '<div class="item-row"><div class="item-main"><b>' + esc(d.name || d._id) + (isPrimary ? ' 👑' : '') + '</b>' +
-          '<small>' + esc(d._id) + ' · ' + (d.active === false ? 'معطّل' : 'نشط') + '</small></div>' +
-          '<div class="item-actions">' + (isPrimary ? '' : '<button class="icon-btn danger" type="button" data-remove="' + esc(d._id) + '" title="إزالة">🗑</button>') + '</div></div>';
-      });
-      if (!hasPrimary) {
-        rows.unshift('<div class="item-row"><div class="item-main"><b>Honda Store (' + PRIMARY_ADMIN + ') 👑</b><small>الأدمن الأساسي</small></div></div>');
-      }
-      list.innerHTML = rows.join("") || '<div class="empty-state">لسه مفيش شركاء.</div>';
-
-      $$("[data-remove]", list).forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          if (!confirm("متأكد إنك عايز تشيل الشريك ده؟")) return;
-          db.collection("admins").doc(btn.getAttribute("data-remove")).delete()
-            .then(function () { toast("تمت الإزالة"); renderAdmins(); })
-            .catch(function (e) { toast("خطأ: " + e.message); });
-        });
-      });
-    }).catch(function () {
-      $("#partnerList").innerHTML = '<div class="empty-state">خطأ في التحميل.</div>';
-    });
-
-    $("#adminPartnerForm").addEventListener("submit", function (e) {
+    $("#loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      var email = $("#f_email").value.trim().toLowerCase();
-      if (!email) return;
-      db.collection("admins").doc(email).set({
-        email: email,
-        name: $("#f_name").value.trim() || email.split("@")[0],
-        active: true,
-        addedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }).then(function () {
-        toast("تمت إضافة الشريك");
-        renderAdmins();
-      }).catch(function (err) { toast("خطأ: " + err.message); });
+      loginError("");
+      var btn = $("#loginBtn");
+      btn.disabled = true; btn.textContent = "جاري الدخول…";
+      A.auth.signInWithEmailAndPassword($("#adminEmail").value.trim(), $("#adminPassword").value)
+        .catch(function (err) { loginError(authMessage(err)); })
+        .then(function () { btn.disabled = false; btn.textContent = "دخول ←"; });
     });
-  }
+    $("#passToggle").addEventListener("click", function () {
+      var i = $("#adminPassword"), show = i.type === "password";
+      i.type = show ? "text" : "password";
+      this.textContent = show ? "إخفاء" : "إظهار";
+    });
+    $("#forgotBtn").addEventListener("click", function () {
+      var email = $("#adminEmail").value.trim();
+      if (!email) { loginError("اكتب الإيميل الأول وبعدين اضغط «نسيت كلمة المرور»."); return; }
+      A.auth.sendPasswordResetEmail(email)
+        .then(function () { loginOk("بعتنا رابط إعادة تعيين كلمة المرور على " + email); })
+        .catch(function (err) { loginError(authMessage(err)); });
+    });
+    $("#logoutBtn").addEventListener("click", function () { A.auth.signOut(); });
 
-  /* ---------------- Site contact ---------------- */
-
-  function renderSite() {
-    var content = $("#adminContent");
-    content.innerHTML =
-      '<div class="panel-head"><div><h2>بيانات التواصل</h2><p>رقم واتساب والإيميل والروابط الاجتماعية.</p></div></div>' +
-      '<form class="form-card" id="siteForm"><h3>تعديل بيانات التواصل</h3><div class="form-grid">' +
-      fieldHtml({ key: "phoneDisplay", label: "الرقم الظاهر", type: "text", required: true }, "") +
-      fieldHtml({ key: "whatsapp", label: "رابط واتساب (wa.me)", type: "text", required: true, full: true }, "") +
-      fieldHtml({ key: "email", label: "الإيميل", type: "text" }, "") +
-      fieldHtml({ key: "facebook", label: "رابط فيسبوك", type: "text" }, "") +
-      fieldHtml({ key: "tiktok", label: "رابط تيك توك", type: "text" }, "") +
-      fieldHtml({ key: "instagram", label: "رابط إنستغرام", type: "text" }, "") +
-      '</div><div class="form-actions"><button class="btn btn-primary" type="submit">حفظ</button></div></form>';
-
-    db.doc("site/contact").get().then(function (doc) {
-      var data = doc.exists ? doc.data() : {};
-      ["phoneDisplay", "whatsapp", "email", "facebook", "tiktok", "instagram"].forEach(function (key) {
-        var el = $("#f_" + key);
-        if (el) el.value = data[key] || "";
-      });
+    var toggle = $("#adminMenuToggle");
+    function menu(open) {
+      document.body.classList.toggle("admin-menu-open", open);
+      toggle.setAttribute("aria-expanded", String(open));
+    }
+    toggle.addEventListener("click", function () { menu(!document.body.classList.contains("admin-menu-open")); });
+    $("#sidebarBackdrop").addEventListener("click", function () { menu(false); });
+    $("#adminNav").addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-section]");
+      if (b) A.go(b.getAttribute("data-section"));
+    });
+    window.addEventListener("popstate", function () {
+      if (A.user) A.go((location.hash || "").replace("#", "") || "overview", true);
     });
 
-    $("#siteForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var data = {};
-      ["phoneDisplay", "whatsapp", "email", "facebook", "tiktok", "instagram"].forEach(function (key) {
-        data[key] = $("#f_" + key).value.trim();
-      });
-      db.doc("site/contact").set(data, { merge: true })
-        .then(function () { toast("تم حفظ بيانات التواصل"); })
-        .catch(function (err) { toast("خطأ: " + err.message); });
+    $("#modal").addEventListener("mousedown", function (e) {
+      if (e.target.id === "modal") { if (A._modalCancel) A._modalCancel(); A._modalCancel = null; A.modal.close(); }
     });
-  }
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !$("#modal").hidden) { if (A._modalCancel) A._modalCancel(); A._modalCancel = null; A.modal.close(); }
+    });
 
-  init();
+    A.auth.onAuthStateChanged(onUser);
+  };
+
+  return A;
 })();

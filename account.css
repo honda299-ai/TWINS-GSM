@@ -8,8 +8,8 @@
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at 15% 10%, rgba(255,122,26,.16), transparent 35%),
-    radial-gradient(circle at 85% 0%, rgba(255,122,26,.08), transparent 30%),
+    radial-gradient(circle at 15% 10%, rgba(var(--orange-rgb), .16), transparent 35%),
+    radial-gradient(circle at 85% 0%, rgba(var(--orange-rgb), .08), transparent 30%),
     linear-gradient(180deg, #0b0d11 0%, #08090b 100%);
 }
 
@@ -31,7 +31,7 @@
 }
 .auth-brand-panel {
   background:
-    linear-gradient(160deg, rgba(255,122,26,.16), transparent 45%),
+    linear-gradient(160deg, rgba(var(--orange-rgb), .16), transparent 45%),
     linear-gradient(180deg, rgba(255,255,255,.02), transparent);
   border-left: 1px solid var(--line);
 }
@@ -71,15 +71,15 @@
   border: 0; background: transparent; color: var(--muted); padding: 11px 14px;
   border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: .2s;
 }
-.auth-tabs button.active { background: var(--orange); color: #0b0b0c; box-shadow: 0 8px 20px rgba(255,122,26,.22); }
+.auth-tabs button.active { background: var(--orange); color: #0b0b0c; box-shadow: 0 8px 20px rgba(var(--orange-rgb), .22); }
 .auth-tabs button:focus-visible, .text-btn:focus-visible, .password-toggle:focus-visible,
 .auth-card input:focus-visible, .auth-card select:focus-visible, .auth-card textarea:focus-visible,
-.btn:focus-visible { outline: 2px solid rgba(255,122,26,.55); outline-offset: 2px; }
+.btn:focus-visible { outline: 2px solid rgba(var(--orange-rgb), .55); outline-offset: 2px; }
 
 .auth-status, .auth-error {
   padding: 12px 14px; border-radius: 12px; font-size: 13px; margin-bottom: 16px; line-height: 1.6;
 }
-.auth-status.info { color: #ffd29f; background: rgba(255,122,26,.1); border: 1px solid rgba(255,122,26,.2); }
+.auth-status.info { color: #ffd29f; background: rgba(var(--orange-rgb), .1); border: 1px solid rgba(var(--orange-rgb), .2); }
 .auth-status.success { color: #8be3c0; background: rgba(56,211,159,.1); border: 1px solid rgba(56,211,159,.2); }
 .auth-error { color: #ff9b9b; background: rgba(255,90,90,.1); border: 1px solid rgba(255,90,90,.22); margin-top: 0; }
 
@@ -100,7 +100,7 @@
 .auth-card input::placeholder, .stack-form input::placeholder, .stack-form textarea::placeholder { color: #7b818d; }
 .auth-card input:focus, .auth-card textarea:focus, .auth-card select:focus,
 .stack-form input:focus, .stack-form textarea:focus, .stack-form select:focus {
-  outline: none; border-color: rgba(255,122,26,.65); box-shadow: 0 0 0 4px rgba(255,122,26,.12);
+  outline: none; border-color: rgba(var(--orange-rgb), .65); box-shadow: 0 0 0 4px rgba(var(--orange-rgb), .12);
   background: rgba(8,9,11,.85);
 }
 #authPassword { padding-left: 76px; }
@@ -175,8 +175,8 @@
 .profile-card { text-align: center; }
 .avatar-big {
   width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 12px;
-  background: linear-gradient(135deg, rgba(255,122,26,.24), rgba(255,122,26,.08)); color: var(--orange);
-  font-size: 26px; font-weight: 900; border: 1px solid rgba(255,122,26,.2);
+  background: linear-gradient(135deg, rgba(var(--orange-rgb), .24), rgba(var(--orange-rgb), .08)); color: var(--orange);
+  font-size: 26px; font-weight: 900; border: 1px solid rgba(var(--orange-rgb), .2);
 }
 .profile-card b { display: block; font-size: 16px; }
 .profile-card small { color: var(--muted-2); font-size: 12px; word-break: break-all; }

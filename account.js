@@ -342,7 +342,7 @@
         var s = d.data() || {};
         if (typeof s.order !== "number") s.order = 999;
         return s;
-      }).sort(function (a, b) { return a.order - b.order; });
+      }).filter(function (s) { return s.active !== false; }).sort(function (a, b) { return a.order - b.order; });
 
       $("#reqService").innerHTML = rows.map(function (s) {
         return '<option value="' + esc(s.title || "خدمة") + '">' + esc(s.title || "خدمة") + '</option>';
@@ -361,7 +361,9 @@
   function loadTools() {
     if (!db) return;
     db.collection("tools").get().then(function (snap) {
-      var tools = snap.docs.map(function (d) { return d.data() || {}; });
+      var tools = snap.docs.map(function (d) { return d.data() || {}; })
+        .filter(function (t) { return t.active !== false; })
+        .sort(function (a, b) { return (typeof a.order === "number" ? a.order : 999) - (typeof b.order === "number" ? b.order : 999); });
       $("#memberTools").innerHTML = tools.map(function (t) {
         var file = safeHref(t.file);
         var ready = file && file !== "#";

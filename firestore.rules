@@ -26,6 +26,9 @@ service cloud.firestore {
     match /faqs/{doc}                  { allow read: if true; allow write: if isAdmin(); }
     match /site/{doc}                  { allow read: if true; allow write: if isAdmin(); }
 
+    // مكتبة الصور: للأدمن والشركاء فقط
+    match /media/{doc}                 { allow read, write: if isAdmin(); }
+
     // الشركاء: الأدمن الأساسي فقط يقدر يضيف/يمسح شريك
     match /admins/{email} {
       allow read: if isAdmin();
