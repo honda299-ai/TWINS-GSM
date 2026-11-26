@@ -4,8 +4,8 @@
    ============================================================ */
 window.TWINS_DATA = {
   contact: {
-    phoneDisplay: "+20 100 000 0000",           // ✏️ رقمك الظاهر
-    whatsapp: "https://wa.me/20100000000?text=" + encodeURIComponent("السلام عليكم، عندي جهاز محتاج صيانة سوفت وير وعرايز أتعاون مع TWINS GSM"),
+    phoneDisplay: "+20 1212881889",           // ✏️ رقمك الظاهر
+    whatsapp: "https://wa.me/201212881889?text=" + encodeURIComponent("السلام عليكم، عندي جهاز محتاج صيانة سوفت وير وعرايز أتعاون مع TWINS GSM"),
     email: "hello@twinsgsm.example",             // ✏️ إيميلك
     facebook: "#",                               // ✏️ رابط فيسبوك
     tiktok: "#",                                 // ✏️ رابط تيك توك
@@ -14,11 +14,11 @@ window.TWINS_DATA = {
 
   // جهات الاتصال داخل الهاتف التفاعلي — عدّلها بسهولة وأضف جهاتك الخاصة.
   phoneContacts: [
-    { id: "twins-main", name: "TWINS GSM", role: "الرقم الرئيسي / استفسارات", phone: "+20 100 000 0000", fav: true, team: true, color: "#ff8a1f" },
-    { id: "twins-support", name: "الدعم الفني", role: "صيانة سوفت وير وحل المشاكل", phone: "+20 100 000 0001", fav: true, team: true, color: "#4f8cff" },
-    { id: "twins-sales", name: "قسم المبيعات", role: "الأسعار والخدمات", phone: "+20 100 000 0002", fav: false, team: true, color: "#25d366" },
-    { id: "twins-remote", name: "الصيانة عن بُعد", role: "ربط الجهاز بالكمبيوتر", phone: "+20 100 000 0003", fav: false, team: true, color: "#c46bff" },
-    { id: "twins-tools", name: "الأدوات والتحميلات", role: "ملفات وأدوات TWINS", phone: "+20 100 000 0004", fav: false, team: true, color: "#ff5d73" }
+    { id: "twins-main", name: "TWINS GSM", role: "الرقم الرئيسي / استفسارات", phone: "+21212881889", fav: true, team: true, color: "#ff8a1f" },
+    { id: "twins-support", name: "الدعم الفني", role: "صيانة سوفت وير وحل المشاكل", phone: "+20 1212881889", fav: true, team: true, color: "#4f8cff" },
+    { id: "twins-sales", name: "قسم المبيعات", role: "الأسعار والخدمات", phone: "+20 1212881889", fav: false, team: true, color: "#25d366" },
+    { id: "twins-remote", name: "الصيانة عن بُعد", role: "ربط الجهاز بالكمبيوتر", phone: "+20 1212881889", fav: false, team: true, color: "#c46bff" },
+    { id: "twins-tools", name: "الأدوات والتحميلات", role: "ملفات وأدوات TWINS", phone: "+20 1212881889", fav: false, team: true, color: "#ff5d73" }
   ],
 
   // ردود محاكاة أثناء المكالمة أو المحادثة — اكتبها بالعربي زي ما تحب.
