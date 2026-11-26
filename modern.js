@@ -15,5 +15,7 @@
       if (a) window.open(a.href, "_blank", "noopener"); else location.hash = "#contact";
     });
     document.body.appendChild(b);
+    var t = function () { b.classList.toggle("show", window.scrollY > 700); };
+    window.addEventListener("scroll", t, { passive: true }); t();
   }
 })();

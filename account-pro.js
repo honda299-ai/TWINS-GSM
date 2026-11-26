@@ -47,5 +47,11 @@
     if (t.hasAttribute("data-show")) { var h = c.textContent.indexOf("•") === 0; c.textContent = h ? c.dataset.v : "••••••••"; t.textContent = h ? "إخفاء" : "إظهار"; }
     if (t.hasAttribute("data-copy") && navigator.clipboard) navigator.clipboard.writeText(c.dataset.v).then(function () { t.textContent = "تم ✓"; });
   });
-  auth.onAuthStateChanged(render);
+  auth.onAuthStateChanged(function (u) {
+    if (!u) return render(null);
+    db.collection("users").doc(u.uid).get().then(function (d) {
+      if (d.exists && d.data().blocked === true) { auth.signOut().then(function () { alert("تم إيقاف هذا الحساب. تواصل مع الدعم."); }); return; }
+      render(u);
+    }).catch(function () { render(u); });
+  });
 })();

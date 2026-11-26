@@ -29,7 +29,7 @@
         .sort(function (a, b) { return (a.s.left == null ? 9e9 : a.s.left) - (b.s.left == null ? 9e9 : b.s.left); });
       $("#mList").innerHTML = l.length ? l.map(function (r) {
         var e = dt(r.m && r.m.expiresAt);
-        return '<div class="item-row"><div class="item-thumb">' + esc(String(r.u.name || r.u.email || "?").charAt(0).toUpperCase()) + '</div><div class="item-main"><b>' + esc(r.u.name || r.u.email) + ' <span class="pill ' + r.s.c + '">' + r.s.t + '</span></b><small>' + esc(r.u.email || "—") + (e ? " · ينتهي " + ymd(e) + (r.s.left > 0 ? " (باقي " + r.s.left + " يوم)" : "") : "") + '</small></div><div class="item-actions"><button class="btn btn-ghost btn-sm" data-uid="' + esc(r.u._id) + '">إدارة</button></div></div>';
+        return '<div class="item-row"><div class="item-thumb">' + esc(String(r.u.name || r.u.email || "?").charAt(0).toUpperCase()) + '</div><div class="item-main"><b>' + esc(r.u.name || r.u.email) + ' <span class="pill ' + r.s.c + '">' + r.s.t + '</span>' + (r.u.blocked ? ' <span class="pill warn">محظور</span>' : '') + '</b><small>' + esc(r.u.email || "—") + (e ? " · ينتهي " + ymd(e) + (r.s.left > 0 ? " (باقي " + r.s.left + " يوم)" : "") : "") + '</small></div><div class="item-actions"><button class="btn btn-ghost btn-sm" data-uid="' + esc(r.u._id) + '">إدارة</button></div></div>';
       }).join("") : '<div class="empty-state">لا نتائج.</div>';
     }
     function edit(uid) {
@@ -40,12 +40,31 @@
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button type="button" class="btn btn-ghost btn-sm" data-add="30">+30 يوم</button><button type="button" class="btn btn-ghost btn-sm" data-add="90">+90 يوم</button><button type="button" class="btn btn-ghost btn-sm" data-add="365">+سنة</button></div>' +
         '<label><input type="checkbox" id="mActive"> العضوية مفعّلة</label>' +
         '<label>ملاحظة (خاصة بيك)<textarea id="mNote" rows="2"></textarea></label>' +
+        '<div class="danger-zone"><b>إجراءات الحساب</b><div><button type="button" class="btn btn-ghost btn-sm" id="mBlock">' + (u.blocked ? "فك الحظر" : "حظر الحساب") + '</button><button type="button" class="btn btn-ghost btn-sm" id="mReset">إعادة تعيين الباسورد</button><button type="button" class="btn btn-ghost btn-sm" id="mPartner">تعيين كشريك أدمن</button><button type="button" class="btn btn-ghost btn-sm" id="mDelete">حذف الحساب</button></div></div>' +
         '<div class="modal-actions"><button class="btn btn-primary" id="mSave" type="button">حفظ</button><button class="btn btn-ghost" id="mCancel" type="button">إلغاء</button></div>');
       $("#mLevel").value = m.level === "pro" ? "pro" : "none"; $("#mActive").checked = m.active !== false; $("#mNote").value = m.note || "";
       $("#modalBox").onclick = function (ev) {
         var a = ev.target.getAttribute && ev.target.getAttribute("data-add");
         if (a) { var cur = $("#mExp").value ? new Date($("#mExp").value) : new Date(); if (cur < new Date()) cur = new Date(); $("#mExp").value = ymd(new Date(cur.getTime() + (+a) * DAY)); $("#mLevel").value = "pro"; }
         if (ev.target.id === "mCancel") A.modal.close();
+        var id = ev.target.id, ts = firebase.firestore.FieldValue.serverTimestamp(), em = (u.email || "").toLowerCase();
+        function done(msg) { A.toast(msg); A.modal.close(); load(); }
+        function bad(er) { A.toast(A.errMsg(er), true); }
+        if (id === "mBlock") {
+          var nb = !u.blocked;
+          A.col("users").doc(uid).set({ blocked: nb, blockedAt: ts }, { merge: true }).then(function () { return nb ? A.col("memberships").doc(uid).set({ active: false }, { merge: true }) : null; }).then(function () { done(nb ? "تم حظر الحساب" : "تم فك الحظر"); }).catch(bad);
+        }
+        if (id === "mReset") firebase.auth().sendPasswordResetEmail(u.email).then(function () { A.toast("اتبعت رابط إعادة التعيين"); }).catch(bad);
+        if (id === "mPartner") A.confirm("تعيين شريك؟", em + " هيدخل لوحة التحكم (لازم أنت الأدمن الأساسي).", { ok: "تعيين" }).then(function (ok) { if (ok) A.col("admins").doc(em).set({ email: em, active: true, createdAt: ts }).then(function () { A.toast("تم التعيين"); }).catch(bad); });
+        if (id === "mDelete") A.confirm("حذف الحساب نهائياً؟", "هتتمسح بيانات " + em + " وطلباته وتحميلاته وعضويته، ويتحظر. (حذف تسجيل الدخول نفسه من Firebase Console ← Authentication).", { ok: "حذف نهائي" }).then(function (ok) {
+          if (!ok) return;
+          Promise.all([A.col("requests").where("uid", "==", uid).get(), A.col("downloads").where("uid", "==", uid).get()]).then(function (s) {
+            var b = A.db.batch(); s.forEach(function (q) { q.docs.forEach(function (d) { b.delete(d.ref); }); });
+            b.delete(A.col("memberships").doc(uid)); b.set(A.col("users").doc(uid), { email: u.email || "", name: "", blocked: true, deleted: true, role: "member", createdAt: ts });
+            return b.commit();
+          }).then(function () { done("تم حذف الحساب"); }).catch(bad);
+        });
+
         if (ev.target.id === "mSave") {
           var lvl = $("#mLevel").value, ex = $("#mExp").value;
           if (lvl === "pro" && !ex) { A.toast("حدد تاريخ الانتهاء.", true); return; }
