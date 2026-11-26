@@ -288,7 +288,7 @@
   function initContact() {
     var c = D.contact || {};
     var wa = c.whatsapp || "#";
-    $$('#headerWhatsapp, #heroWhatsapp, #reviewWhatsapp, #faqWhatsapp, #contactWhatsapp, #floatWa').forEach(function (el) {
+    $$('#headerWhatsapp, #heroWhatsapp, #reviewWhatsapp, #faqWhatsapp, #contactWhatsapp, #floatWa, #quickWa').forEach(function (el) {
       el.href = safeHref(wa);
       el.setAttribute("data-analytics", "whatsapp");
       el.rel = "noopener noreferrer";
@@ -661,9 +661,10 @@
     var apps = {
       phone: function () {
         return {
-          title: "الهاتف", sub: c().phoneDisplay || "اتصل بنا",
-          body: '<div class="phone-chat"><div class="phone-bubble in">أهلاً بك في <strong>TWINS GSM</strong> 👋<br>اضغط للاتصال المباشر وسنساعدك في مشكلة جهازك.</div><div class="phone-bubble out">عايز استفسار بخصوص صيانة سوفت وير.</div></div>',
-          action: telHref(), actionLabel: "اتصال الآن", disabled: telHref() === "#"
+          studio: true,
+          title: "الهاتف التفاعلي", sub: "جهات اتصال · مكالمات · رسائل",
+          body: '<div class="phone-chat"><div class="phone-bubble in">أهلاً بك في <strong>TWINS GSM</strong> 👋<br>افتح الهاتف التفاعلي: جهات اتصال، لوحة أرقام، مكالمة تجريبية، رسائل وسجل مكالمات.</div><div class="phone-bubble out">عايز أجرّب المكالمة التفاعلية.</div></div>',
+          action: telHref(), actionLabel: "اتصال حقيقي", disabled: telHref() === "#"
         };
       },
       whatsapp: function () {
@@ -720,6 +721,10 @@
       var fn = apps[name];
       if (!fn) return;
       var cfg = fn();
+      if (cfg.studio) {
+        if (window.TWINS_PHONE) window.TWINS_PHONE.open("dialer");
+        return;
+      }
       title.textContent = cfg.title;
       sub.textContent = cfg.sub || "TWINS GSM";
       body.innerHTML = cfg.body;

@@ -1,0 +1,456 @@
+/* ============================================================
+   TWINS GSM — Phone Studio
+   هاتف تفاعلي متجاوب: موبايل + كمبيوتر
+   ============================================================ */
+
+:root {
+  --ps-accent: #ff8a1f;
+  --ps-accent-rgb: 255, 138, 31;
+}
+
+/* زر الهاتف في الهيدر */
+.header-phone { display: inline-flex; align-items: center; gap: 7px; }
+.header-phone svg { width: 16px; height: 16px; }
+
+/* ================= شريط الاختصارات للموبايل ================= */
+.mobile-dock { display: none; }
+
+@media (max-width: 760px) {
+  body { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+
+  .mobile-dock {
+    position: fixed; z-index: 80; inset-inline: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
+    padding: 7px 5px; border-radius: 22px;
+    background: rgba(16, 18, 24, .94); border: 1px solid rgba(255, 255, 255, .1);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .55); backdrop-filter: blur(16px);
+  }
+  .mobile-dock button, .mobile-dock a {
+    min-height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    border: 0; border-radius: 16px; background: transparent; color: #aeb4c0;
+    text-decoration: none; cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent;
+    transition: background .18s ease, color .18s ease, transform .18s ease;
+  }
+  .mobile-dock button:active, .mobile-dock a:active { transform: scale(.94); }
+  .mobile-dock button.is-active, .mobile-dock a.is-active { background: rgba(var(--ps-accent-rgb), .15); color: var(--ps-accent); }
+  .mobile-dock svg { width: 21px; height: 21px; }
+  .mobile-dock span { font-size: 9px; font-weight: 800; line-height: 1.1; white-space: nowrap; }
+  .mobile-dock a[href="#tools"] { color: var(--ps-accent); }
+  .mobile-dock a[href="#tools"].is-active { background: rgba(var(--ps-accent-rgb), .15); }
+
+  .float-wa { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); z-index: 79; }
+  .header-phone span { display: none; }
+  .header-phone { padding: 8px 11px; }
+
+  .hero-visual { min-height: 420px; }
+  .card-one, .card-two { display: none; }
+}
+
+@media (max-width: 380px) {
+  .phone-mock { transform: scale(.84) rotate(-2deg); }
+  .phone-mock:hover { transform: scale(.84) rotate(0deg); }
+  .hero-visual { min-height: 390px; }
+  .mobile-dock span { font-size: 8px; }
+}
+
+/* ================= الحاوية العامة ================= */
+.phone-studio {
+  position: fixed; inset: 0; z-index: 1200;
+  display: grid; place-items: center; padding: 20px;
+  overscroll-behavior: contain;
+}
+.phone-studio[hidden] { display: none !important; }
+.ps-backdrop {
+  position: absolute; inset: 0; background: rgba(3, 4, 7, .78);
+  backdrop-filter: blur(12px); animation: psFade .22s ease both;
+}
+@keyframes psFade { from { opacity: 0; } to { opacity: 1; } }
+
+.ps-device {
+  --ps-accent: var(--orange, #ff8a1f);
+  --ps-accent-rgb: var(--orange-rgb, 255, 138, 31);
+  position: relative; width: min(390px, 100%); height: min(780px, calc(100dvh - 40px));
+  border-radius: 40px; padding: 8px;
+  background: linear-gradient(155deg, #4a505c, #101218 42%, #2c3038);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, .75), 0 0 0 1px rgba(255, 255, 255, .09) inset,
+              0 0 80px rgba(var(--ps-accent-rgb), .12);
+  animation: psUp .32s cubic-bezier(.2, .8, .2, 1) both;
+  overflow: hidden;
+}
+@keyframes psUp { from { opacity: 0; transform: translateY(26px) scale(.97); } to { opacity: 1; transform: none; } }
+
+.ps-device::after {
+  content: ""; position: absolute; inset: 8px; border-radius: 33px;
+  border: 1px solid rgba(255, 255, 255, .05); pointer-events: none; z-index: 30;
+}
+.ps-notch {
+  position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+  width: 104px; height: 25px; border-radius: 16px; background: #050507; z-index: 31;
+}
+
+.ps-status {
+  position: relative; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 24px 6px; direction: ltr; font-size: 12px; font-weight: 800; color: #f3f5f9;
+  background: #0b0d12;
+}
+.ps-status-icons { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; }
+.ps-sig { display: inline-block; width: 14px; height: 10px; background: linear-gradient(90deg, #fff 0 25%, rgba(255,255,255,.25) 25% 50%, #fff 50% 75%, rgba(255,255,255,.25) 75%); }
+.ps-bat { display: inline-block; width: 19px; height: 10px; border: 1px solid rgba(255,255,255,.6); border-radius: 3px; padding: 2px; }
+.ps-bat::after { content: ""; display: block; height: 100%; width: 76%; background: #65e0a3; border-radius: 1px; }
+
+.ps-head {
+  position: relative; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 16px 10px; background: #0b0d12; border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.ps-head-brand { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.ps-logo {
+  width: 32px; height: 32px; flex: 0 0 32px; border-radius: 10px; display: inline-flex;
+  align-items: center; justify-content: center; gap: 3px;
+  background: linear-gradient(135deg, var(--ps-accent), rgba(var(--ps-accent-rgb), .5));
+}
+.ps-logo i { display: block; width: 4px; height: 14px; border-radius: 2px; background: #0b0b0c; transform: skewX(-10deg); }
+.ps-logo i:last-child { height: 9px; opacity: .7; }
+.ps-head-brand b { display: block; font-size: 13px; line-height: 1.15; color: #fff; }
+.ps-head-brand b em { font-style: normal; color: var(--ps-accent); }
+.ps-head-brand small { display: block; font-size: 9px; color: rgba(255,255,255,.5); white-space: nowrap; }
+.ps-close {
+  width: 32px; height: 32px; flex: 0 0 32px; border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
+  background: rgba(255,255,255,.06); color: #fff; font-size: 20px; line-height: 1; cursor: pointer;
+}
+.ps-close:hover { background: rgba(255,255,255,.14); }
+
+.ps-tabs {
+  position: relative; z-index: 20; display: grid; grid-template-columns: repeat(5, 1fr);
+  background: #0b0d12; border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.ps-tabs button {
+  min-width: 0; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  border: 0; background: transparent; color: #8e95a4; cursor: pointer; font: inherit;
+  -webkit-tap-highlight-color: transparent; position: relative;
+  transition: color .18s ease, background .18s ease;
+}
+.ps-tabs button svg { width: 18px; height: 18px; }
+.ps-tabs button span { font-size: 9px; font-weight: 800; white-space: nowrap; }
+.ps-tabs button[aria-selected="true"] { color: var(--ps-accent); background: rgba(var(--ps-accent-rgb), .09); }
+.ps-tabs button[aria-selected="true"]::after {
+  content: ""; position: absolute; bottom: 0; inset-inline: 22%; height: 2px; border-radius: 2px; background: var(--ps-accent);
+}
+
+.ps-body {
+  position: relative; flex: 1; min-height: 0; overflow: hidden;
+  background: radial-gradient(circle at 50% -10%, #1b2130, #0c0e14 58%);
+}
+.ps-panel {
+  position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: 14px 14px 18px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent;
+}
+.ps-panel[hidden] { display: none !important; }
+.ps-panel::-webkit-scrollbar { width: 5px; }
+.ps-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 5px; }
+
+/* ================= لوحة الأرقام ================= */
+.ps-dialer { min-height: 100%; display: flex; flex-direction: column; gap: 12px; }
+.ps-display { text-align: center; padding: 6px 4px 4px; }
+.ps-dial-avatar {
+  width: 54px; height: 54px; margin: 0 auto 8px; border-radius: 18px; display: grid; place-items: center;
+  background: linear-gradient(140deg, rgba(var(--ps-accent-rgb), .95), rgba(var(--ps-accent-rgb), .35));
+  color: #0b0b0c; font-weight: 900; font-size: 17px;
+  box-shadow: 0 12px 26px rgba(var(--ps-accent-rgb), .22);
+}
+.ps-dial-name { display: block; font-size: 15px; color: #fff; }
+.ps-dial-name.is-number { font-size: 13px; color: rgba(255,255,255,.75); font-family: monospace; }
+.ps-display strong { display: block; font-size: 20px; letter-spacing: .5px; color: #fff; margin-top: 2px; min-height: 26px; }
+.ps-display small { display: block; font-size: 10px; color: rgba(255,255,255,.5); margin-top: 5px; line-height: 1.5; }
+
+.ps-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; max-width: 296px; width: 100%; margin: auto; }
+.ps-key {
+  height: 58px; border-radius: 20px; border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.055); color: #fff; cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
+  -webkit-tap-highlight-color: transparent; transition: background .12s ease, transform .12s ease;
+}
+.ps-key b { font-size: 22px; font-weight: 700; }
+.ps-key small { font-size: 8px; letter-spacing: 1.5px; color: rgba(255,255,255,.45); margin-top: 3px; }
+.ps-key:active, .ps-key.pressed { background: rgba(var(--ps-accent-rgb), .28); transform: scale(.94); }
+
+.ps-dial-actions { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 2px; }
+.ps-round {
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color: #d7dbe4; cursor: pointer;
+}
+.ps-round svg { width: 21px; height: 21px; }
+.ps-round:active { transform: scale(.93); }
+.ps-call-btn {
+  width: 66px; height: 66px; border-radius: 50%; border: 0; cursor: pointer; color: #06170d;
+  background: linear-gradient(145deg, #5ff09a, #1fbd69); display: grid; place-items: center;
+  box-shadow: 0 12px 30px rgba(31,189,105,.35), 0 0 0 7px rgba(31,189,105,.1);
+  -webkit-tap-highlight-color: transparent;
+}
+.ps-call-btn svg { width: 29px; height: 29px; }
+.ps-call-btn:active { transform: scale(.94); }
+.ps-dial-extra { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.ps-demo-call, .ps-real-call {
+  min-height: 40px; border-radius: 13px; cursor: pointer; font: inherit; font-size: 11px; font-weight: 800;
+  border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: #dfe3ea;
+}
+.ps-real-call { border-color: rgba(var(--ps-accent-rgb), .35); color: var(--ps-accent); background: rgba(var(--ps-accent-rgb), .1); }
+.ps-demo-call:active, .ps-real-call:active { transform: scale(.97); }
+
+/* ================= القوائم ================= */
+.ps-toolbar { display: flex; gap: 8px; margin-bottom: 10px; }
+.ps-search {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  height: 44px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09);
+}
+.ps-search svg { width: 17px; height: 17px; color: rgba(255,255,255,.45); flex: 0 0 17px; }
+.ps-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: #fff; font: inherit; font-size: 12px; }
+.ps-search input::placeholder { color: rgba(255,255,255,.4); }
+.ps-add {
+  width: 44px; height: 44px; flex: 0 0 44px; border-radius: 14px; border: 0; cursor: pointer;
+  background: var(--ps-accent); color: #0b0b0c; font-size: 25px; font-weight: 700; line-height: 1;
+}
+.ps-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.ps-chips::-webkit-scrollbar { display: none; }
+.ps-chips button {
+  flex: 0 0 auto; min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.05); color: #b9bfca; font: inherit; font-size: 10px; font-weight: 800; cursor: pointer;
+}
+.ps-chips button.active { background: rgba(var(--ps-accent-rgb), .16); border-color: rgba(var(--ps-accent-rgb), .45); color: var(--ps-accent); }
+
+.ps-list { display: flex; flex-direction: column; gap: 7px; }
+.ps-row {
+  display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 8px 10px;
+  border-radius: 15px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.06);
+  color: #fff; text-align: right; width: 100%; cursor: pointer; font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.ps-row:active { background: rgba(255,255,255,.1); }
+.ps-row-main { flex: 1; min-width: 0; }
+.ps-row-main b { display: block; font-size: 12px; line-height: 1.35; }
+.ps-row-main small { display: block; font-size: 10px; color: rgba(255,255,255,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-row-meta { font-size: 9px; color: rgba(255,255,255,.4); white-space: nowrap; }
+.ps-avatar {
+  width: 40px; height: 40px; flex: 0 0 40px; border-radius: 13px; display: grid; place-items: center;
+  color: #0b0b0c; font-size: 12px; font-weight: 900;
+}
+.ps-mini {
+  width: 34px; height: 34px; flex: 0 0 34px; border-radius: 11px; display: grid; place-items: center;
+  border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06); color: #e4e7ec; cursor: pointer;
+}
+.ps-mini svg { width: 16px; height: 16px; }
+.ps-mini.call { color: #5ff09a; border-color: rgba(95,240,154,.3); }
+.ps-mini.wa { color: #40d66d; border-color: rgba(64,214,109,.3); }
+.ps-empty { text-align: center; padding: 34px 14px; color: rgba(255,255,255,.5); font-size: 12px; line-height: 1.8; }
+.ps-empty b { display: block; font-size: 26px; margin-bottom: 6px; opacity: .6; }
+
+.ps-section-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ps-section-bar b { font-size: 13px; color: #fff; }
+.ps-section-bar button { border: 0; background: transparent; color: var(--ps-accent); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+.ps-rec-icon { font-size: 15px; }
+.ps-rec-icon.missed { color: #ff6b6b; }
+.ps-rec-icon.in { color: #5ff09a; }
+
+/* ================= المحادثات ================= */
+.ps-convs { display: flex; flex-direction: column; gap: 7px; }
+.ps-chat { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.ps-chat[hidden] { display: none !important; }
+.ps-chat-head { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.ps-chat-head button { width: 32px; height: 32px; border-radius: 10px; border: 0; background: rgba(255,255,255,.07); color: #fff; font-size: 22px; line-height: 1; cursor: pointer; }
+.ps-chat-head div { flex: 1; }
+.ps-chat-head b { display: block; font-size: 12px; color: #fff; }
+.ps-chat-head small { font-size: 9px; color: rgba(255,255,255,.45); }
+.ps-chat-head span { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--ps-accent); color: #0b0b0c; font-size: 11px; font-weight: 900; }
+.ps-chat-body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 2px; }
+.ps-msg { max-width: 86%; padding: 9px 11px; border-radius: 14px; font-size: 11px; line-height: 1.65; white-space: pre-wrap; }
+.ps-msg.in { align-self: flex-start; background: rgba(255,255,255,.08); color: #eff2f7; border-bottom-right-radius: 4px; }
+.ps-msg.out { align-self: flex-end; background: rgba(var(--ps-accent-rgb), .22); color: #fff; border-bottom-left-radius: 4px; }
+.ps-msg small { display: block; font-size: 8px; opacity: .6; margin-top: 3px; direction: ltr; }
+.ps-typing { align-self: flex-start; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); font-size: 11px; }
+.ps-typing i { animation: psBlink 1s infinite alternate; font-style: normal; }
+.ps-typing i:nth-child(2) { animation-delay: .2s; }
+.ps-typing i:nth-child(3) { animation-delay: .4s; }
+@keyframes psBlink { to { opacity: .25; } }
+.ps-chat-form { display: flex; gap: 7px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.08); }
+.ps-chat-form input { flex: 1; min-width: 0; height: 42px; padding: 0 13px; border-radius: 13px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06); color: #fff; font: inherit; font-size: 12px; outline: 0; }
+.ps-chat-form input:focus { border-color: rgba(var(--ps-accent-rgb), .6); }
+.ps-chat-form button { width: 42px; height: 42px; border-radius: 13px; border: 0; background: var(--ps-accent); color: #0b0b0c; font-size: 16px; cursor: pointer; }
+
+/* ================= الإعدادات ================= */
+.ps-settings { display: flex; flex-direction: column; gap: 9px; }
+.ps-settings-note { margin: 0 0 4px; font-size: 11px; color: rgba(255,255,255,.6); line-height: 1.7; }
+.ps-switch {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 60px; padding: 10px 12px;
+  border-radius: 15px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.06); cursor: pointer;
+}
+.ps-switch span { flex: 1; }
+.ps-switch b { display: block; font-size: 12px; color: #fff; }
+.ps-switch small { display: block; font-size: 10px; color: rgba(255,255,255,.48); margin-top: 2px; }
+.ps-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.ps-switch i { position: relative; width: 44px; height: 25px; flex: 0 0 44px; border-radius: 999px; background: rgba(255,255,255,.16); transition: background .2s; }
+.ps-switch i::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 19px; height: 19px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.ps-switch input:checked + i { background: var(--ps-accent); }
+.ps-switch input:checked + i::after { transform: translateX(19px); }
+html[dir="rtl"] .ps-switch input:checked + i::after { transform: translateX(-19px); }
+.ps-switch input:focus-visible + i { outline: 2px solid var(--ps-accent); outline-offset: 2px; }
+.ps-accent-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 15px; background: rgba(255,255,255,.045); }
+.ps-accent-row b { font-size: 12px; color: #fff; }
+#psAccents { display: flex; gap: 7px; }
+#psAccents button { width: 25px; height: 25px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+#psAccents button.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+.ps-setting-btn { min-height: 46px; border-radius: 14px; border: 1px solid rgba(255,107,107,.4); background: rgba(255,107,107,.1); color: #ff8a8a; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.ps-about { text-align: center; font-size: 10px; color: rgba(255,255,255,.35); line-height: 1.8; margin: 12px 0 0; }
+.ps-device.large-text .ps-panel { font-size: 115%; }
+.ps-device.large-text .ps-row-main b, .ps-device.large-text .ps-msg, .ps-device.large-text .ps-display small { font-size: 14px; }
+
+/* ================= شاشة المكالمة ================= */
+.ps-call {
+  position: absolute; inset: 8px; z-index: 22; border-radius: 33px; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: radial-gradient(circle at 50% 22%, #243247, #0a0c11 68%);
+  animation: psFade .22s ease both;
+}
+.ps-call[hidden], .ps-incoming[hidden] { display: none !important; }
+.ps-call::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 18%, rgba(var(--ps-accent-rgb), .16), transparent 55%);
+}
+.ps-call.minimized { transform: translateY(calc(100% - 56px)); transition: transform .25s ease; box-shadow: 0 -12px 36px rgba(0,0,0,.5); }
+.ps-call.minimized .ps-call-main, .ps-call.minimized .ps-call-pad { display: none; }
+.ps-call.minimized .ps-call-top { padding: 8px 18px; }
+.ps-call.minimized .ps-call-controls { padding-block: 4px; border-top: 0; }
+.ps-call.minimized .ps-call-controls button:not(.ps-end) { display: none; }
+.ps-call.minimized .ps-call-controls { grid-template-columns: 1fr; }
+.ps-call.minimized .ps-end { min-height: 42px; flex-direction: row; }
+.ps-call-top { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 40px 18px 6px; font-size: 10px; color: rgba(255,255,255,.6); }
+.ps-call-top button { width: 30px; height: 30px; border-radius: 9px; border: 0; background: rgba(255,255,255,.08); color: #fff; cursor: pointer; font-size: 15px; }
+.ps-call-main { position: relative; z-index: 2; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; padding: 18px 16px 6px; text-align: center; overflow: hidden; }
+.ps-call-rings { position: absolute; top: 26px; left: 50%; transform: translateX(-50%); width: 220px; height: 220px; pointer-events: none; }
+.ps-call-rings i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(var(--ps-accent-rgb), .35); animation: psRing 2.6s ease-out infinite; }
+.ps-call-rings i:nth-child(2) { animation-delay: .85s; }
+.ps-call-rings i:nth-child(3) { animation-delay: 1.7s; }
+@keyframes psRing { 0% { transform: scale(.55); opacity: .9; } 100% { transform: scale(1.25); opacity: 0; } }
+.ps-call.is-connected .ps-call-rings { display: none; }
+.ps-call-avatar {
+  position: relative; z-index: 2; width: 88px; height: 88px; border-radius: 28px; display: grid; place-items: center;
+  background: linear-gradient(140deg, var(--ps-accent), rgba(var(--ps-accent-rgb), .45));
+  color: #0b0b0c; font-size: 27px; font-weight: 900; box-shadow: 0 18px 46px rgba(var(--ps-accent-rgb), .3);
+}
+.ps-call.is-ringing .ps-call-avatar { animation: psPulse 1.4s ease-in-out infinite; }
+@keyframes psPulse { 50% { transform: scale(1.06); box-shadow: 0 22px 60px rgba(var(--ps-accent-rgb), .5); } }
+.ps-call-main h3 { margin: 16px 0 3px; font-size: 20px; color: #fff; }
+.ps-call-main > p { margin: 0; font-size: 11px; color: rgba(255,255,255,.55); }
+.ps-call-state { margin-top: 12px !important; font-size: 12px !important; font-weight: 800; color: var(--ps-accent) !important; }
+.ps-call-timer { margin-top: 4px; font-size: 13px; font-variant-numeric: tabular-nums; color: #fff; direction: ltr; min-height: 18px; }
+.ps-call-transcript { width: 100%; flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; margin-top: 12px; padding: 8px; border-radius: 16px; background: rgba(255,255,255,.04); }
+.ps-call-transcript:empty { display: none; }
+.ps-call-transcript .ps-msg { max-width: 96%; white-space: pre-line; font-size: 10px; }
+.ps-call-link { align-self: flex-start; min-height: 34px; padding: 0 12px; border-radius: 11px; border: 1px solid rgba(var(--ps-accent-rgb), .5); background: rgba(var(--ps-accent-rgb), .14); color: var(--ps-accent); font: inherit; font-size: 10px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; }
+.ps-call-pad { position: relative; z-index: 3; padding: 0 16px 8px; }
+.ps-call-pad[hidden] { display: none !important; }
+.ps-call-pad > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.ps-call-pad .ps-key { height: 40px; border-radius: 13px; }
+.ps-call-pad .ps-key b { font-size: 17px; }
+.ps-call-pad .ps-key small { display: none; }
+.ps-call-controls {
+  position: relative; z-index: 3; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  padding: 12px 14px calc(18px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(255,255,255,.07);
+  background: rgba(6,8,12,.55);
+}
+.ps-call-controls button {
+  min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  border-radius: 16px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06);
+  color: #e6e9ef; cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent;
+}
+.ps-call-controls button svg { width: 21px; height: 21px; }
+.ps-call-controls small { font-size: 9px; font-weight: 800; }
+.ps-call-controls button.on { background: rgba(var(--ps-accent-rgb), .2); border-color: rgba(var(--ps-accent-rgb), .5); color: var(--ps-accent); }
+.ps-call-controls .ps-end { background: #ec4646; border-color: #ec4646; color: #fff; }
+.ps-call-controls .ps-end svg { transform: rotate(135deg); }
+
+/* مكالمة واردة */
+.ps-incoming {
+  position: absolute; inset: 8px; z-index: 25; display: grid; place-items: center; padding: 20px;
+  border-radius: 33px; background: rgba(5,7,11,.86); backdrop-filter: blur(10px); animation: psFade .2s ease both;
+}
+.ps-incoming-card { width: 100%; text-align: center; border-radius: 24px; padding: 28px 18px 22px; background: linear-gradient(160deg, #1d2635, #0d1016); border: 1px solid rgba(255,255,255,.1); box-shadow: var(--shadow, 0 20px 50px rgba(0,0,0,.5)); }
+.ps-incoming-card .ps-call-avatar { margin: 0 auto 16px; animation: psPulse 1.2s ease-in-out infinite; }
+.ps-incoming-card b { display: block; font-size: 19px; color: #fff; }
+.ps-incoming-card > small { display: block; font-size: 11px; color: rgba(255,255,255,.55); margin-top: 4px; }
+.ps-incoming-card p { font-size: 10px; color: rgba(255,255,255,.45); margin: 10px 0 22px; }
+.ps-incoming-actions { display: flex; justify-content: center; gap: 44px; }
+.ps-incoming-actions button { width: 62px; height: 62px; border-radius: 50%; border: 0; cursor: pointer; font-size: 25px; font-weight: 900; color: #fff; }
+#psDecline { background: #e64545; }
+#psAccept { background: #22bc6b; }
+.ps-incoming-actions button:active { transform: scale(.93); }
+
+/* نافذة جهة الاتصال / التأكيد */
+.ps-sheet { position: absolute; inset: 8px; z-index: 27; border-radius: 33px; overflow: hidden; }
+.ps-sheet[hidden] { display: none !important; }
+.ps-sheet-dim { position: absolute; inset: 0; background: rgba(4,6,10,.68); backdrop-filter: blur(3px); }
+.ps-sheet-card {
+  position: absolute; inset-inline: 0; bottom: 0; max-height: 86%; overflow-y: auto;
+  padding: 8px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  border-radius: 24px 24px 0 0; background: #151922; border-top: 1px solid rgba(255,255,255,.12);
+  animation: psSheet .25s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes psSheet { from { transform: translateY(100%); } to { transform: none; } }
+.ps-sheet-grip { width: 40px; height: 4px; border-radius: 4px; background: rgba(255,255,255,.2); margin: 0 auto 14px; }
+.ps-sheet-card h3 { margin: 0 0 3px; font-size: 17px; color: #fff; }
+.ps-sheet-card > p { margin: 0 0 14px; font-size: 11px; color: rgba(255,255,255,.55); line-height: 1.7; }
+.ps-sheet-hero { text-align: center; padding: 6px 0 14px; }
+.ps-sheet-hero .ps-avatar { width: 66px; height: 66px; flex: 0 0 66px; border-radius: 21px; font-size: 20px; margin: 0 auto 10px; }
+.ps-sheet-hero b { display: block; font-size: 18px; color: #fff; }
+.ps-sheet-hero small { display: block; font-size: 11px; color: rgba(255,255,255,.5); margin-top: 3px; }
+.ps-sheet-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 6px; }
+.ps-sheet-actions button, .ps-sheet-actions a {
+  min-height: 46px; display: flex; align-items: center; justify-content: center; gap: 7px;
+  border-radius: 14px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.06);
+  color: #e8ebf1; text-decoration: none; font: inherit; font-size: 11px; font-weight: 800; cursor: pointer;
+}
+.ps-sheet-actions button.primary, .ps-sheet-actions a.primary { background: var(--ps-accent); border-color: var(--ps-accent); color: #0b0b0c; }
+.ps-sheet-actions button.danger { color: #ff8a8a; border-color: rgba(255,107,107,.35); background: rgba(255,107,107,.1); }
+.ps-sheet-actions button:active, .ps-sheet-actions a:active { transform: scale(.97); }
+.ps-field { display: block; margin-bottom: 9px; }
+.ps-field span { display: block; font-size: 10px; font-weight: 800; color: rgba(255,255,255,.65); margin-bottom: 5px; }
+.ps-field input { width: 100%; height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: #fff; font: inherit; font-size: 12px; outline: 0; }
+.ps-field input:focus { border-color: var(--ps-accent); }
+.ps-sheet-submit { width: 100%; min-height: 48px; margin-top: 4px; border-radius: 14px; border: 0; background: var(--ps-accent); color: #0b0b0c; font: inherit; font-size: 12px; font-weight: 900; cursor: pointer; }
+
+.ps-toast {
+  position: absolute; z-index: 29; inset-inline: 22px; bottom: 26px; padding: 12px 14px; border-radius: 14px;
+  background: rgba(20,24,32,.97); border: 1px solid rgba(var(--ps-accent-rgb), .4); color: #fff;
+  font-size: 11px; font-weight: 700; text-align: center; box-shadow: 0 14px 36px rgba(0,0,0,.5);
+  animation: psSheet .2s ease both;
+}
+.ps-toast[hidden] { display: none !important; }
+
+/* ================= الموبايل: هاتف بملء الشاشة ================= */
+@media (max-width: 760px) {
+  .phone-studio { padding: 0; }
+  .ps-device { width: 100%; height: 100dvh; border-radius: 0; padding: 0; box-shadow: none; }
+  .ps-device::after { display: none; }
+  .ps-notch { top: 8px; width: 96px; height: 22px; }
+  .ps-status { padding-top: 11px; }
+  .ps-call, .ps-incoming, .ps-sheet { inset: 0; border-radius: 0; }
+  .ps-sheet-card { border-radius: 24px 24px 0 0; }
+  .ps-call-top { padding-top: 34px; }
+  .ps-keypad { gap: 8px; max-width: 320px; }
+  .ps-key { height: 62px; }
+  .ps-call-btn { width: 72px; height: 72px; }
+  .ps-tabs button { min-height: 58px; }
+}
+
+@media (max-height: 680px) and (max-width: 760px) {
+  .ps-head { padding-block: 4px 6px; }
+  .ps-tabs button { min-height: 50px; }
+  .ps-key { height: 52px; }
+  .ps-dial-avatar { width: 44px; height: 44px; margin-bottom: 5px; }
+  .ps-call-avatar { width: 72px; height: 72px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-device, .ps-sheet-card, .ps-toast, .ps-backdrop, .ps-call, .ps-incoming,
+  .ps-call-rings i, .ps-call.is-ringing .ps-call-avatar, .ps-incoming-card .ps-call-avatar,
+  .ps-typing i { animation: none !important; }
+}
