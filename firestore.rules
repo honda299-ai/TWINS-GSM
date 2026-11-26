@@ -2,7 +2,7 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // الأدمن الأساسي + أي شريك مضاف في مجموعة admins
+    // الأدمن الأساسي (Honda Store) + أي شريك مضاف في مجموعة admins
     function isAdmin() {
       return request.auth != null && (
         request.auth.token.email == 'hondastore299@gmail.com' ||

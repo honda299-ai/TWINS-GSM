@@ -9,6 +9,7 @@
   var mode = "login";
   var toastTimer = null;
   var statusTimer = null;
+  var PRIMARY_ADMIN = "hondastore299@gmail.com";
 
   function esc(v) {
     return String(v == null ? "" : v)
@@ -149,6 +150,8 @@
       } else {
         $("#authView").hidden = false;
         $("#accountView").hidden = true;
+        var adminBtn = $("#goAdminBtn");
+        if (adminBtn) adminBtn.remove();
         setLoading(false);
       }
     }, function (err) {
@@ -228,14 +231,15 @@
     if (mode === "register") {
       task = auth.createUserWithEmailAndPassword(email, password).then(function (cred) {
         var user = cred.user;
-        var profileName = name || email.split("@")[0];
+        var profileName = name || (email === PRIMARY_ADMIN ? "Honda Store" : email.split("@")[0]);
+        var userRole = email === PRIMARY_ADMIN ? "admin" : "member";
         var ops = [];
         if (user && user.updateProfile) ops.push(user.updateProfile({ displayName: profileName }));
         if (db && user) {
           ops.push(db.collection("users").doc(user.uid).set({
             email: user.email || email,
             name: profileName,
-            role: "member",
+            role: userRole,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true }));
         }
@@ -276,18 +280,53 @@
     });
   }
 
+  function injectAdminBadgeAndButton(user, displayName) {
+    var email = (user.email || "").toLowerCase();
+    var isPrimary = email === PRIMARY_ADMIN;
+
+    var checkAdmin = isPrimary
+      ? Promise.resolve(true)
+      : (db ? db.collection("admins").doc(email).get().then(function (d) { return d.exists && d.data().active !== false; }).catch(function () { return false; }) : Promise.resolve(false));
+
+    checkAdmin.then(function (isAdmin) {
+      if (!isAdmin) return;
+
+      $("#profileName").innerHTML = esc(displayName) + ' <span class="status done" style="margin-inline-start:6px">Admin 👑</span>';
+      var logoutBtn = $("#logoutBtn");
+      if (logoutBtn && !$("#goAdminBtn")) {
+        var adminLink = document.createElement("a");
+        adminLink.id = "goAdminBtn";
+        adminLink.href = "admin.html";
+        adminLink.className = "btn btn-primary btn-sm";
+        adminLink.style.marginInlineEnd = "8px";
+        adminLink.textContent = "لوحة التحكم ⚙";
+        logoutBtn.parentNode.insertBefore(adminLink, logoutBtn);
+      }
+      if (db && isPrimary) {
+        db.collection("users").doc(user.uid).set({ role: "admin" }, { merge: true }).catch(function () {});
+      }
+    });
+  }
+
   function loadDashboard(user) {
     var email = user.email || "";
-    var displayName = user.displayName || (email ? email.split("@")[0] : "عضو TWINS");
+    var isPrimary = email.toLowerCase() === PRIMARY_ADMIN;
+    var displayName = user.displayName || (isPrimary ? "Honda Store" : (email ? email.split("@")[0] : "عضو TWINS"));
     $("#accountEmail").textContent = email;
     $("#profileEmail").textContent = email;
     $("#profileLetter").textContent = (displayName || email || "T").charAt(0).toUpperCase();
     $("#profileName").textContent = displayName;
 
+    injectAdminBadgeAndButton(user, displayName);
+
     if (!db) return;
 
     db.collection("users").doc(user.uid).get().then(function (doc) {
-      if (doc.exists && doc.data().name) $("#profileName").textContent = doc.data().name;
+      if (doc.exists && doc.data().name) {
+        var savedName = doc.data().name;
+        $("#profileName").textContent = savedName;
+        injectAdminBadgeAndButton(user, savedName);
+      }
     }).catch(function () {});
 
     loadServices();

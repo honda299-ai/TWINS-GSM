@@ -8,6 +8,7 @@
   var app, auth, db, storage;
   var currentSection = "overview";
   var toastTimer = null;
+  var PRIMARY_ADMIN = "hondastore299@gmail.com";
 
   function esc(v) {
     return String(v == null ? "" : v)
@@ -41,7 +42,7 @@
 
   var SCHEMAS = {
     tools: {
-      title: "الأدوات", icon: "⬇", desc: "ضيف أداة واربطها بملف داخل مجلد tools، رابط خارجي، أو ارفع الملف مباشرة إلى Firebase Storage.",
+      title: "الأدوات", icon: "⬇", desc: "ضيف أداة واربطها بملف داخل مجلد tools أو رابط خارجي مباشر (مثل GitHub Releases أو Google Drive).",
       listTitle: function (d) { return d.name || "أداة بدون اسم"; },
       listSub: function (d) { return (d.tag || d.category || "—") + " · " + (d.version || "v1.0") + " · " + (d.size || "—"); },
       fields: [
@@ -53,20 +54,20 @@
         { key: "size", label: "الحجم", type: "text" },
         { key: "order", label: "الترتيب", type: "number" },
         { key: "hot", label: "أداة مميزة", type: "checkbox" },
-        { key: "file", label: "مسار الملف أو رابط التحميل", type: "text", full: true, hint: "مثال: tools/my-tool.zip أو رابط خارجي مباشر. يمكنك أيضاً رفع ملف بالأسفل وسيتم ملء الرابط تلقائياً." },
-        { key: "toolFile", label: "رفع ملف الأداة (اختياري)", type: "file", accept: ".zip,.rar,.7z,.pdf,.exe,.apk,.txt", storageDir: "tools", targetKey: "file", full: true, hint: "يُرفع إلى Firebase Storage ويضع رابط التحميل في حقل الملف." }
+        { key: "file", label: "مسار الملف أو رابط التحميل", type: "text", full: true, hint: "مثال: tools/twins-frp-helper.zip أو رابط تحميل مباشر." },
+        { key: "toolFile", label: "رفع ملف الأداة إلى Storage (إذا كان مفعلاً)", type: "file", accept: ".zip,.rar,.7z,.pdf,.exe,.apk,.txt", storageDir: "tools", targetKey: "file", full: true, hint: "يُرفع إلى Firebase Storage ويضع رابط التحميل تلقائياً في حقل الملف." }
       ]
     },
     works: {
-      title: "الأعمال", icon: "🖼", desc: "الأجهزة اللي أصلحتها والمعرض على الصفحة الرئيسية. يمكنك رفع صورة حقيقية لكل عمل.",
+      title: "الأعمال", icon: "🖼", desc: "الأجهزة اللي أصلحتها والمعرض على الصفحة الرئيسية. يمكنك إضافة رابط صورة أو رفعها.",
       listTitle: function (d) { return d.model || "جهاز بدون اسم"; },
       listSub: function (d) { return (d.brand || "—") + " · " + (d.category || "—"); },
       fields: [
         { key: "brand", label: "البراند", type: "text", required: true },
         { key: "model", label: "الموديل", type: "text", required: true },
         { key: "category", label: "التصنيف (iphone / samsung / xiaomi / tablet / other)", type: "text", full: true },
-        { key: "image", label: "رابط صورة العمل", type: "text", full: true, hint: "يمكنك لصق رابط صورة، أو رفع صورة بالأسفل وسيتم ملء الرابط تلقائياً." },
-        { key: "workImage", label: "رفع صورة العمل (اختياري)", type: "file", accept: "image/*", storageDir: "works", targetKey: "image", full: true },
+        { key: "image", label: "رابط صورة العمل", type: "text", full: true, hint: "يمكنك لصق رابط صورة مباشر، أو رفع صورة بالأسفل." },
+        { key: "workImage", label: "رفع صورة العمل (إذا كان Storage مفعلاً)", type: "file", accept: "image/*", storageDir: "works", targetKey: "image", full: true },
         { key: "desc", label: "وصف الشغل", type: "textarea", full: true },
         { key: "order", label: "الترتيب", type: "number" }
       ]
@@ -83,9 +84,9 @@
       ]
     },
     services: {
-      title: "الخدمات", icon: "⚙", desc: "البطاقات اللي بتظهر في قسم الخدمات.",
+      title: "الخدمات", icon: "⚙", desc: "البطاقات اللي بتظهر في قسم الخدمات والأسعار للأعضاء.",
       listTitle: function (d) { return d.title || "خدمة بدون اسم"; },
-      listSub: function (d) { return d.desc || ""; },
+      listSub: function (d) { return (d.price ? d.price + " · " : "") + (d.desc || ""); },
       fields: [
         { key: "title", label: "عنوان الخدمة", type: "text", required: true },
         { key: "tag", label: "الوسم (مثلاً FRP)", type: "text" },
@@ -199,16 +200,35 @@
     });
 
     auth.onAuthStateChanged(function (user) {
-      if (user) {
-        $("#loginView").hidden = true;
-        $("#adminView").hidden = false;
-        $("#userEmail").textContent = user.email || "—";
-        renderNav();
-        setSection("overview");
-      } else {
+      if (!user) {
         $("#loginView").hidden = false;
         $("#adminView").hidden = true;
+        return;
       }
+
+      var email = (user.email || "").toLowerCase();
+      var isPrimary = email === PRIMARY_ADMIN;
+
+      var checkAccess = isPrimary
+        ? Promise.resolve(true)
+        : db.collection("admins").doc(email).get().then(function (doc) {
+            return doc.exists && doc.data().active !== false;
+          }).catch(function () { return false; });
+
+      checkAccess.then(function (allowed) {
+        if (!allowed) {
+          auth.signOut();
+          showError("هذا الحساب (" + email + ") ليس لديه صلاحية أدمن.");
+          $("#loginView").hidden = false;
+          $("#adminView").hidden = true;
+          return;
+        }
+        $("#loginView").hidden = true;
+        $("#adminView").hidden = false;
+        $("#userEmail").textContent = (isPrimary ? "👑 Honda Store · " : "") + email;
+        renderNav();
+        setSection("overview");
+      });
     });
 
     renderNav();
@@ -253,7 +273,7 @@
   function renderOverview() {
     var content = $("#adminContent");
     content.innerHTML = '<div class="overview-grid" id="overviewGrid"><div class="overview-card">جاري التحميل…</div></div>' +
-      '<div class="overview-note">مبروك 💛 الموقع هيقرأ تلقائياً من Firestore. أي تعديل هنا هيظهر على الموقع بعد تحديث الصفحة.</div>';
+      '<div class="overview-note">أهلاً بك يا Honda Store 👑 الموقع بيقرأ تلقائياً من Firestore. أي تعديل أو أداة بتنشرها هنا بتظهر فوراً على الموقع.</div>';
 
     var names = ["tools", "works", "testimonials", "services", "stats", "faqs", "toolCategories", "workCategories", "users", "requests", "downloads", "admins"];
     Promise.all(names.map(function (name) {
@@ -292,8 +312,10 @@
       var current = doc && f.targetKey ? doc[f.targetKey] : (doc && doc.file ? doc.file : "");
       html += '<label for="' + id + '">' + esc(f.label) + '</label><input type="file" id="' + id + '" accept="' + esc(accept) + '" />';
       if (f.hint) html += '<span class="hint">' + esc(f.hint) + '</span>';
-      if (current) html += '<span class="hint">الحالي: <a href="' + esc(current) + '" target="_blank" rel="noopener">فتح</a></span>';
-      if (f.targetKey && doc && doc[f.targetKey]) html += '<div class="hint" style="margin-top:6px"><img src="' + esc(doc[f.targetKey]) + '" alt="" style="max-width:140px;max-height:90px;border-radius:10px;border:1px solid var(--line);object-fit:cover" onerror="this.style.display=\'none\'"></div>';
+      if (current && current !== "#") html += '<span class="hint">الحالي: <a href="' + esc(current) + '" target="_blank" rel="noopener">فتح</a></span>';
+      if (f.targetKey === "image" && doc && doc[f.targetKey]) {
+        html += '<div class="hint" style="margin-top:6px"><img src="' + esc(doc[f.targetKey]) + '" alt="" style="max-width:140px;max-height:90px;border-radius:10px;border:1px solid var(--line);object-fit:cover" onerror="this.style.display=\'none\'"></div>';
+      }
     } else {
       html += '<label for="' + id + '">' + esc(f.label) + (f.required ? ' *' : '') + '</label>';
       html += '<input type="' + (f.type === "number" ? "number" : "text") + '" id="' + id + '" value="' + esc(v) + '" ' + (f.required ? "required" : "") + ' />';
@@ -309,6 +331,7 @@
     var form = $("#adminForm");
     if (!form || !schema) return;
 
+    form.hidden = false;
     form.dataset.section = section;
     form.dataset.id = doc && doc._id ? doc._id : "";
     $("#formTitle").textContent = doc ? "تعديل: " + (schema.listTitle(doc) || "") : "إضافة جديد";
@@ -317,7 +340,7 @@
       return fieldHtml(f, doc ? doc[f.key] : (f.type === "number" ? 0 : (f.type === "checkbox" ? false : "")), doc);
     }).join("");
 
-    $("#cancelEdit").hidden = !doc;
+    $("#cancelEdit").hidden = false;
     $("#submitBtn").textContent = doc ? "حفظ التعديلات" : "إضافة";
     form.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -387,7 +410,7 @@
   }
 
   function uploadFileToStorage(file, dir) {
-    if (!storage) return Promise.reject(new Error("Firebase Storage غير مفعّل. فعّله من Firebase Console أو استخدم رابط مباشر."));
+    if (!storage) return Promise.reject(new Error("Firebase Storage غير مفعّل. استخدم حقل الرابط المباشر بدلاً من الرفع."));
     var path = dir + "/" + Date.now() + "-" + safeFileName(file.name);
     var ref = storage.ref().child(path);
     return ref.put(file).then(function () { return ref.getDownloadURL(); });
@@ -460,7 +483,7 @@
 
   function renderRequests() {
     var content = $("#adminContent");
-    content.innerHTML = '<div class="panel-head"><div><h2>طلبات العملاء</h2><p>تابع طلبات الصيانة وغيّر الحالتها.</p></div></div>' +
+    content.innerHTML = '<div class="panel-head"><div><h2>طلبات العملاء</h2><p>تابع طلبات الصيانة وغيّر حالتها.</p></div></div>' +
       '<div class="item-list" id="reqList"><div class="empty-state">جاري التحميل…</div></div>';
 
     db.collection("requests").orderBy("createdAt", "desc").get().then(function (snap) {
@@ -468,7 +491,7 @@
       if (!snap.size) { list.innerHTML = '<div class="empty-state">مفيش طلبات لسه.</div>'; return; }
       list.innerHTML = snap.docs.map(function (d) {
         var r = d.data() || {};
-        return '<div class="item-row"><div class="item-main"><b>' + esc(r.device || "جهاز") + ' — ' + esc(r.service || "خدمة") + '</b>' +
+        return '<div class="item-row"><div class="item-main"><b>' + esc(r.device || "جهاز") + ' — ' + esc(r.service || "خدمة") + ' (' + esc(r.status || "جديد") + ')</b>' +
           '<small>' + esc(r.email || "—") + ' · ' + esc(r.note || "") + ' · ' + fmt(r.createdAt) + '</small></div>' +
           '<div class="item-actions">' +
           '<button class="icon-btn" type="button" data-status="' + esc(d.id) + '" data-value="جديد" title="جديد">↺</button>' +
@@ -527,7 +550,6 @@
   }
 
   function renderAdmins() {
-    var primary = "hondastore299@gmail.com";
     var content = $("#adminContent");
     content.innerHTML =
       '<div class="panel-head"><div><h2>الشركاء / الأدمنز</h2><p>ضيف شريك بالايميل الخاص بيه، هيقدر يتحكم في بيانات الموقع.</p></div></div>' +
@@ -540,15 +562,15 @@
     db.collection("admins").get().then(function (snap) {
       var list = $("#partnerList");
       var docs = snap.docs.map(function (d) { var x = d.data() || {}; x._id = d.id; return x; });
-      var hasPrimary = docs.some(function (d) { return d._id === primary; });
+      var hasPrimary = docs.some(function (d) { return d._id === PRIMARY_ADMIN; });
       var rows = docs.map(function (d) {
-        var isPrimary = d._id === primary;
+        var isPrimary = d._id === PRIMARY_ADMIN;
         return '<div class="item-row"><div class="item-main"><b>' + esc(d.name || d._id) + (isPrimary ? ' 👑' : '') + '</b>' +
           '<small>' + esc(d._id) + ' · ' + (d.active === false ? 'معطّل' : 'نشط') + '</small></div>' +
           '<div class="item-actions">' + (isPrimary ? '' : '<button class="icon-btn danger" type="button" data-remove="' + esc(d._id) + '" title="إزالة">🗑</button>') + '</div></div>';
       });
       if (!hasPrimary) {
-        rows.unshift('<div class="item-row"><div class="item-main"><b>' + primary + ' 👑</b><small>الأدمن الأساسي</small></div></div>');
+        rows.unshift('<div class="item-row"><div class="item-main"><b>Honda Store (' + PRIMARY_ADMIN + ') 👑</b><small>الأدمن الأساسي</small></div></div>');
       }
       list.innerHTML = rows.join("") || '<div class="empty-state">لسه مفيش شركاء.</div>';
 
