@@ -220,6 +220,12 @@
           <p data-cms="sec_tools_sub">أدوات وملفات نستخدمها في الشغل، متاحة لك تنزلها وتستخدمها بسهولة.</p>
         </div>
 
+        <div class="dl-tabs" id="dlTabs" role="tablist" aria-label="نوع التحميل">
+          <button type="button" role="tab" class="active" data-tab="free" aria-selected="true"><b>⬇ تحميل عادي</b><small>أدوات مجانية للأعضاء</small></button>
+          <button type="button" role="tab" data-tab="pro" aria-selected="false"><b>👑 تحميل PRO</b><small>أدوات وحسابات حصرية</small></button>
+        </div>
+        <div class="pro-pane" id="proPane" hidden></div>
+
         <div class="tools-toolbar">
           <label class="search-box">
             <span aria-hidden="true">⌕</span>
@@ -331,6 +337,7 @@
   <script src="data.js"></script>
   <script src="app.js"></script>
   <script src="comments.js" defer></script>
+  <script src="pro-tab.js" defer></script>
   <script src="modern.js" defer></script>
 </body>
 </html>
