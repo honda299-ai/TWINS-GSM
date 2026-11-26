@@ -14,10 +14,11 @@
     if (!card) return;
     if (!user) { card.hidden = true; return; }
     card.hidden = false; body.innerHTML = "جاري التحميل…";
-    db.collection("memberships").doc(user.uid).get().then(function (m) {
+    var isAdm = false;
+    db.collection("admins").doc((user.email || "").toLowerCase()).get().then(function () { isAdm = true; }, function () {}).then(function () { return db.collection("memberships").doc(user.uid).get(); }).then(function (m) {
       var d = m.exists ? m.data() : null, exp = d && toDate(d.expiresAt), now = new Date();
-      var ok = d && d.active === true && d.level === "pro" && exp && exp > now && user.emailVerified !== false;
-      badge.textContent = ok ? "PRO" : "غير مفعّل"; badge.classList.toggle("off", !ok);
+      var ok = isAdm || d && d.active === true && d.level === "pro" && exp && exp > now && user.emailVerified !== false;
+      badge.textContent = isAdm ? "ADMIN" : (ok ? "PRO" : "غير مفعّل"); badge.classList.toggle("off", !ok);
       if (!ok) {
         var msg = !d ? "ماعندكش عضوية PRO." : (exp && exp <= now ? "انتهت عضويتك بتاريخ " + exp.toLocaleDateString("ar-EG") + "." : "عضويتك موقوفة.");
         body.innerHTML = '<p>' + msg + ' اطلب الترقية وهنتواصل معاك.</p><button class="btn btn-primary btn-sm" id="reqPro" type="button">اطلب ترقية PRO</button>';
@@ -28,8 +29,8 @@
         };
         return;
       }
-      var days = Math.ceil((exp - now) / 864e5);
-      body.innerHTML = '<p>ينتهي في <b>' + exp.toLocaleDateString("ar-EG") + '</b> — باقي <b>' + days + '</b> يوم.</p><div class="pro-vault" id="vault">جاري التحميل…</div>';
+      var days = exp ? Math.ceil((exp - now) / 864e5) : 0;
+      body.innerHTML = (isAdm ? '<p>صلاحية أدمن: وصول كامل لكل محتوى PRO بدون انتهاء.</p>' : '<p>ينتهي في <b>' + exp.toLocaleDateString("ar-EG") + '</b> — باقي <b>' + days + '</b> يوم.</p>') + '<div class="pro-vault" id="vault">جاري التحميل…</div>';
       db.collection("proVault").get().then(function (s) {
         var items = s.docs.map(function (x) { return x.data(); }).filter(function (x) { return x.active !== false; })
           .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
