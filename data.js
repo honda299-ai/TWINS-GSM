@@ -4,8 +4,8 @@
    ============================================================ */
 window.TWINS_DATA = {
   contact: {
-    phoneDisplay: "+20 121 288 1889",           // رقم الواتساب
-    whatsapp: "https://wa.me/201212881889?text=" + encodeURIComponent("السلام عليكم، عندي جهاز محتاج صيانة سوفت وير وعرايز أتعاون مع TWINS GSM"),
+    phoneDisplay: "+20 100 000 0000",           // ✏️ رقمك الظاهر
+    whatsapp: "https://wa.me/20100000000?text=" + encodeURIComponent("السلام عليكم، عندي جهاز محتاج صيانة سوفت وير وعرايز أتعاون مع TWINS GSM"),
     email: "hello@twinsgsm.example",             // ✏️ إيميلك
     facebook: "#",                               // ✏️ رابط فيسبوك
     tiktok: "#",                                 // ✏️ رابط تيك توك

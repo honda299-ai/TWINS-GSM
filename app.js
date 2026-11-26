@@ -1,582 +1,255 @@
-/* TWINS GSM — rendering, interactions & Firebase integration */
+/* TWINS GSM — Main Application */
 (function () {
   "use strict";
 
-  var D = window.TWINS_DATA || {};
-  var $ = function (sel, root) { return (root || document).querySelector(sel); };
-  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
 
-  var fb = { app: null, auth: null, db: null, analytics: null, ready: false };
-  var revealObserver = null;
-  var currentWorkFilter = "all";
-  var currentToolFilter = "all";
-  var toolQuery = "";
-  var workBound = false;
-  var toolsBound = false;
-  var faqBound = false;
+  var db = null;
+  var currentCategory = "all";
+  var searchQuery = "";
+  var allTools = [];
+  var allWorks = [];
 
-  function esc(value) {
-    return String(value == null ? "" : value)
+  function esc(v) {
+    return String(v == null ? "" : v)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
-  function safeHref(url, fallback) {
+  function safeHref(url) {
     var raw = String(url == null ? "" : url).trim();
-    if (!raw) return fallback || "#";
+    if (!raw) return "#";
     if (/^(https?:\/\/|mailto:|tel:|\/|\.\/|\.\.\/|#)/i.test(raw)) return raw;
-    if (/^[a-zA-Z0-9_\-./]+$/.test(raw)) return raw; // relative local paths like tools/file.zip
-    return fallback || "#";
-  }
-
-  var icons = {
-    bolt: '<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/>',
-    lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
-    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
-    signal: '<path d="M4 20v-4M9 20v-8M14 20V8M19 20V4"/>',
-    laptop: '<rect x="4" y="5" width="16" height="11" rx="2"/><path d="M2 20h20"/>',
-    shield: '<path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
-    download: '<path d="M12 3v12m0 0 4-4m-4 4-4-4M4 19h16"/>',
-    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'
-  };
-
-  function svg(name) {
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (icons[name] || icons.bolt) + '</svg>';
-  }
-
-  function byOrder(a, b) {
-    var ao = typeof a.order === "number" ? a.order : 999;
-    var bo = typeof b.order === "number" ? b.order : 999;
-    return ao - bo;
-  }
-
-  /* ================= Firebase ================= */
-
-  function configLooksReal() {
-    var c = window.TWINS_FIREBASE_CONFIG || {};
-    var bad = /YOUR_|your-project|000000000000|XXXX|example/i;
-    return !!(c.apiKey && c.projectId && c.appId && !bad.test(c.apiKey) && !bad.test(c.projectId) && !bad.test(c.appId));
-  }
-
-  function logEvent(name, params) {
-    if (!fb.analytics) return;
-    try { fb.analytics.logEvent(name, params || {}); } catch (e) { /* analytics غير متاح */ }
+    if (/^[a-zA-Z0-9_\-./]+$/.test(raw)) return raw;
+    return "#";
   }
 
   function initFirebase() {
-    if (!window.firebase || !configLooksReal()) {
-      console.info("TWINS GSM: Firebase غير مفعّل — الموقع هيشتغل بالبيانات المحلية في data.js.");
-      return Promise.resolve(false);
-    }
-
-    try {
-      var cfg = window.TWINS_FIREBASE_CONFIG;
-      fb.app = firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
-      fb.auth = firebase.auth();
-      fb.db = firebase.firestore();
-
-      fb.auth.onAuthStateChanged(function () {
-        applyAuthGate();
-        renderServices();
-        paintTools();
-        observeReveals();
-      });
-
-      if (cfg.measurementId && !/XXXX/i.test(cfg.measurementId)) {
-        try { fb.analytics = firebase.analytics(); } catch (e) { /* تجاهل */ }
+    if (window.firebase && window.TWINS_FIREBASE_CONFIG) {
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(window.TWINS_FIREBASE_CONFIG);
+        db = firebase.firestore();
+      } catch (e) {
+        console.warn("Firebase init failed, using static data.", e);
       }
-
-      fb.ready = true;
-      logEvent("page_view", { page_title: document.title });
-      return loadFromFirestore();
-    } catch (e) {
-      console.warn("TWINS GSM: تعذر تهيئة Firebase —", e);
-      return Promise.resolve(false);
     }
   }
 
-  function loadFromFirestore() {
-    if (!fb.ready || !fb.db) return Promise.resolve(false);
+  function loadData() {
+    initFirebase();
+    if (!db) {
+      renderStaticData();
+      return;
+    }
 
-    var collections = ["stats", "services", "steps", "works", "workCategories", "tools", "toolCategories", "testimonials", "faqs"];
+    // Services
+    db.collection("services").orderBy("order").get().then(function (snap) {
+      if (snap.empty) return;
+      var html = snap.docs.map(function (d) {
+        var s = d.data();
+        return '<div class="service-card"><div class="service-icon" aria-hidden="true"><img src="favicon.svg" alt="" style="width:24px;opacity:0.8;filter:invert(1)"></div>' +
+          '<div><h3>' + esc(s.title) + '</h3><p>' + esc(s.desc) + '</p></div></div>';
+      }).join("");
+      var grid = $("#servicesGrid");
+      if (grid) grid.innerHTML = html;
+    }).catch(renderStaticData);
 
-    var tasks = collections.map(function (name) {
-      return fb.db.collection(name).get().then(function (snap) {
-        var list = snap.docs.map(function (doc, i) {
-          var data = doc.data() || {};
-          data._id = doc.id;
-          if (typeof data.order !== "number") data.order = i;
-          return data;
-        });
-        if (list.length) D[name] = list.sort(byOrder);
-      }).catch(function (e) {
-        console.warn("TWINS GSM: لم يتم تحميل مجموعة " + name, e);
-      });
+    // Works
+    db.collection("works").orderBy("order").get().then(function (snap) {
+      if (!snap.empty) {
+        allWorks = snap.docs.map(function (d) { return d.data(); });
+        renderWorks();
+      }
     });
 
-    var contactTask = fb.db.doc("site/contact").get().then(function (doc) {
-      if (doc.exists) D.contact = Object.assign({}, D.contact, doc.data() || {});
-    }).catch(function () { /* استخدم البيانات المحلية */ });
+    // Tools
+    db.collection("tools").orderBy("order").get().then(function (snap) {
+      if (!snap.empty) {
+        allTools = snap.docs.map(function (d) { return d.data(); });
+        renderTools();
+      }
+    });
 
-    return Promise.all(tasks.concat([contactTask])).then(function () {
-      return resolveToolFiles();
-    }).then(function () {
-      renderAll();
-      return true;
+    // Testimonials
+    db.collection("testimonials").orderBy("order").get().then(function (snap) {
+      if (snap.empty) return;
+      var html = snap.docs.map(function (d) {
+        var t = d.data();
+        return '<div class="review-card"><div class="review-stars" aria-hidden="true">★★★★★</div>' +
+          '<p class="review-text">"' + esc(t.text) + '"</p><div class="review-author"><b>' + esc(t.name) + '</b><small>' + esc(t.role || "") + '</small></div></div>';
+      }).join("");
+      var grid = $("#reviewsGrid");
+      if (grid) grid.innerHTML = html;
+    });
+
+    // FAQs
+    db.collection("faqs").orderBy("order").get().then(function (snap) {
+      if (snap.empty) return;
+      var html = snap.docs.map(function (d) {
+        var f = d.data();
+        return '<details class="faq-item"><summary class="faq-q">' + esc(f.q) + '</summary><div class="faq-a"><p>' + esc(f.a) + '</p></div></details>';
+      }).join("");
+      var list = $("#faqList");
+      if (list) list.innerHTML = html;
+    });
+
+    // Stats
+    db.collection("stats").orderBy("order").get().then(function (snap) {
+      if (snap.empty) return;
+      var html = snap.docs.map(function (d) {
+        var s = d.data();
+        return '<div class="stat-card"><b>' + esc(s.value) + '</b><span>' + esc(s.label) + '</span></div>';
+      }).join("");
+      var grid = $("#statsGrid");
+      if (grid) grid.innerHTML = html;
+    });
+
+    // Contact
+    db.doc("site/contact").get().then(function (doc) {
+      if (doc.exists) {
+        var c = doc.data();
+        if (c.phoneDisplay) $("#contactPhone").textContent = c.phoneDisplay;
+        if (c.email) $("#contactEmail").textContent = c.email;
+        if (c.whatsapp) {
+          var wa = safeHref(c.whatsapp);
+          $("#headerWhatsapp").href = wa;
+          $("#heroWhatsapp").href = wa;
+          $("#contactWhatsapp").href = wa;
+          $("#faqWhatsapp").href = wa;
+          $("#reviewWhatsapp").href = wa;
+          var phoneAppAction = $("#phoneAppAction");
+          if(phoneAppAction) phoneAppAction.href = wa;
+        }
+      }
     });
   }
 
-  function resolveToolFiles() {
-    // الأدوات تُقدَّم من مجلد tools/ على Hosting أو من رابط خارجي مباشر.
-    (D.tools || []).forEach(function (t) {
-      var raw = t.file || t.storagePath || "#";
-      if (/^gs:\/\//i.test(raw)) raw = "#"; // روابط Storage القديمة لم تعد مستخدمة
-      t.file = raw || "#";
-      delete t.storagePath;
-    });
-    return Promise.resolve();
+  function renderStaticData() {
+    console.log("Using static data as fallback");
+    if (!window.TWINS_DATA) return;
+    var d = window.TWINS_DATA;
+
+    if (d.services && $("#servicesGrid")) {
+        $("#servicesGrid").innerHTML = d.services.map(function (s) {
+            return '<div class="service-card"><div class="service-icon" aria-hidden="true"><img src="favicon.svg" alt="" style="width:24px;opacity:0.8;filter:invert(1)"></div>' +
+              '<div><h3>' + esc(s.title) + '</h3><p>' + esc(s.desc) + '</p></div></div>';
+        }).join("");
+    }
+    if (d.works) { allWorks = d.works; renderWorks(); }
+    if (d.tools) { allTools = d.tools; renderTools(); }
   }
 
-  /* ================= Auth gate ================= */
 
-  function isLoggedIn() {
-    return !!(fb.auth && fb.auth.currentUser);
-  }
-
-  function applyAuthGate() {
-    var loggedIn = isLoggedIn();
-    var gate = $("#toolsGate");
-    var grid = $("#toolsGrid");
-    var toolbar = $(".tools-toolbar");
-
-    if (gate) gate.hidden = loggedIn;
-    if (grid) grid.hidden = !loggedIn;
-    if (toolbar) toolbar.hidden = !loggedIn;
-
-    var accountBtn = $("#accountBtn");
-    if (accountBtn) accountBtn.textContent = loggedIn ? "حسابي ✓" : "دخول";
-  }
-
-  /* ================= Contact ================= */
-
-  function initContact() {
-    var c = D.contact || {};
-    var wa = c.whatsapp || "#";
-    $$('#headerWhatsapp, #heroWhatsapp, #reviewWhatsapp, #faqWhatsapp, #contactWhatsapp').forEach(function (el) {
-      el.href = safeHref(wa);
-      el.setAttribute("data-analytics", "whatsapp");
-      el.rel = "noopener noreferrer";
-    });
-    if ($("#contactPhone")) $("#contactPhone").textContent = c.phoneDisplay || "—";
-    if ($("#contactEmail")) $("#contactEmail").textContent = c.email || "—";
-
-    var socials = [
-      { label: "واتساب", href: wa },
-      { label: "فيسبوك", href: c.facebook || "#" },
-      { label: "تيك توك", href: c.tiktok || "#" },
-      { label: "إنستغرام", href: c.instagram || "#" }
-    ];
-    var row = $("#socialRow");
-    if (row) row.innerHTML = socials.map(function (s) {
-      return '<a href="' + esc(safeHref(s.href)) + '" target="_blank" rel="noopener noreferrer">' + esc(s.label) + '</a>';
-    }).join("");
-  }
-
-  /* ================= Stats ================= */
-
-  function renderStats() {
-    var grid = $("#statsGrid");
-    if (!grid) return;
-    grid.innerHTML = (D.stats || []).map(function (s, i) {
-      return '<div class="stat reveal" style="transition-delay:' + (i * 70) + 'ms"><b>' + esc(s.value) + '</b><span>' + esc(s.label) + '</span></div>';
-    }).join("");
-  }
-
-  /* ================= Services ================= */
-
-  function renderServices() {
-    var grid = $("#servicesGrid");
-    if (!grid) return;
-    grid.innerHTML = (D.services || []).map(function (s, i) {
-      return '<article class="card reveal" style="transition-delay:' + (i * 60) + 'ms">' +
-        '<span class="card-number">0' + (i + 1) + '</span>' +
-        '<div class="card-icon">' + svg(s.icon) + '</div>' +
-        '<h3>' + esc(s.title) + '</h3>' +
-        '<p>' + esc(s.desc) + '</p>' +
-        (isLoggedIn() && s.price ? '<span class="price-chip">' + esc(s.price) + (s.priceNote ? ' <small>' + esc(s.priceNote) + '</small>' : '') + '</span>' : '') +
-        '</article>';
-    }).join("");
-  }
-
-  /* ================= Steps ================= */
-
-  function renderSteps() {
-    var grid = $("#stepsGrid");
-    if (!grid) return;
-    grid.innerHTML = (D.steps || []).map(function (s, i) {
-      return '<article class="step reveal" style="transition-delay:' + (i * 80) + 'ms"><h3>' + esc(s.title) + '</h3><p>' + esc(s.desc) + '</p></article>';
-    }).join("");
-  }
-
-  /* ================= Work ================= */
-
-  function paintWork() {
+  function renderWorks() {
     var grid = $("#workGrid");
     if (!grid) return;
-    var works = D.works || [];
-    var list = currentWorkFilter === "all" ? works : works.filter(function (w) { return w.category === currentWorkFilter; });
-
-    grid.innerHTML = list.map(function (w) {
-      var img = safeHref(w.image, "");
-      var visual = img && img !== "#" ?
-        '<div class="work-visual has-image"><img src="' + esc(img) + '" alt="' + esc((w.brand || "") + " " + (w.model || "")) + '" loading="lazy" onerror="this.parentElement.classList.remove(\'has-image\');this.remove();this.parentElement.innerHTML=\'<div class=\\\'work-device\\\'></div>\'"></div>' :
-        '<div class="work-visual"><div class="work-device"></div></div>';
-      return '<article class="work-card reveal visible">' +
-        '<span class="work-badge">✓ تم الإصلاح</span>' +
-        visual +
-        '<div class="work-body"><small>' + esc(w.brand) + '</small><h3>' + esc(w.model) + '</h3><p>' + esc(w.desc) + '</p></div>' +
-        '</article>';
+    var html = allWorks.map(function (w) {
+      var imgHtml = w.image && w.image !== "#" ? '<div class="work-img"><img src="' + esc(w.image) + '" alt="' + esc(w.model) + '" style="object-fit:cover;width:100%;height:100%"></div>' : '<div class="work-img placeholder">صورة غير متوفرة</div>';
+      return '<div class="work-card">' + imgHtml + '<div class="work-info"><h3>' + esc(w.brand) + ' ' + esc(w.model) + '</h3>' +
+        (w.desc ? '<p>' + esc(w.desc) + '</p>' : '') + '</div></div>';
     }).join("");
-  }
-
-  function renderWork() {
-    var filters = $("#workFilters");
-    if (!filters) return;
-    filters.innerHTML = (D.workCategories || []).map(function (c, i) {
-      return '<button class="filter-chip' + (i === 0 ? ' active' : '') + '" data-filter="' + esc(c.id) + '" type="button">' + esc(c.label) + '</button>';
-    }).join("");
-    currentWorkFilter = "all";
-    paintWork();
-
-    if (!workBound) {
-      filters.addEventListener("click", function (e) {
-        var btn = e.target.closest(".filter-chip");
-        if (!btn) return;
-        $$(".filter-chip", filters).forEach(function (b) { b.classList.remove("active"); });
-        btn.classList.add("active");
-        currentWorkFilter = btn.getAttribute("data-filter");
-        paintWork();
-      });
-      workBound = true;
-    }
-  }
-
-  /* ================= Tools ================= */
-
-  function paintTools() {
-    var grid = $("#toolsGrid");
-    var empty = $("#toolsEmpty");
-    if (!grid) return;
-
-    var list = (D.tools || []).filter(function (t) {
-      var okCat = currentToolFilter === "all" || t.category === currentToolFilter;
-      var text = [t.name, t.desc, t.tag].join(" ").toLowerCase();
-      return okCat && text.indexOf(toolQuery) !== -1;
-    });
-
-    grid.innerHTML = list.map(function (t) {
-      var file = safeHref(t.file, "#");
-      var soon = !file || file === "#";
-      return '<article class="tool-card reveal visible">' +
-        '<div class="tool-top"><span class="tool-icon">' + svg("download") + '</span>' +
-        '<span class="tool-tag' + (t.hot ? ' hot' : '') + '">' + esc(t.tag || "أداة") + '</span></div>' +
-        '<h3>' + esc(t.name) + '</h3>' +
-        '<p>' + esc(t.desc) + '</p>' +
-        '<div class="tool-meta"><span>' + esc(t.version || "v1.0") + '</span><span>' + esc(t.size || "—") + '</span></div>' +
-        '<a class="tool-download' + (soon ? ' disabled' : '') + '" href="' + esc(soon ? "#" : file) + '"' + (soon ? ' aria-disabled="true" tabindex="-1"' : ' download rel="noopener noreferrer"') + ' data-tool="' + esc(t.name) + '">' +
-        svg("download") + '<span>' + (soon ? "قريباً" : "تحميل الأداة") + '</span></a>' +
-        '</article>';
-    }).join("");
-
-    if (empty) empty.hidden = list.length !== 0;
+    grid.innerHTML = html;
   }
 
   function renderTools() {
-    var filters = $("#toolFilters");
-    var search = $("#toolsSearch");
-    if (!filters || !search) return;
-
-    filters.innerHTML = (D.toolCategories || []).map(function (c, i) {
-      return '<button class="filter-chip' + (i === 0 ? ' active' : '') + '" data-filter="' + esc(c.id) + '" type="button">' + esc(c.label) + '</button>';
-    }).join("");
-    currentToolFilter = "all";
-    toolQuery = "";
-    search.value = "";
-    paintTools();
-
-    if (!toolsBound) {
-      filters.addEventListener("click", function (e) {
-        var btn = e.target.closest(".filter-chip");
-        if (!btn) return;
-        $$(".filter-chip", filters).forEach(function (b) { b.classList.remove("active"); });
-        btn.classList.add("active");
-        currentToolFilter = btn.getAttribute("data-filter");
-        paintTools();
-      });
-
-      var timer = null;
-      search.addEventListener("input", function () {
-        toolQuery = search.value.trim().toLowerCase();
-        paintTools();
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-          if (toolQuery) logEvent("search", { search_term: toolQuery });
-        }, 700);
-      });
-      toolsBound = true;
-    }
-  }
-
-  /* ================= Reviews ================= */
-
-  function renderReviews() {
-    var grid = $("#reviewsGrid");
+    var grid = $("#toolsGrid");
     if (!grid) return;
-    grid.innerHTML = (D.testimonials || []).map(function (r, i) {
-      return '<article class="review reveal" style="transition-delay:' + (i * 50) + 'ms">' +
-        '<div class="stars" aria-label="5 نجوم">★★★★★</div>' +
-        '<p>' + esc(r.text) + '</p>' +
-        '<div class="review-author"><span>' + esc(String(r.name || "?").charAt(0)) + '</span>' +
-        '<div><b>' + esc(r.name) + '</b><small>' + esc(r.role || "عميل") + '</small></div></div>' +
-        '</article>';
-    }).join("");
-  }
-
-  /* ================= FAQ ================= */
-
-  function renderFaq() {
-    var list = $("#faqList");
-    if (!list) return;
-    list.innerHTML = (D.faqs || []).map(function (f) {
-      return '<div class="faq-item"><button class="faq-q" type="button" aria-expanded="false">' +
-        '<span>' + esc(f.q) + '</span><span aria-hidden="true">+</span></button>' +
-        '<div class="faq-a"><p>' + esc(f.a) + '</p></div></div>';
-    }).join("");
-
-    if (faqBound) return;
-    list.addEventListener("click", function (e) {
-      var btn = e.target.closest(".faq-q");
-      if (!btn) return;
-      var item = btn.parentElement;
-      var isOpen = item.classList.contains("open");
-      $$(".faq-item", list).forEach(function (el) {
-        el.classList.remove("open");
-        $(".faq-q", el).setAttribute("aria-expanded", "false");
-      });
-      if (!isOpen) {
-        item.classList.add("open");
-        btn.setAttribute("aria-expanded", "true");
-      }
+    var filtered = allTools.filter(function (t) {
+        var matchCat = currentCategory === "all" || t.category === currentCategory;
+        var matchSearch = t.name.toLowerCase().indexOf(searchQuery) !== -1 || (t.desc && t.desc.toLowerCase().indexOf(searchQuery) !== -1);
+        return matchCat && matchSearch;
     });
-    faqBound = true;
+
+    var emptyMsg = $("#toolsEmpty");
+    if(emptyMsg) emptyMsg.hidden = filtered.length > 0;
+
+    var html = filtered.map(function (t) {
+      var link = t.file && t.file !== "#" ? '<a href="' + esc(t.file) + '" class="btn btn-outline btn-sm" target="_blank">تحميل ⬇</a>' : '<span class="status">قريباً</span>';
+      return '<div class="tool-card"><div class="tool-head"><h3>' + esc(t.name) + '</h3>' +
+        (t.tag ? '<span class="status">' + esc(t.tag) + '</span>' : '') + '</div>' +
+        '<p class="tool-meta">' + esc(t.version) + ' · ' + esc(t.size) + '</p>' +
+        (t.desc ? '<p class="tool-desc">' + esc(t.desc) + '</p>' : '') +
+        '<div class="tool-foot">' + link + '</div></div>';
+    }).join("");
+    grid.innerHTML = html;
   }
 
-  /* ================= Reveal ================= */
-
-  function observeReveals() {
-    var els = $$(".reveal:not(.visible)");
-    if (!els.length) return;
-    if (!revealObserver) {
-      if ("IntersectionObserver" in window) {
-        revealObserver = new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("visible");
-              revealObserver.unobserve(entry.target);
-            }
+  function bindEvents() {
+      var menuToggle = $("#menuToggle");
+      var mainNav = $("#mainNav");
+      if (menuToggle && mainNav) {
+          menuToggle.addEventListener("click", function () {
+              var expanded = this.getAttribute("aria-expanded") === "true";
+              this.setAttribute("aria-expanded", !expanded);
+              mainNav.classList.toggle("open");
           });
-        }, { threshold: 0.12 });
       }
-    }
-    if (revealObserver) els.forEach(function (el) { revealObserver.observe(el); });
-    else els.forEach(function (el) { el.classList.add("visible"); });
-  }
 
-  /* ================= UI ================= */
-
-  function initUi() {
-    var toggle = $("#menuToggle");
-    var nav = $("#mainNav");
-    if (toggle && nav) {
-      toggle.addEventListener("click", function () {
-        var open = document.body.classList.toggle("menu-open");
-        toggle.setAttribute("aria-expanded", String(open));
-        toggle.setAttribute("aria-label", open ? "إغلاق القائمة" : "فتح القائمة");
+      $$('a[href^="#"]').forEach(function (anchor) {
+          anchor.addEventListener("click", function (e) {
+              var targetId = this.getAttribute("href");
+              if (targetId === "#") return;
+              var target = $(targetId);
+              if (target) {
+                  e.preventDefault();
+                  target.scrollIntoView({ behavior: "smooth" });
+                  if (mainNav && mainNav.classList.contains("open")) {
+                      menuToggle.click();
+                  }
+              }
+          });
       });
-      nav.addEventListener("click", function (e) {
-        if (e.target.closest("a")) {
-          document.body.classList.remove("menu-open");
-          toggle.setAttribute("aria-expanded", "false");
-        }
+
+      var searchInput = $("#toolsSearch");
+      if (searchInput) {
+          searchInput.addEventListener("input", function (e) {
+              searchQuery = e.target.value.toLowerCase().trim();
+              renderTools();
+          });
+      }
+
+      var phoneAppView = $("#phoneAppView");
+      var phoneBack = $("#phoneBack");
+      if(phoneBack) {
+          phoneBack.addEventListener("click", function() {
+              phoneAppView.hidden = true;
+          });
+      }
+
+      $$(".phone-app, .dock-btn").forEach(function(btn) {
+         btn.addEventListener("click", function() {
+             var appName = this.getAttribute("data-app");
+             var title = $("#phoneAppTitle");
+             var body = $("#phoneAppBody");
+             var action = $("#phoneAppAction");
+
+             if(!title || !body || !action) return;
+
+             var configs = {
+                 whatsapp: { t: "واتساب", b: "تواصل معنا مباشرة عبر واتساب للرد السريع وتحديد التكلفة.", btn: "فتح المحادثة" },
+                 phone: { t: "اتصال", b: "اتصل بنا هاتفياً للاستفسارات العاجلة.", btn: "اتصل الآن" },
+                 messages: { t: "الرسائل", b: "أرسل رسالة نصية قصيرة.", btn: "إرسال رسالة" },
+                 instagram: { t: "إنستغرام", b: "تابع أحدث أعمالنا على إنستغرام.", btn: "فتح إنستغرام" },
+                 facebook: { t: "فيسبوك", b: "تواصل معنا عبر صفحة فيسبوك.", btn: "فتح فيسبوك" },
+                 tiktok: { t: "تيك توك", b: "شاهد فيديوهات الصيانة على تيك توك.", btn: "فتح تيك توك" },
+                 tools: { t: "أدواتنا", b: "تصفح وحمل أحدث أدوات السوفت وير.", btn: "عرض الأدوات" }
+             };
+
+             var cfg = configs[appName] || {t: appName, b: "تفاصيل التطبيق.", btn: "فتح"};
+             title.textContent = cfg.t;
+             body.textContent = cfg.b;
+             action.textContent = cfg.btn;
+             phoneAppView.hidden = false;
+         });
       });
-    }
-
-    document.addEventListener("click", function (e) {
-      var dl = e.target.closest(".tool-download");
-      if (dl && !dl.classList.contains("disabled")) {
-        logEvent("download", { item_name: dl.getAttribute("data-tool") || "tool" });
-      }
-      if (e.target.closest("[data-analytics='whatsapp']")) {
-        logEvent("contact_whatsapp", { source: "site" });
-      }
-    });
-
-    initInteractivePhone();
-    var year = $("#year");
-    if (year) year.textContent = new Date().getFullYear();
   }
 
-  function initInteractivePhone() {
-    var phone = $("#interactivePhone");
-    if (!phone || phone.dataset.bound === "1") return;
-    phone.dataset.bound = "1";
+  document.addEventListener("DOMContentLoaded", function () {
+    loadData();
+    bindEvents();
+    var yearEl = $("#year");
+    if(yearEl) yearEl.textContent = new Date().getFullYear();
+  });
 
-    var home = $("#phoneHome");
-    var view = $("#phoneAppView");
-    var body = $("#phoneAppBody");
-    var title = $("#phoneAppTitle");
-    var sub = $("#phoneAppSub");
-    var action = $("#phoneAppAction");
-    var back = $("#phoneBack");
-    var clock = $("#phoneClock");
-
-    function updateClock() {
-      if (!clock) return;
-      var d = new Date();
-      var h = String(d.getHours()).padStart(2, "0");
-      var m = String(d.getMinutes()).padStart(2, "0");
-      clock.textContent = h + ":" + m;
-    }
-    updateClock();
-    setInterval(updateClock, 30000);
-
-    function c() { return D.contact || {}; }
-    function telHref() {
-      var raw = String(c().phoneDisplay || c().whatsapp || "").replace(/[^\d+]/g, "");
-      return raw ? "tel:" + raw : "#";
-    }
-    function waMsg(text) {
-      var base = String(c().whatsapp || "").trim();
-      if (!base || base === "#") return "#";
-      var join = base.indexOf("?") > -1 ? "&" : "?";
-      return base + join + "text=" + encodeURIComponent(text || "السلام عليكم، محتاج مساعدة من TWINS GSM");
-    }
-
-    var apps = {
-      phone: function () {
-        return {
-          title: "الهاتف", sub: c().phoneDisplay || "اتصل بنا",
-          body: '<div class="phone-chat"><div class="phone-bubble in">أهلاً بك في <strong>TWINS GSM</strong> 👋<br>اضغط للاتصال المباشر وسنساعدك في مشكلة جهازك.</div><div class="phone-bubble out">عايز استفسار بخصوص صيانة سوفت وير.</div></div>',
-          action: telHref(), actionLabel: "اتصال الآن", disabled: telHref() === "#"
-        };
-      },
-      whatsapp: function () {
-        var href = waMsg("السلام عليكم، عندي جهاز محتاج صيانة سوفت وير من TWINS GSM");
-        return {
-          title: "واتساب", sub: "رد سريع",
-          body: '<div class="phone-chat"><div class="phone-bubble in">مرحبًا! معاك <strong>TWINS GSM</strong>.<br>ابعت نوع الجهاز والمشكلة وهنرد عليك.</div><div class="phone-bubble out">السلام عليكم، عندي مشكلة في جهازي ومحتاج مساعدة.</div></div>',
-          action: href, actionLabel: "فتح واتساب", disabled: href === "#"
-        };
-      },
-      messages: function () {
-        var raw = String(c().phoneDisplay || "").replace(/[^\d+]/g, "");
-        var href = raw ? "sms:" + raw + "?body=" + encodeURIComponent("السلام عليكم TWINS GSM، محتاج استفسار بخصوص جهاز") : "#";
-        return {
-          title: "الرسائل", sub: "SMS",
-          body: '<div class="phone-chat"><div class="phone-bubble in">تقدر تبعتلنا رسالة SMS بتفاصيل الجهاز والعطل.</div><div class="phone-bubble out">السلام عليكم، محتاج استفسار بخصوص جهازي.</div></div>',
-          action: href, actionLabel: "إرسال رسالة", disabled: href === "#"
-        };
-      },
-      instagram: function () {
-        var href = safeHref(c().instagram, "#");
-        return {
-          title: "إنستغرام", sub: "@twinsgsm",
-          body: '<div class="phone-chat"><div class="phone-bubble in">تابع شغلنا وآخر الحالات على إنستغرام.</div><div class="phone-bubble out">عايز أشوف شغلكم الأخير.</div></div>',
-          action: href, actionLabel: "فتح إنستغرام", disabled: href === "#"
-        };
-      },
-      facebook: function () {
-        var href = safeHref(c().facebook, "#");
-        return {
-          title: "فيسبوك", sub: "TWINS GSM",
-          body: '<div class="phone-chat"><div class="phone-bubble in">تابع صفحتنا على فيسبوك للعروض وآخر الأعمال.</div><div class="phone-bubble out">عايز أتابع الصفحة.</div></div>',
-          action: href, actionLabel: "فتح فيسبوك", disabled: href === "#"
-        };
-      },
-      tiktok: function () {
-        var href = safeHref(c().tiktok, "#");
-        return {
-          title: "تيك توك", sub: "فيديوهات سريعة",
-          body: '<div class="phone-chat"><div class="phone-bubble in">شوف فيديوهات الإصلاحات والنصائح على تيك توك.</div><div class="phone-bubble out">عايز أشوف الفيديوهات.</div></div>',
-          action: href, actionLabel: "فتح تيك توك", disabled: href === "#"
-        };
-      },
-      tools: function () {
-        return {
-          title: "أدوات TWINS", sub: "قسم الأدوات",
-          body: '<div class="phone-chat"><div class="phone-bubble in">استعرض أدوات TWINS GSM الجاهزة للتحميل.</div><div class="phone-bubble out">عايز أشوف الأدوات المتاحة.</div></div>',
-          action: "#tools", actionLabel: "الذهاب للأدوات", disabled: false, internal: true
-        };
-      }
-    };
-
-    function openApp(name) {
-      var fn = apps[name];
-      if (!fn) return;
-      var cfg = fn();
-      title.textContent = cfg.title;
-      sub.textContent = cfg.sub || "TWINS GSM";
-      body.innerHTML = cfg.body;
-      action.textContent = cfg.actionLabel || "فتح";
-      action.href = safeHref(cfg.action, "#");
-      action.classList.toggle("disabled", !!cfg.disabled);
-      if (cfg.internal) {
-        action.removeAttribute("target");
-        action.rel = "";
-      } else {
-        action.target = "_blank";
-        action.rel = "noopener noreferrer";
-      }
-      if (cfg.disabled) action.setAttribute("aria-disabled", "true"); else action.removeAttribute("aria-disabled");
-      home.hidden = true;
-      view.hidden = false;
-      logEvent("phone_app_open", { app: name });
-    }
-
-    function closeApp() {
-      view.hidden = true;
-      home.hidden = false;
-    }
-
-    phone.addEventListener("click", function (e) {
-      var appBtn = e.target.closest("[data-app]");
-      if (appBtn) { openApp(appBtn.getAttribute("data-app")); return; }
-      if (e.target.closest("#phoneBack")) closeApp();
-    });
-    if (action) action.addEventListener("click", function (e) {
-      if (action.classList.contains("disabled")) e.preventDefault();
-    });
-  }
-
-  /* ================= Boot ================= */
-
-  function renderAll() {
-    initContact();
-    renderStats();
-    renderServices();
-    renderSteps();
-    renderWork();
-    renderTools();
-    renderReviews();
-    renderFaq();
-    observeReveals();
-  }
-
-  applyAuthGate();
-  renderAll();
-  initUi();
-  initFirebase();
-
-  // للاستخدام لاحقاً لو حابب تحدّث البيانات يدوياً من الكونسول/لوحة أدمن
-  window.TWINS_APP = { refresh: renderAll, data: D, firebase: fb };
 })();

@@ -38,57 +38,11 @@
     el.hidden = !msg;
   }
 
-  function friendlyLoginError(err) {
-    var code = (err && err.code) ? String(err.code) : "";
-    var map = {
-      "auth/invalid-credential": "الإيميل أو كلمة المرور غلط. لو غيّرت الباسورد، جرّب الجديد.",
-      "auth/wrong-password": "كلمة المرور غلط.",
-      "auth/user-not-found": "مفيش حساب بالايميل ده في Firebase Authentication.",
-      "auth/user-disabled": "الحساب ده معطّل من Firebase Console.",
-      "auth/too-many-requests": "محاولات كثيرة جداً — الحساب مقفول مؤقتاً. استنى دقائق أو أعد تعيين الباسورد.",
-      "auth/network-request-failed": "مش قادر أوصل بـ Firebase — تأكد من الإنترنت ومن الدومين المصرح به.",
-      "auth/unauthorized-domain": "الدومين ده مش مضاف في Firebase → Authentication → Settings → Authorized Domains.",
-      "auth/web-storage-unsupported": "المتصفح بيمنع تخزين Firebase. افتح الموقع من رابط حقيقي (مش ملف محلي) أو فعّل الكوكيز.",
-      "auth/invalid-api-key": "إعدادات firebase-config.js غلط أو المشروع اتقفل.",
-      "auth/operation-not-allowed": "تسجيل الدخول بالإيميل والباسورد مش مفعّل في Firebase Authentication.",
-      "auth/timeout": "الطلب استغرق أكتر من 15 ثانية ومفيش رد من Firebase — غالباً الدومين مش مصرّح أو الشبكة محجوبة."
-    };
-    return map[code] || (err && err.message ? err.message : "خطأ غير متوقع. حاول تاني.");
-  }
-
-  function setLoginBusy(busy) {
-    var btn = $("#loginBtn");
-    if (!btn) return;
-    btn.disabled = !!busy;
-    btn.textContent = busy ? "جاري الدخول…" : "دخول ←";
-  }
-
-  function withTimeout(promise, ms) {
-    return Promise.race([
-      promise,
-      new Promise(function (_, reject) {
-        setTimeout(function () {
-          var e = new Error("timeout");
-          e.code = "auth/timeout";
-          reject(e);
-        }, ms || 15000);
-      })
-    ]);
-  }
-
-  function fillLoginDiagnostic() {
-    var el = $("#loginDiag");
-    if (!el) return;
-    var cfg = window.TWINS_FIREBASE_CONFIG || {};
-    var where = location.host || "ملف محلي (file://) — الدخول مش هيشتغل من هنا";
-    el.textContent = "المشروع: " + (cfg.projectId || "—") + " · الرابط: " + where;
-  }
-
   /* ---------------- Schema ---------------- */
 
   var SCHEMAS = {
     tools: {
-      title: "الأدوات", icon: "⬇", desc: "ضيف أداة واربطها بملف داخل مجلد tools أو رابط خارجي مباشر (مثل GitHub Releases أو Google Drive).",
+      title: "الأدوات", icon: "⬇", desc: "ضيف أداة واربطها بملف داخل مجلد tools أو رابط خارجي مباشر.",
       listTitle: function (d) { return d.name || "أداة بدون اسم"; },
       listSub: function (d) { return (d.tag || d.category || "—") + " · " + (d.version || "v1.0") + " · " + (d.size || "—"); },
       fields: [
@@ -101,19 +55,19 @@
         { key: "order", label: "الترتيب", type: "number" },
         { key: "hot", label: "أداة مميزة", type: "checkbox" },
         { key: "file", label: "مسار الملف أو رابط التحميل", type: "text", full: true, hint: "مثال: tools/twins-frp-helper.zip أو رابط تحميل مباشر." },
-        { key: "toolFile", label: "رفع ملف الأداة إلى Storage (إذا كان مفعلاً)", type: "file", accept: ".zip,.rar,.7z,.pdf,.exe,.apk,.txt", storageDir: "tools", targetKey: "file", full: true, hint: "يُرفع إلى Firebase Storage ويضع رابط التحميل تلقائياً في حقل الملف." }
+        { key: "toolFile", label: "رفع ملف الأداة إلى Storage", type: "file", accept: ".zip,.rar,.7z,.pdf,.exe,.apk,.txt", storageDir: "tools", targetKey: "file", full: true }
       ]
     },
     works: {
-      title: "الأعمال", icon: "🖼", desc: "الأجهزة اللي أصلحتها والمعرض على الصفحة الرئيسية. يمكنك إضافة رابط صورة أو رفعها.",
+      title: "الأعمال", icon: "🖼", desc: "الأجهزة اللي أصلحتها والمعرض على الصفحة الرئيسية.",
       listTitle: function (d) { return d.model || "جهاز بدون اسم"; },
       listSub: function (d) { return (d.brand || "—") + " · " + (d.category || "—"); },
       fields: [
         { key: "brand", label: "البراند", type: "text", required: true },
         { key: "model", label: "الموديل", type: "text", required: true },
         { key: "category", label: "التصنيف (iphone / samsung / xiaomi / tablet / other)", type: "text", full: true },
-        { key: "image", label: "رابط صورة العمل", type: "text", full: true, hint: "يمكنك لصق رابط صورة مباشر، أو رفع صورة بالأسفل." },
-        { key: "workImage", label: "رفع صورة العمل (إذا كان Storage مفعلاً)", type: "file", accept: "image/*", storageDir: "works", targetKey: "image", full: true },
+        { key: "image", label: "رابط صورة العمل", type: "text", full: true, hint: "لصق رابط مباشر للصورة، أو ارفعها من الزرار تحت." },
+        { key: "workImage", label: "رفع صورة العمل (بديل للرابط)", type: "file", accept: "image/*", storageDir: "works", targetKey: "image", full: true },
         { key: "desc", label: "وصف الشغل", type: "textarea", full: true },
         { key: "order", label: "الترتيب", type: "number" }
       ]
@@ -130,7 +84,7 @@
       ]
     },
     services: {
-      title: "الخدمات", icon: "⚙", desc: "البطاقات اللي بتظهر في قسم الخدمات والأسعار للأعضاء.",
+      title: "الخدمات", icon: "⚙", desc: "البطاقات اللي بتظهر في قسم الخدمات.",
       listTitle: function (d) { return d.title || "خدمة بدون اسم"; },
       listSub: function (d) { return (d.price ? d.price + " · " : "") + (d.desc || ""); },
       fields: [
@@ -219,35 +173,20 @@
       return;
     }
 
-    fillLoginDiagnostic();
-
-    var pwToggle = $("#adminPwToggle");
-    if (pwToggle) {
-      pwToggle.addEventListener("click", function () {
-        var input = $("#adminPassword");
-        var show = input.type === "password";
-        input.type = show ? "text" : "password";
-        pwToggle.textContent = show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور";
-        pwToggle.setAttribute("aria-pressed", String(show));
-        input.focus();
-      });
-    }
-
     $("#loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
       showError("");
-      setLoginBusy(true);
-
-      var email = $("#adminEmail").value.trim();
-      var password = $("#adminPassword").value;
-      var task = withTimeout(auth.signInWithEmailAndPassword(email, password), 15000);
-
-      task.catch(function (err) {
-        var code = (err && err.code) ? String(err.code) : "unknown";
-        showError(friendlyLoginError(err) + "  (" + code + ")");
-      }).then(function () {
-        setLoginBusy(false);
-      });
+      var btn = $("#loginBtn");
+      btn.disabled = true;
+      btn.textContent = "جاري الدخول…";
+      auth.signInWithEmailAndPassword($("#adminEmail").value.trim(), $("#adminPassword").value)
+        .catch(function (err) {
+          showError(err.code === "auth/invalid-credential" ? "الإيميل أو كلمة المرور غلط." : err.message);
+        })
+        .then(function () {
+          btn.disabled = false;
+          btn.textContent = "دخول ←";
+        });
     });
 
     $("#logoutBtn").addEventListener("click", function () {
@@ -289,13 +228,7 @@
         $("#userEmail").textContent = (isPrimary ? "👑 Honda Store · " : "") + email;
         renderNav();
         setSection("overview");
-      }).catch(function (err) {
-        showError("تعذر التحقق من الصلاحية: " + friendlyLoginError(err));
-        setLoginBusy(false);
       });
-    }, function (err) {
-      showError(friendlyLoginError(err));
-      setLoginBusy(false);
     });
 
     renderNav();
