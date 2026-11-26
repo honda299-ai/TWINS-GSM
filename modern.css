@@ -1,0 +1,68 @@
+/* TWINS GSM — Modern UI layer (يتحمّل بعد باقي الـ CSS) */
+:root{--radius:20px;--radius-sm:14px;--ease:cubic-bezier(.2,.7,.2,1);--glass:rgba(255,255,255,.045);--shadow:0 20px 60px rgba(0,0,0,.38)}
+body{font-size:16px;letter-spacing:0;background:radial-gradient(1200px 600px at 85% -10%,rgba(var(--orange-rgb),.10),transparent 60%),var(--bg);background-attachment:fixed}
+::selection{background:rgba(var(--orange-rgb),.35)}
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:8px}
+a,button,input,select,textarea{transition:background .2s var(--ease),border-color .2s var(--ease),transform .2s var(--ease),box-shadow .2s var(--ease),color .2s}
+
+/* أزرار أوضح وأسهل في اللمس */
+.btn{border-radius:14px;font-weight:800;min-height:46px}
+.btn-primary{background:linear-gradient(135deg,var(--orange-2),var(--orange-dark));box-shadow:0 10px 28px rgba(var(--orange-rgb),.28)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(var(--orange-rgb),.4)}
+.btn-ghost{background:var(--glass);border:1px solid var(--line-strong)}.btn-ghost:hover{border-color:var(--orange);background:rgba(var(--orange-rgb),.08)}
+.btn-sm{min-height:38px}
+
+/* هيدر زجاجي ثابت */
+.site-header{background:rgba(8,9,11,.72);backdrop-filter:saturate(1.4) blur(16px);-webkit-backdrop-filter:saturate(1.4) blur(16px);border-bottom:1px solid var(--line)}
+.site-header a{font-weight:700}
+
+/* مساحات تنفّس أكبر وعناوين أنضف */
+.section{padding-block:clamp(56px,8vw,96px)}
+.section h2{font-size:clamp(26px,4vw,40px);line-height:1.25;letter-spacing:-.2px}
+.hero h1{font-size:clamp(32px,6vw,60px);line-height:1.15}
+.section-label{display:inline-block;padding:4px 14px;border-radius:99px;background:rgba(var(--orange-rgb),.12);color:var(--orange-2);font-weight:800;font-size:13px}
+
+/* كروت عصرية */
+.card,.service,.tool-card,.work-card,.review,.faq-item,.account-card,.box,.step{
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:var(--radius);box-shadow:none}
+.service:hover,.tool-card:hover,.work-card:hover,.review:hover,.step:hover{transform:translateY(-4px);border-color:rgba(var(--orange-rgb),.45);box-shadow:var(--shadow)}
+input,select,textarea{border-radius:12px!important;font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:var(--orange)!important;box-shadow:0 0 0 4px rgba(var(--orange-rgb),.16)!important}
+
+/* ظهور ناعم عند التمرير */
+.mreveal{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.mreveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.mreveal{opacity:1;transform:none;transition:none}*{scroll-behavior:auto!important}}
+
+/* زر واتساب عائم — أسهل طريق للتواصل */
+.wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:60;display:flex;align-items:center;gap:10px;padding:12px 18px;border:0;border-radius:99px;background:#25d366;color:#052e16;font:800 15px Cairo,sans-serif;cursor:pointer;box-shadow:0 12px 32px rgba(37,211,102,.38)}
+.wa-fab:hover{transform:translateY(-3px) scale(1.03)}.wa-fab svg{width:22px;height:22px}
+@media(max-width:560px){.wa-fab span{display:none}.wa-fab{padding:14px}}
+
+/* ===== لوحة التحكم ===== */
+.admin-body{background:#0a0b0e}
+.admin-shell{gap:0}
+.admin-sidebar{background:linear-gradient(180deg,#0f1117,#0b0c10);border-inline-end:1px solid var(--line);padding:20px 14px}
+.admin-nav .nav-group{margin:22px 12px 8px;font-size:11px;letter-spacing:1.4px;color:var(--muted-2);font-weight:800}
+.admin-nav button{width:100%;display:flex;align-items:center;gap:12px;padding:11px 14px;margin-bottom:3px;border:0;border-radius:12px;background:transparent;color:var(--muted);font:700 14.5px Cairo,sans-serif;text-align:start;cursor:pointer}
+.admin-nav button:hover{background:var(--glass);color:var(--text)}
+.admin-nav button.active{background:linear-gradient(135deg,rgba(var(--orange-rgb),.22),rgba(var(--orange-rgb),.08));color:#fff;box-shadow:inset 0 0 0 1px rgba(var(--orange-rgb),.4)}
+.admin-topbar{background:rgba(10,11,14,.8);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.admin-topbar h1{font-size:22px}
+.user-pill{background:rgba(var(--orange-rgb),.12);color:var(--orange-2);border:1px solid rgba(var(--orange-rgb),.3);border-radius:99px;padding:6px 14px;font-weight:800}
+.admin-content{padding:clamp(16px,3vw,34px);max-width:1280px}
+.panel-head h2{font-size:24px;margin:0 0 4px}.panel-head p{color:var(--muted);margin:0}
+.item-list{display:grid;gap:10px}
+.item-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;background:var(--glass);border:1px solid var(--line)}
+.item-row:hover{border-color:rgba(var(--orange-rgb),.4);background:rgba(var(--orange-rgb),.05)}
+.item-thumb{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(var(--orange-rgb),.14);color:var(--orange-2);font-weight:900;flex:0 0 44px;overflow:hidden}
+.item-main{flex:1;min-width:0}.item-main small{display:block;color:var(--muted)}
+.pill{padding:3px 12px;border-radius:99px;font-size:12px;font-weight:800}
+.pill.ok{background:rgba(56,211,159,.14);color:#4ee0ad}.pill.warn{background:rgba(255,181,71,.14);color:#ffbd55}.pill.new{background:rgba(var(--orange-rgb),.14);color:var(--orange-2)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.search-box{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:14px;background:var(--glass);border:1px solid var(--line)}
+.search-box input{border:0!important;background:transparent!important;box-shadow:none!important;flex:1;padding:12px 0;color:var(--text)}
+.toolbar select{padding:11px 14px;border-radius:14px;background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.modal-box{border-radius:24px;border:1px solid var(--line-strong);box-shadow:var(--shadow)}
+.empty-state{padding:36px;text-align:center;color:var(--muted);border:1px dashed var(--line-strong);border-radius:16px}
+@media(max-width:900px){.admin-content{padding:14px}.item-row{flex-wrap:wrap}}

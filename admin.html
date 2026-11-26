@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="modern.css" />
 </head>
 <body class="admin-body">
 
@@ -37,6 +38,7 @@
       <button class="btn btn-primary btn-block" type="submit" id="loginBtn">دخول ←</button>
       <p class="login-error" id="loginError" role="alert" hidden></p>
       <p class="login-ok" id="loginOk" role="status" hidden></p>
+      <button type="button" class="btn btn-ghost btn-block" id="adminGoogle">الدخول بحساب Google</button>
       <div class="login-links">
         <button type="button" class="link-btn" id="forgotBtn">نسيت كلمة المرور؟</button>
         <a class="back-link" href="index.html">← الرجوع للموقع</a>
@@ -95,5 +97,6 @@
   <script src="admin-data.js"></script>
   <script src="admin-members.js"></script>
   <script>ADM.start();</script>
+  <script src="modern.js" defer></script>
 </body>
 </html>

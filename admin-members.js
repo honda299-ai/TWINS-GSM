@@ -68,3 +68,15 @@
     load();
   };
 })(window.ADM);
+
+/* دخول الأدمن بجوجل (إيميل جوجل بيكون متأكَّد تلقائياً) */
+(function () {
+  var b = document.getElementById("adminGoogle");
+  if (!b || !window.firebase) return;
+  b.addEventListener("click", function () {
+    var e = document.getElementById("loginError");
+    firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function (er) {
+      if (e && er.code !== "auth/popup-closed-by-user") { e.textContent = er.code === "auth/operation-not-allowed" ? "فعّل Google من Firebase Console." : "تعذّر الدخول بجوجل."; e.hidden = false; }
+    });
+  });
+})();
