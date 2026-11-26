@@ -188,6 +188,19 @@
   var thumbImg = function (d) { return d.image ? '<img src="' + esc(d.image) + '" alt="" loading="lazy" />' : "🖼"; };
 
   var SCHEMAS = {
+    proVault: {
+      title: "محتوى PRO", desc: "أدوات وحسابات تظهر لأعضاء PRO النشطين فقط (محمية بقواعد Firestore). حط رابط التحميل الخاص + يوزر وباسورد لو لازم.",
+      titleKey: "title", listTitle: function (d) { return d.title || "عنصر"; },
+      listSub: function (d) { return [d.username ? "👤 " + d.username : "", d.url ? "🔗 رابط" : ""].filter(Boolean).join(" · ") || "—"; },
+      fields: [
+        { key: "title", label: "العنوان", type: "text", required: true, full: true },
+        { key: "url", label: "رابط التحميل / الدخول (اختياري)", type: "text", full: true, ltr: true },
+        { key: "username", label: "اليوزر", type: "text", ltr: true },
+        { key: "password", label: "الباسورد", type: "text", ltr: true },
+        { key: "notes", label: "ملاحظات للعضو", type: "textarea", full: true },
+        ACTIVE
+      ]
+    },
     tools: {
       title: "الأدوات", desc: "الأدوات اللي الأعضاء بينزّلوها. ارفع الملف داخل مجلد tools/ مع الموقع، أو حط رابط تحميل مباشر (GitHub Releases / Google Drive / Mega).",
       titleKey: "name", listTitle: function (d) { return d.name || "أداة بدون اسم"; },

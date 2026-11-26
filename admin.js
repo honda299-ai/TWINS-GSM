@@ -186,6 +186,8 @@ window.ADM = (function () {
     { id: "media", label: "مكتبة الصور", ico: "📷" },
     { g: "العملاء" },
     { id: "requests", label: "طلبات العملاء", ico: "📥", badge: true },
+    { id: "members", label: "العملاء والعضويات", ico: "💎" },
+    { id: "proVault", label: "محتوى PRO", ico: "🔐" },
     { id: "users", label: "الأعضاء المسجلين", ico: "👥" },
     { id: "downloads", label: "سجل التحميلات", ico: "📈" },
     { g: "النظام" },

@@ -2,10 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="format-detection" content="telephone=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TWINS GSM | حلول السوفت وير والشبكات</title>
   <meta name="description" content="TWINS GSM — مركز متخصص في صيانة سوفت وير الموبايلات، فك الحمايات، إصلاح الشبكات، وتوفير أدوات GSM للمحترفين." />
   <meta name="theme-color" content="#08090b" />
@@ -19,7 +16,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="phone-studio.css" />
 </head>
 <body>
   <a class="skip-link" href="#main">تخطَّ إلى المحتوى</a>
@@ -46,11 +42,6 @@
         <a href="#reviews" data-cms="nav_reviews">الآراء</a>
         <a href="#contact" data-cms="nav_contact">تواصل معنا</a>
       </nav>
-
-      <button type="button" class="btn btn-ghost btn-sm header-phone" data-open-phone="dialer" aria-label="فتح الهاتف التفاعلي">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg>
-        <span>الهاتف</span>
-      </button>
 
       <a class="btn btn-ghost btn-sm header-account" id="accountBtn" href="account.html">حسابي</a>
 
@@ -324,185 +315,6 @@
     <span data-cms="float_wa_text">كلمنا واتساب</span>
   </a>
 
-  <!-- Mobile quick dock: تحكم سريع في الموبايل -->
-  <nav class="mobile-dock" id="mobileDock" aria-label="اختصارات سريعة">
-    <button type="button" data-open-phone="dialer" aria-label="فتح الهاتف">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1A19.5 19.5 0 0 1 3.2 9.8 19.8 19.8 0 0 1 .1 1.2 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.7c.1.9.4 1.7.7 2.5a2 2 0 0 1-.5 2.1L6 7.9a16 16 0 0 0 6.1 6.1l1.6-1.2a2 2 0 0 1 2.1-.5c.8.3 1.6.6 2.5.7A2 2 0 0 1 22 15z"/></svg>
-      <span>الهاتف</span>
-    </button>
-    <button type="button" data-open-phone="contacts" aria-label="جهات الاتصال">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.4-3.6 3-5.6 6.5-5.6s6.1 2 6.5 5.6M17 8h5M19.5 5.5v5"/></svg>
-      <span>جهات الاتصال</span>
-    </button>
-    <button type="button" data-open-phone="messages" aria-label="الرسائل">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 12.5h5"/></svg>
-      <span>الرسائل</span>
-    </button>
-    <a href="#tools" aria-label="الأدوات">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.66 5.66L3 18l3 3 6.04-6.04a4 4 0 0 0 5.66-5.66l-3 3-2.7-2.7z"/></svg>
-      <span>الأدوات</span>
-    </a>
-    <a id="quickWa" href="#" target="_blank" rel="noopener noreferrer" aria-label="واتساب">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.1 17.6L2 22l4.5-1.2A11 11 0 1 0 20.5 3.5Zm-8.5 17a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-2.7.7.7-2.6-.2-.3a9.1 9.1 0 1 1 7.1 3.7Zm5-6.8c-.3-.1-1.7-.8-2-.9s-.5-.1-.7.2-.8.9-1 1.1-.4.2-.7.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.6l.5-.6.2-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.4 1 2.8 1.2 3 .2.3 2.1 3.2a9.6 9.6 0 0 0 3.4 3c1.3.5 1.8.6 2.4.5.8-.1 1.7-.7 2-1.4s.3-1.2.2-1.4-.3-.1-.6-.2Z"/></svg>
-      <span>واتساب</span>
-    </a>
-  </nav>
-
-  <!-- Phone Studio — هاتف تفاعلي كامل يعمل على الموبايل والكمبيوتر -->
-  <div class="phone-studio" id="phoneStudio" hidden role="dialog" aria-modal="true" aria-label="هاتف TWINS GSM التفاعلي">
-    <div class="ps-backdrop" data-close-phone aria-hidden="true"></div>
-    <div class="ps-device" id="psDevice">
-      <div class="ps-notch" aria-hidden="true"></div>
-
-      <div class="ps-status" aria-hidden="true">
-        <span id="psClock">--:--</span>
-        <span class="ps-status-icons"><b>5G</b><i class="ps-sig"></i><i class="ps-bat"></i></span>
-      </div>
-
-      <div class="ps-head">
-        <div class="ps-head-brand">
-          <span class="ps-logo" aria-hidden="true"><i></i><i></i></span>
-          <div><b>TWINS <em>GSM</em></b><small>PHONE STUDIO · محاكاة تفاعلية</small></div>
-        </div>
-        <button type="button" class="ps-close" data-close-phone aria-label="إغلاق الهاتف">×</button>
-      </div>
-
-      <nav class="ps-tabs" id="psTabs" aria-label="أقسام الهاتف">
-        <button type="button" data-screen="dialer" aria-selected="true" aria-label="الهاتف"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1A19.5 19.5 0 0 1 3.2 9.8 19.8 19.8 0 0 1 .1 1.2 2 2 0 0 1 2 0h3a2 2 0 0 1 2 1.7c.1.9.4 1.7.7 2.5a2 2 0 0 1-.5 2.1L6 7.9a16 16 0 0 0 6.1 6.1l1.6-1.2a2 2 0 0 1 2.1-.5c.8.3 1.6.6 2.5.7A2 2 0 0 1 22 15z"/></svg><span>الهاتف</span></button>
-        <button type="button" data-screen="contacts" aria-selected="false" aria-label="جهات الاتصال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.4-3.6 3-5.6 6.5-5.6s6.1 2 6.5 5.6M17 8h5M19.5 5.5v5"/></svg><span>جهات الاتصال</span></button>
-        <button type="button" data-screen="recents" aria-selected="false" aria-label="السجل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg><span>السجل</span></button>
-        <button type="button" data-screen="messages" aria-selected="false" aria-label="الرسائل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>الرسائل</span></button>
-        <button type="button" data-screen="settings" aria-selected="false" aria-label="الإعدادات"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1-2 2-1.3-.3a1.6 1.6 0 0 0-1.8.3l-.2.2-.3 2h-3l-.3-2-.2-.2a1.6 1.6 0 0 0-1.8-.3L8.6 19l-2-2 .1-.1a1.6 1.6 0 0 0 .3-1.8l-.2-.3-2-.3v-3l2-.3.2-.2a1.6 1.6 0 0 0-.3-1.8L6.6 7l2-2 1.3.3a1.6 1.6 0 0 0 1.8-.3l.2-.2.3-2h3l.3 2 .2.2a1.6 1.6 0 0 0 1.8.3L19 5l2 2-.1.1a1.6 1.6 0 0 0-.3 1.8l.2.3 2 .3v3l-2 .3z"/></svg><span>الإعدادات</span></button>
-      </nav>
-
-      <div class="ps-body" id="psBody">
-        <!-- Dialer -->
-        <section class="ps-panel" data-panel="dialer">
-          <div class="ps-dialer">
-            <div class="ps-display">
-              <div class="ps-dial-avatar" id="psDialAvatar" aria-hidden="true">TG</div>
-              <b id="psDialName">TWINS GSM</b>
-              <strong id="psDialNumber" dir="ltr">+20 100 000 0000</strong>
-              <small id="psDialHint">اكتب رقم أو اختر جهة اتصال وابدأ المكالمة التجريبية</small>
-            </div>
-            <div class="ps-keypad" id="psKeypad"></div>
-            <div class="ps-dial-actions">
-              <button type="button" class="ps-round ps-round-ghost" id="psBackspace" aria-label="حذف رقم">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 5h11a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9L1 12z"/><path d="m13 9 5 6m0-6-5 6"/></svg>
-              </button>
-              <button type="button" class="ps-call-btn" id="psCallBtn" aria-label="بدء المكالمة">
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.4 16.6v2.7a1.8 1.8 0 0 1-2 1.8 17.5 17.5 0 0 1-7.6-2.7 17 17 0 0 1-5.2-5.2A17.5 17.5 0 0 1 2.9 5.6a1.8 1.8 0 0 1 1.8-2h2.7a1.8 1.8 0 0 1 1.8 1.5c.1.8.3 1.5.6 2.2a1.8 1.8 0 0 1-.4 1.9L8 10.3a14 14 0 0 0 5.7 5.7l1.1-1.1a1.8 1.8 0 0 1 1.9-.4c.7.3 1.4.5 2.2.6a1.8 1.8 0 0 1 1.5 1.5z"/></svg>
-              </button>
-              <button type="button" class="ps-round ps-round-ghost" id="psDialContacts" aria-label="فتح جهات الاتصال">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.4-3.6 3-5.6 6.5-5.6s6.1 2 6.5 5.6M17 8h5M19.5 5.5v5"/></svg>
-              </button>
-            </div>
-            <div class="ps-dial-extra">
-              <button type="button" class="ps-demo-call" id="psDemoIncoming">📲 جرّب مكالمة واردة</button>
-              <button type="button" class="ps-real-call" id="psRealCall">✆ اتصال حقيقي بالجهاز</button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Contacts -->
-        <section class="ps-panel" data-panel="contacts" hidden>
-          <div class="ps-toolbar">
-            <label class="ps-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="psContactSearch" placeholder="دوّر على اسم أو رقم…" aria-label="البحث في جهات الاتصال" /></label>
-            <button type="button" class="ps-add" id="psAddContact" aria-label="إضافة جهة اتصال">+</button>
-          </div>
-          <div class="ps-chips" id="psContactFilters" role="group" aria-label="تصفية جهات الاتصال">
-            <button type="button" data-filter="all" class="active">الكل</button>
-            <button type="button" data-filter="fav">المفضلة</button>
-            <button type="button" data-filter="team">فريق TWINS</button>
-            <button type="button" data-filter="custom">الخاصة بي</button>
-          </div>
-          <div class="ps-list" id="psContactList"></div>
-        </section>
-
-        <!-- Recents -->
-        <section class="ps-panel" data-panel="recents" hidden>
-          <div class="ps-section-bar"><b>سجل المكالمات</b><button type="button" id="psClearRecents">مسح السجل</button></div>
-          <div class="ps-list" id="psRecentList"></div>
-        </section>
-
-        <!-- Messages -->
-        <section class="ps-panel" data-panel="messages" hidden>
-          <div class="ps-convs" id="psConversations"></div>
-          <div class="ps-chat" id="psChat" hidden>
-            <div class="ps-chat-head">
-              <button type="button" id="psChatBack" aria-label="رجوع لقائمة المحادثات">‹</button>
-              <div><b id="psChatTitle">TWINS GSM</b><small>محاكاة محادثة</small></div>
-              <span id="psChatAvatar">TG</span>
-            </div>
-            <div class="ps-chat-body" id="psChatMessages"></div>
-            <form class="ps-chat-form" id="psChatForm">
-              <input type="text" id="psChatInput" placeholder="اكتب رسالة…" aria-label="اكتب رسالة" autocomplete="off" />
-              <button type="submit" aria-label="إرسال">➤</button>
-            </form>
-          </div>
-        </section>
-
-        <!-- Settings -->
-        <section class="ps-panel" data-panel="settings" hidden>
-          <div class="ps-settings">
-            <p class="ps-settings-note">المحاكاة كلها داخل الموقع. أزرار «اتصال حقيقي / واتساب / SMS» بتفتح تطبيقات الجهاز بعد موافقتك.</p>
-            <label class="ps-switch"><span><b>نغمة الرنين</b><small>صوت تجريبي خفيف</small></span><input type="checkbox" id="psSetSound" checked /><i></i></label>
-            <label class="ps-switch"><span><b>الاهتزاز</b><small>لو الجهاز بيدعمها</small></span><input type="checkbox" id="psSetVibrate" checked /><i></i></label>
-            <label class="ps-switch"><span><b>قائمة الخيارات التلقائية</b><small>ردود تفاعلية أثناء المكالمة</small></span><input type="checkbox" id="psSetMenu" checked /><i></i></label>
-            <label class="ps-switch"><span><b>الرد التلقائي على الرسائل</b><small>محاكاة رد فريق TWINS</small></span><input type="checkbox" id="psSetReplies" checked /><i></i></label>
-            <label class="ps-switch"><span><b>خط أكبر</b><small>ل ease القراءة على الموبايل</small></span><input type="checkbox" id="psSetLarge" /><i></i></label>
-            <div class="ps-accent-row"><b>لون الواجهة</b><div id="psAccents"><button type="button" data-accent="#ff8a1f" class="active" aria-label="برتقالي"></button><button type="button" data-accent="#25d366" aria-label="أخضر"></button><button type="button" data-accent="#4f8cff" aria-label="أزرق"></button><button type="button" data-accent="#c46bff" aria-label="بنفسجي"></button></div></div>
-            <button type="button" class="ps-setting-btn" id="psReset">إعادة ضبط بيانات الهاتف</button>
-            <p class="ps-about">TWINS GSM · Phone Studio v1.0<br />© <span id="psYear"></span> TWINS GSM</p>
-          </div>
-        </section>
-      </div>
-
-      <!-- شاشة المكالمة -->
-      <div class="ps-call" id="psCall" hidden>
-        <div class="ps-call-top"><span>◉ TWINS GSM</span><button type="button" id="psCallMin" aria-label="تصغير المكالمة">─</button></div>
-        <div class="ps-call-main">
-          <div class="ps-call-rings" aria-hidden="true"><i></i><i></i><i></i></div>
-          <div class="ps-call-avatar" id="psCallAvatar">TG</div>
-          <h3 id="psCallName">TWINS GSM</h3>
-          <p id="psCallNumber" dir="ltr">+20 100 000 0000</p>
-          <p class="ps-call-state" id="psCallState">جاري الاتصال…</p>
-          <div class="ps-call-timer" id="psCallTimer">00:00</div>
-          <div class="ps-call-transcript" id="psCallTranscript"></div>
-        </div>
-        <div class="ps-call-pad" id="psCallPad" hidden><div id="psCallPadKeys"></div></div>
-        <div class="ps-call-controls">
-          <button type="button" id="psMute" aria-label="كتم المايك"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><small>كتم</small></button>
-          <button type="button" id="psKeypadToggle" aria-label="إظهار لوحة الأرقام"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="5" r="1.7"/><circle cx="12" cy="5" r="1.7"/><circle cx="18" cy="5" r="1.7"/><circle cx="6" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18" cy="12" r="1.7"/><circle cx="6" cy="19" r="1.7"/><circle cx="12" cy="19" r="1.7"/><circle cx="18" cy="19" r="1.7"/></svg><small>أرقام</small></button>
-          <button type="button" id="psSpeaker" aria-label="مكبر الصوت"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg><small>مكبر</small></button>
-          <button type="button" class="ps-end" id="psEndCall" aria-label="إنهاء المكالمة"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 9c-3.3 0-6.4 1-8.7 2.7a2 2 0 0 0-.7 2.2l.6 1.8a2 2 0 0 0 2.4 1.3l2.4-.6a2 2 0 0 0 1.5-1.9v-1.3a9 9 0 0 1 5 0v1.3a2 2 0 0 0 1.5 1.9l2.4.6a2 2 0 0 0 2.4-1.3l.6-1.8a2 2 0 0 0-.7-2.2A14.7 14.7 0 0 0 12 9z"/></svg><small>إنهاء</small></button>
-        </div>
-      </div>
-
-      <!-- مكالمة واردة -->
-      <div class="ps-incoming" id="psIncoming" hidden>
-        <div class="ps-incoming-card">
-          <div class="ps-call-avatar" id="psIncomingAvatar">TG</div>
-          <b id="psIncomingName">TWINS GSM</b>
-          <small id="psIncomingNumber" dir="ltr">+20 100 000 0000</small>
-          <p>مكالمة واردة · محاكاة داخل الموقع</p>
-          <div class="ps-incoming-actions">
-            <button type="button" id="psDecline" aria-label="رفض المكالمة">✕</button>
-            <button type="button" id="psAccept" aria-label="الرد على المكالمة">✓</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- نافذة جهة اتصال -->
-      <div class="ps-sheet" id="psSheet" hidden>
-        <div class="ps-sheet-dim" data-close-sheet></div>
-        <div class="ps-sheet-card" id="psSheetCard"></div>
-      </div>
-
-      <div class="ps-toast" id="psToast" role="status" aria-live="polite" hidden></div>
-    </div>
-  </div>
-
   <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="عرض الصورة">
     <button type="button" class="lightbox-close" id="lightboxClose" aria-label="إغلاق">×</button>
     <figure><img id="lightboxImg" alt="" /><figcaption id="lightboxCap"></figcaption></figure>
@@ -517,6 +329,5 @@
 
   <script src="data.js"></script>
   <script src="app.js"></script>
-  <script src="phone-studio.js"></script>
 </body>
 </html>

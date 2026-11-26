@@ -232,8 +232,9 @@
       task = auth.createUserWithEmailAndPassword(email, password).then(function (cred) {
         var user = cred.user;
         var profileName = name || (email === PRIMARY_ADMIN ? "Honda Store" : email.split("@")[0]);
-        var userRole = email === PRIMARY_ADMIN ? "admin" : "member";
+        var userRole = "member";
         var ops = [];
+        if (user && user.sendEmailVerification) user.sendEmailVerification().catch(function () {});
         if (user && user.updateProfile) ops.push(user.updateProfile({ displayName: profileName }));
         if (db && user) {
           ops.push(db.collection("users").doc(user.uid).set({
@@ -456,4 +457,27 @@
   }
 
   init();
+})();
+
+/* Google sign-in */
+(function () {
+  var b = document.getElementById("googleBtn");
+  if (!b || !window.firebase) return;
+  b.addEventListener("click", function () {
+    var auth = firebase.auth(), db = firebase.firestore(), p = new firebase.auth.GoogleAuthProvider();
+    var err = document.getElementById("authError");
+    function show(m) { if (err) { err.textContent = m; err.hidden = !m; } }
+    show("");
+    auth.signInWithPopup(p).then(function (cred) {
+      var u = cred.user, ref = db.collection("users").doc(u.uid);
+      return ref.get().then(function (d) {
+        if (d.exists) return;
+        return ref.set({ email: u.email || "", name: u.displayName || (u.email || "").split("@")[0], role: "member", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      });
+    }).catch(function (e) {
+      if (e && (e.code === "auth/popup-blocked")) return auth.signInWithRedirect(p);
+      if (e && e.code === "auth/popup-closed-by-user") return;
+      show(e && e.code === "auth/operation-not-allowed" ? "فعّل Google من Firebase Console ← Authentication." : "تعذّر الدخول بحساب Google.");
+    });
+  });
 })();
