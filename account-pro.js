@@ -62,7 +62,12 @@
   auth.onAuthStateChanged(function (u) {
     if (!u) return render(null);
     db.collection("users").doc(u.uid).get().then(function (d) {
-      if (d.exists && d.data().blocked === true) { auth.signOut().then(function () { alert("تم إيقاف هذا الحساب. تواصل مع الدعم."); }); return; }
+      if (d.exists && d.data().blocked === true) {
+        // الأدمن (والأدمن الأساسي) ماينفعش يتحظروا من الواجهة أبداً
+        return db.collection("admins").doc((u.email || "").toLowerCase()).get().then(function () { render(u); }, function () {
+          auth.signOut().then(function () { alert("تم إيقاف هذا الحساب. تواصل مع الدعم."); });
+        });
+      }
       render(u);
     }).catch(function () { render(u); });
   });

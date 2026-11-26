@@ -17,7 +17,7 @@
       '<div class="toolbar"><label class="search-box"><span>⌕</span><input type="search" id="mSearch" placeholder="بحث بالاسم أو الإيميل…" /></label>' +
       '<select id="mFilter"><option value="">الكل</option><option value="active">PRO نشطة</option><option value="soon">تنتهي خلال 7 أيام</option><option value="expired">منتهية</option><option value="none">بدون عضوية</option></select></div>' +
       '<div class="item-list" id="mList"><div class="empty-state">جاري التحميل…</div></div>';
-    var users = [], mem = {};
+    var users = [], mem = {}, adminSet = {}, PRIM = "hondastore299@gmail.com";
     function rows() {
       return users.map(function (u) { return { u: u, m: mem[u._id], s: status(mem[u._id]) }; });
     }
@@ -42,6 +42,10 @@
         '<label>ملاحظة (خاصة بيك)<textarea id="mNote" rows="2"></textarea></label>' +
         '<div class="danger-zone"><b>إجراءات الحساب</b><div><button type="button" class="btn btn-ghost btn-sm" id="mBlock">' + (u.blocked ? "فك الحظر" : "حظر الحساب") + '</button><button type="button" class="btn btn-ghost btn-sm" id="mReset">إعادة تعيين الباسورد</button><button type="button" class="btn btn-ghost btn-sm" id="mPartner">تعيين كشريك أدمن</button><button type="button" class="btn btn-ghost btn-sm" id="mDelete">حذف الحساب</button></div></div>' +
         '<div class="modal-actions"><button class="btn btn-primary" id="mSave" type="button">حفظ</button><button class="btn btn-ghost" id="mCancel" type="button">إلغاء</button></div>');
+      var tem = (u.email || "").toLowerCase(), sup = A.user && (A.user.email || "").toLowerCase() === PRIM;
+      var self = (A.user && A.user.uid === uid) || tem === PRIM;
+      if (self || (!sup && adminSet[tem])) { ["mBlock", "mDelete"].forEach(function (i) { var x = $("#" + i); if (x) x.remove(); }); }
+      if (!sup) { var pb = $("#mPartner"); if (pb) pb.remove(); }
       $("#mLevel").value = m.level === "pro" ? "pro" : "none"; $("#mActive").checked = m.active !== false; $("#mNote").value = m.note || "";
       $("#modalBox").onclick = function (ev) {
         var a = ev.target.getAttribute && ev.target.getAttribute("data-add");
@@ -76,7 +80,8 @@
       };
     }
     function load() {
-      Promise.all([A.col("users").get(), A.col("memberships").get()]).then(function (r) {
+      Promise.all([A.col("users").get(), A.col("memberships").get(), A.col("admins").get().catch(function () { return { docs: [] }; })]).then(function (r) {
+        adminSet = {}; r[2].docs.forEach(function (d) { adminSet[d.id.toLowerCase()] = 1; });
         users = r[0].docs.map(function (d) { var x = d.data(); x._id = d.id; return x; });
         mem = {}; r[1].docs.forEach(function (d) { mem[d.id] = d.data(); });
         draw();
