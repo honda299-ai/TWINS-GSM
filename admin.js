@@ -179,11 +179,21 @@
       var btn = $("#loginBtn");
       btn.disabled = true;
       btn.textContent = "جاري الدخول…";
+
       auth.signInWithEmailAndPassword($("#adminEmail").value.trim(), $("#adminPassword").value)
-        .catch(function (err) {
-          showError(err.code === "auth/invalid-credential" ? "الإيميل أو كلمة المرور غلط." : err.message);
-        })
         .then(function () {
+          btn.disabled = false;
+          btn.textContent = "دخول ←";
+        })
+        .catch(function (err) {
+          console.error("Login Error:", err);
+          var msg = err.message;
+          if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+              msg = "الإيميل أو كلمة المرور غلط.";
+          } else if (err.code === "auth/unauthorized-domain") {
+              msg = "الدومين ده مش مضاف في Firebase Auth (Authorized domains).";
+          }
+          showError(msg);
           btn.disabled = false;
           btn.textContent = "دخول ←";
         });
@@ -211,14 +221,14 @@
 
       var checkAccess = isPrimary
         ? Promise.resolve(true)
-        : db.collection("admins").doc(email).get().then(function (doc) {
+        : (db ? db.collection("admins").doc(email).get().then(function (doc) {
             return doc.exists && doc.data().active !== false;
-          }).catch(function () { return false; });
+          }).catch(function (err) { console.error(err); return false; }) : Promise.resolve(false));
 
       checkAccess.then(function (allowed) {
         if (!allowed) {
           auth.signOut();
-          showError("هذا الحساب (" + email + ") ليس لديه صلاحية أدمن.");
+          showError("الحساب ده (" + email + ") ملوش صلاحية أدمن.");
           $("#loginView").hidden = false;
           $("#adminView").hidden = true;
           return;
@@ -228,6 +238,10 @@
         $("#userEmail").textContent = (isPrimary ? "👑 Honda Store · " : "") + email;
         renderNav();
         setSection("overview");
+      }).catch(function(err){
+          console.error("Access Check Error:", err);
+          showError("حصل مشكلة في التحقق من الصلاحيات.");
+          auth.signOut();
       });
     });
 
