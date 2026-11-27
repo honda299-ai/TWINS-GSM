@@ -35,6 +35,7 @@
             .then(function () { body.insertAdjacentHTML("beforeend", "<p>✅ وصل طلبك.</p>"); });
         };
         body.insertAdjacentHTML("beforeend", '<div class="pro-vault" id="freeVault"></div>');
+        if (window.TWINS_REDEEM_FORM) TWINS_REDEEM_FORM(body, user, function () { render(user); });
         db.collection("proVault").where("forAll", "==", true).get().then(function (s) {
           var h = itemsHtml(s.docs.map(function (x) { return x.data(); })); $("#freeVault").innerHTML = h ? "<b>متاح لكل الأعضاء:</b>" + h : "";
         }).catch(function () {});

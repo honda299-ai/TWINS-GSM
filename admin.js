@@ -191,6 +191,7 @@ window.ADM = (function () {
     { id: "users", label: "الأعضاء المسجلين", ico: "👥" },
     { id: "downloads", label: "سجل التحميلات", ico: "📈" },
     { id: "comments", label: "التعليقات والموافقة", ico: "💬" },
+    { id: "codes", label: "أكواد PRO", ico: "🎟" },
     { id: "activity", label: "سجل النشاط", ico: "📜" },
     { g: "النظام" },
     { id: "admins", label: "الشركاء / الأدمنز", ico: "🔑" },

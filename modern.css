@@ -265,3 +265,68 @@ input,select,textarea{background:rgba(255,255,255,.06)!important;border:1px soli
 .steps-track li.done i{background:var(--orange);border-color:var(--orange);color:#1a0d00}.steps-track li.now i{border-color:var(--orange);color:var(--orange-2)}.steps-track li.now span,.steps-track li.done span{color:var(--text)}
 .chat-send{display:flex;gap:8px;align-items:flex-end}.chat-send textarea{flex:1}
 @media(max-width:640px){.msg{max-width:92%}.chat{max-height:50vh}}
+
+/* ===================== رسائل بصور + تقييم + أكواد ===================== */
+.msg-img{display:block;max-width:100%;max-height:220px;border-radius:12px;margin-bottom:6px;cursor:zoom-in}
+.lightbox{position:fixed;inset:0;z-index:999;display:grid;place-items:center;background:rgba(0,0,0,.88);cursor:zoom-out;padding:20px}.lightbox img{max-width:100%;max-height:100%;border-radius:12px}
+.attach{margin:6px 0}.file-note{display:block;color:var(--muted);margin-top:4px}.attach-btn{cursor:pointer;display:inline-flex;align-items:center}
+.stars-mini{color:#ffc247;letter-spacing:1px}
+.rate{margin-top:12px;padding:14px;border-radius:16px;background:rgba(var(--orange-rgb),.08);border:1px solid rgba(var(--orange-rgb),.3);display:grid;gap:10px}
+.rate-stars{display:flex;gap:4px;direction:ltr;justify-content:flex-end}.rate-stars button{font-size:28px;line-height:1;border:0;background:none;color:var(--muted-2);cursor:pointer;transition:transform .15s,color .15s}
+.rate-stars button:hover{transform:scale(1.2)}.rate-stars button.on{color:#ffc247}
+.rated{margin-top:10px;color:var(--muted)}
+.redeem{margin-top:16px;padding:14px;border-radius:16px;border:1px dashed rgba(var(--orange-rgb),.5);background:rgba(var(--orange-rgb),.06);display:grid;gap:8px;text-align:start}
+.redeem>div{display:flex;gap:8px}.redeem input{flex:1;min-width:0;padding:11px 14px;letter-spacing:1px;text-transform:uppercase}.rd-msg{color:var(--muted);min-height:1.2em}
+.code-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end;margin-bottom:14px}
+.code-form label{display:grid;gap:6px;font-weight:700;font-size:13px}.code-form input,.code-form select{padding:11px 12px}
+.code-chip{direction:ltr;display:inline-block;padding:3px 10px;border-radius:8px;background:rgba(var(--orange-rgb),.14);color:var(--orange-2);letter-spacing:1px}
+
+/* ===================== v7 — تصميم حديث: هيدر عائم + بينتو + مارquee ===================== */
+.theme-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer;display:grid;place-items:center;flex:0 0 auto}
+.theme-btn:hover{border-color:var(--orange)}.theme-btn.floating{position:fixed;bottom:18px;inset-inline-end:18px;z-index:70;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+
+.site-header{position:sticky;top:12px;margin:12px auto 0;width:min(calc(100% - 24px),1180px);border-radius:999px;border:1px solid var(--line-strong)!important;box-shadow:0 12px 40px rgba(0,0,0,.28)}
+.site-header .container{width:100%;max-width:none;padding-inline:20px}
+.header-inner{min-height:64px}
+.btn{border-radius:999px}.btn-sm{padding-inline:18px}
+.hero{padding-block:clamp(40px,8vw,96px) 24px}
+.accent{background:linear-gradient(90deg,#ffbf80,#ff7a1a 45%,#ff4d8d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.hero h1{letter-spacing:-1px}
+.section-head{flex-direction:column!important;align-items:center!important;text-align:center;gap:10px;max-width:700px;margin-inline:auto;margin-bottom:40px}
+.section-head p{margin:0;color:var(--muted)}
+
+.marquee{overflow:hidden;margin:10px 0 28px;border-block:1px solid var(--line);background:rgba(255,255,255,.02);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.marquee-track{display:flex;gap:46px;width:max-content;padding:14px 0;animation:mq 34s linear infinite}
+.marquee-track span{font-weight:800;font-size:15px;letter-spacing:.5px;color:var(--muted);white-space:nowrap;direction:ltr}
+.marquee-track span::after{content:"✦";margin-inline-start:46px;color:var(--orange)}
+@keyframes mq{to{transform:translateX(50%)}}
+@media (prefers-reduced-motion:reduce){.marquee-track{animation:none}}
+
+/* بينتو: الخدمات */
+#servicesGrid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:16px}
+#servicesGrid .card:nth-child(1),#servicesGrid .card:nth-child(6){grid-column:span 2}
+#servicesGrid .card:nth-child(1),#servicesGrid .card:nth-child(6){background:linear-gradient(145deg,rgba(var(--orange-rgb),.20),rgba(255,255,255,.03))!important;border-color:rgba(var(--orange-rgb),.35)!important}
+@media(max-width:980px){#servicesGrid{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:640px){#servicesGrid{grid-template-columns:1fr!important}#servicesGrid .card:nth-child(n){grid-column:auto}.site-header{top:8px;width:calc(100% - 16px)}.site-header .container{padding-inline:12px}}
+
+/* ===================== الوضع الفاتح ===================== */
+[data-theme=light]{--bg:#f3f5f9;--bg-alt:#eaeef5;--surface:#ffffff;--surface-2:#f0f3f9;--line:rgba(15,23,42,.10);--line-strong:rgba(15,23,42,.18);--text:#0f172a;--muted:#546075;--muted-2:#8591a6;--shadow:0 18px 48px rgba(15,23,42,.12);color-scheme:light}
+[data-theme=light] body{background:radial-gradient(1100px 560px at 85% -10%,rgba(var(--orange-rgb),.14),transparent 60%),var(--bg)}
+[data-theme=light] body::before{opacity:.55}
+[data-theme=light] .stat,[data-theme=light] .card,[data-theme=light] .step,[data-theme=light] .review,[data-theme=light] .tool-card,[data-theme=light] .work-card,[data-theme=light] .faq-item,[data-theme=light] .account-card,[data-theme=light] .pro-item,[data-theme=light] .pro-lock,[data-theme=light] .dl-tabs,[data-theme=light] .tools-gate,[data-theme=light] .box,[data-theme=light] .item-row,[data-theme=light] .auth-card,[data-theme=light] .quick-tile,[data-theme=light] .req-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.96),rgba(255,255,255,.7))!important;border-color:rgba(15,23,42,.09)!important;box-shadow:0 8px 28px rgba(15,23,42,.08),inset 0 1px 0 #fff;color:var(--text)}
+[data-theme=light] #servicesGrid .card:nth-child(1),[data-theme=light] #servicesGrid .card:nth-child(6),[data-theme=light] .quick-tile.pro{background:linear-gradient(145deg,rgba(var(--orange-rgb),.18),rgba(255,255,255,.85))!important}
+[data-theme=light] .site-header{background:rgba(255,255,255,.78)}
+[data-theme=light] input,[data-theme=light] select,[data-theme=light] textarea{background:#fff!important;border-color:rgba(15,23,42,.16)!important;color:var(--text)}
+[data-theme=light] .btn-ghost{background:#fff;color:var(--text);border-color:rgba(15,23,42,.16)}
+[data-theme=light] .hero h1,[data-theme=light] .section h2{color:var(--text);text-shadow:none}
+[data-theme=light] .chat,[data-theme=light] .req-note{background:rgba(15,23,42,.04)}
+[data-theme=light] .msg.theirs{background:#fff;color:var(--text)}
+[data-theme=light] .marquee{background:rgba(15,23,42,.03)}
+[data-theme=light] footer,[data-theme=light] .site-footer{background:rgba(15,23,42,.04)}
+[data-theme=light] .admin-sidebar,[data-theme=light] .admin-topbar{background:rgba(255,255,255,.86)}
+[data-theme=light] .admin-body{background:var(--bg)}
+[data-theme=light] .modal-box{background:#fff}
+[data-theme=light] .brand-text strong,[data-theme=light] .main-nav a{color:var(--text)}
+[data-theme=light] .accent{background-image:linear-gradient(90deg,#ff8a2e,#ff5a00 45%,#e11d74)}
+[data-theme=light] .hero-trust span,[data-theme=light] .avatars span{background:#fff;border:1px solid var(--line-strong)}

@@ -30,6 +30,7 @@
             db.collection("requests").add({ uid: user.uid, email: user.email || "", service: "ترقية PRO", device: "—", note: "طلب تفعيل PRO من الموقع", status: "جديد", createdAt: firebase.firestore.FieldValue.serverTimestamp() })
               .then(function () { b.textContent = "✅ وصل طلبك، هنتواصل معاك"; }).catch(function () { b.disabled = false; b.textContent = "تعذّر الإرسال، حاول تاني"; });
           };
+          if (window.TWINS_REDEEM_FORM) TWINS_REDEEM_FORM(pane, user, render);
           return;
         }
         return db.collection("proVault").get().then(function (s) {
