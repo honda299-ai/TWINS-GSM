@@ -166,10 +166,7 @@
   }
 
   function bindUi() {
-    // يسمح برابط account.html?mode=register من زر "إنشاء حساب" في الرئيسية
-    var requestedMode = "";
-    try { requestedMode = new URLSearchParams(window.location.search).get("mode") || ""; } catch (e) { /* متصفحات قديمة */ }
-    setMode(requestedMode === "register" ? "register" : "login");
+    setMode("login");
 
     $("#authTabs").addEventListener("click", function (e) {
       var btn = e.target.closest("button[data-mode]");

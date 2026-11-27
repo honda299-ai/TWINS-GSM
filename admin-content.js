@@ -191,23 +191,14 @@
     proVault: {
       title: "محتوى PRO", desc: "أدوات وحسابات تظهر لأعضاء PRO النشطين فقط (محمية بقواعد Firestore). حط رابط التحميل الخاص + يوزر وباسورد لو لازم.",
       titleKey: "title", listTitle: function (d) { return d.title || "عنصر"; },
-      listSub: function (d) { return [d.image ? "📷 صورة" : "", d.url ? "🔗 رابط" : "", d.copyText ? "⧉ نسخ" : "", d.username ? "👤 " + d.username : ""].filter(Boolean).join(" · ") || "—"; },
+      listSub: function (d) { return [d.username ? "👤 " + d.username : "", d.url ? "🔗 رابط" : ""].filter(Boolean).join(" · ") || "—"; },
       fields: [
         { key: "image", label: "صورة (اختياري — بتظهر أعلى الكارت)", type: "image", opts: { maxW: 900, maxH: 600, maxBytes: 140 * 1024 }, hint: "الأفضل صورة أفقية. بتتضغط تلقائياً." },
-        { key: "showImage", label: "إظهار الصورة على الكارت", type: "checkbox", defOn: true, full: true },
         { key: "title", label: "العنوان", type: "text", required: true, full: true },
-        { key: "notes", label: "ملاحظات للعضو", type: "textarea", full: true },
-        { sep: "الرابط وزر النسخ" },
         { key: "url", label: "رابط التحميل / الدخول (اختياري)", type: "text", full: true, ltr: true },
-        { key: "urlLabel", label: "نص زر الرابط", type: "text", ph: "فتح / تحميل ↗" },
-        { key: "showUrl", label: "إظهار زر الرابط", type: "checkbox", defOn: true },
-        { key: "copyText", label: "نص جاهز للنسخ (رابط / كود / أي حاجة)", type: "textarea", full: true, ltr: true },
-        { key: "copyLabel", label: "نص زر النسخ", type: "text", ph: "نسخ النص" },
-        { key: "showCopy", label: "إظهار زر النسخ", type: "checkbox", defOn: true },
-        { sep: "بيانات الدخول (بتظهر مموّهة)" },
         { key: "username", label: "اليوزر", type: "text", ltr: true },
         { key: "password", label: "الباسورد", type: "text", ltr: true },
-        { sep: "الظهور" },
+        { key: "notes", label: "ملاحظات للعضو", type: "textarea", full: true },
         { key: "forAll", label: "يظهر لكل الأعضاء المسجلين (لو مقفول: لأعضاء PRO بس)", type: "checkbox", full: true },
         ACTIVE
       ]
@@ -334,7 +325,7 @@
     } else {
       h += '<label for="' + id + '">' + esc(f.label) + (f.required ? " *" : "") + '</label>';
       if (f.type === "textarea") {
-        h += '<textarea id="' + id + '"' + dir + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + '>' + esc(v) + '</textarea>';
+        h += '<textarea id="' + id + '"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + '>' + esc(v) + '</textarea>';
       } else if (f.type === "select" || f.type === "ref") {
         var options = f.type === "ref" ? ((opts.refs && opts.refs[f.ref]) || []).map(function (c) { return [c.id, c.label]; }) : f.options;
         var found = options.some(function (o) { return String(o[0]) === String(v); });
@@ -446,7 +437,7 @@
             $("#formFields").innerHTML = S.fields.map(function (f) {
               var v = doc ? doc[f.key] : f.def;
               if (f.key === "active") v = doc ? doc.active !== false : true;
-              if (f.type === "checkbox" && v == null) v = !!f.defOn;
+              if (f.type === "checkbox" && v == null) v = false;
               if (f.type === "select" && v != null) v = String(v);
               return fieldHtml(f, v == null ? "" : v, { refs: refs, editing: !!doc });
             }).join("");
@@ -567,28 +558,6 @@
       { key: "hero_trust_sub", label: "سطر الثقة الصغير", type: "text", ph: "ثقة عملائنا في كل مكان", full: true },
       { key: "hero_visual", label: "الشكل الجانبي في الواجهة", type: "select", options: [["phone", "الموبايل التفاعلي (الافتراضي)"], ["image", "صورة مخصصة"]], def: "phone", full: true },
       { key: "hero_image", label: "الصورة المخصصة (لو اخترتها فوق)", type: "image", opts: { maxW: 1000, maxH: 1100, maxBytes: 300 * 1024 } }
-    ] },
-    { id: "download", label: "⬇ مركز التحميل", fields: [
-      { sep: "شكل مركز التحميل" },
-      { key: "dl_head_badge", label: "الشارة الصغيرة", type: "text", ph: "DOWNLOAD CENTER / مركز التحميل", full: true },
-      { key: "dl_head_title", label: "العنوان", type: "text", ph: "كل أدواتك وتحميلاتك في مكان واحد", full: true },
-      { key: "dl_head_text", label: "الوصف", type: "text", ph: "اختر من التحميل العادي، أو ادخل على محتوى PRO الحصري.", full: true },
-      { sep: "إظهار تبويبات التحميل" },
-      { key: "dl_show_free", label: "تبويب التحميل العادي", type: "checkbox", defOn: true, full: true },
-      { key: "dl_show_pro", label: "تبويب تحميل PRO", type: "checkbox", defOn: true, full: true },
-      { sep: "البطاقة المميزة أعلى التحميل" },
-      { key: "dl_feature_on", label: "إظهار البطاقة المميزة", type: "checkbox", full: true },
-      { key: "dl_feature_label", label: "الشارة الصغيرة", type: "text", ph: "توصية اليوم" },
-      { key: "dl_feature_title", label: "العنوان", type: "text", full: true },
-      { key: "dl_feature_text", label: "الوصف", type: "textarea", full: true },
-      { key: "dl_feature_image", label: "الصورة", type: "image", opts: { maxW: 900, maxH: 600, maxBytes: 160 * 1024 }, hint: "صورة أفقية — بتتضغط تلقائياً." },
-      { key: "dl_feature_show_image", label: "إظهار الصورة", type: "checkbox", defOn: true },
-      { key: "dl_feature_url", label: "رابط الزر", type: "text", ltr: true, full: true, ph: "https://…" },
-      { key: "dl_feature_btn", label: "نص الزر", type: "text", ph: "حمّل الآن" },
-      { key: "dl_feature_show_link", label: "إظهار زر الرابط", type: "checkbox", defOn: true },
-      { key: "dl_feature_copy", label: "النص اللي يتنسخ (رابط / كود)", type: "textarea", full: true, ltr: true },
-      { key: "dl_feature_copy_label", label: "نص زر النسخ", type: "text", ph: "انسخ الرابط" },
-      { key: "dl_feature_show_copy", label: "إظهار زر النسخ", type: "checkbox", defOn: true }
     ] },
     { id: "sections", label: "🧩 العناوين والنصوص", fields: concat(
       [{ sep: "القائمة العلوية" },
@@ -733,7 +702,6 @@
           if (c[k] && c[k] !== "#" && !/^https?:\/\//i.test(c[k])) bad = bad || ("الرابط لازم يبدأ بـ https:// (" + k + ")");
         });
         if (s.announce_link && s.announce_link !== del && !/^(https?:\/\/|#|\/)/i.test(s.announce_link)) bad = bad || "رابط الإعلان لازم يبدأ بـ https://";
-        if (s.dl_feature_url && s.dl_feature_url !== del && !/^https?:\/\//i.test(s.dl_feature_url)) bad = bad || "رابط البطاقة المميزة لازم يبدأ بـ https://";
         if (s.color_primary && s.color_primary !== del && !/^#[0-9a-f]{6}$/i.test(s.color_primary)) bad = bad || "اللون لازم بصيغة #RRGGBB";
         if (s.seo_image && s.seo_image !== del && !/^https?:\/\//i.test(s.seo_image)) bad = bad || "رابط صورة المشاركة لازم يبدأ بـ https://";
         if (bad) { A.toast(bad, true); return; }
