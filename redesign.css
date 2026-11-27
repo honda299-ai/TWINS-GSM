@@ -10,6 +10,8 @@
   --touch: 46px;
 }
 
+[hidden] { display: none !important; }
+
 html { scroll-padding-top: calc(var(--header-h) + 14px); }
 body { padding-bottom: 0; }
 
@@ -169,6 +171,66 @@ body::after { display: none !important; }
 .work-body h3 { font-size: 17px; }
 .work-body p { font-size: 12.5px; }
 
+/* ================= مركز التحميل (مكان مستقل) ================= */
+.download-shell {
+  position: relative; overflow: hidden;
+  padding: clamp(18px, 3vw, 30px);
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,.11);
+  background:
+    radial-gradient(60% 40% at 100% 0%, rgba(var(--orange-rgb), .11), transparent 70%),
+    linear-gradient(155deg, rgba(255,255,255,.06), rgba(255,255,255,.018));
+  box-shadow: 0 24px 60px rgba(0,0,0,.24);
+}
+.download-shell::before {
+  content: ""; position: absolute; inset-inline-start: 0; inset-inline-end: 0; top: 0; height: 3px;
+  background: linear-gradient(90deg, var(--orange), rgba(var(--orange-rgb), 0));
+}
+.download-shell-head {
+  display: flex; align-items: center; gap: 14px;
+  padding-bottom: 20px; margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,.09);
+}
+.dl-shell-icon {
+  flex: 0 0 52px; width: 52px; height: 52px; border-radius: 16px;
+  display: grid; place-items: center; font-size: 24px;
+  background: linear-gradient(140deg, rgba(var(--orange-rgb), .3), rgba(var(--orange-rgb), .08));
+  border: 1px solid rgba(var(--orange-rgb), .4);
+  box-shadow: 0 10px 26px rgba(var(--orange-rgb), .18);
+}
+.dl-shell-title { flex: 1; min-width: 0; }
+.dl-shell-title > span { display: block; color: var(--orange-2); font-size: 11.5px; font-weight: 900; letter-spacing: .4px; margin-bottom: 3px; }
+.dl-shell-title h3 { margin: 0 0 3px; font-size: clamp(18px, 2.4vw, 23px); font-weight: 900; line-height: 1.35; }
+.dl-shell-title p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.dl-shell-chip {
+  flex: 0 0 auto; padding: 7px 12px; border-radius: 99px;
+  background: rgba(78, 214, 160, .1); border: 1px solid rgba(78, 214, 160, .28);
+  color: #6de7b5; font-size: 11.5px; font-weight: 800;
+}
+
+/* البطاقة المميزة */
+.dl-feature {
+  display: grid; grid-template-columns: minmax(150px, 34%) 1fr; gap: 20px; align-items: center;
+  margin-bottom: 22px; padding: 14px;
+  border-radius: 20px; border: 1px solid rgba(var(--orange-rgb), .28);
+  background: linear-gradient(120deg, rgba(var(--orange-rgb), .13), rgba(255,255,255,.025));
+}
+.dl-feature-img {
+  width: 100%; height: 160px; object-fit: cover; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+}
+.dl-feature-body { padding: 6px 6px 6px 0; }
+.dl-feature-label {
+  display: inline-block; margin-bottom: 8px; padding: 5px 11px; border-radius: 99px;
+  background: rgba(var(--orange-rgb), .16); color: var(--orange-2);
+  font-size: 10.5px; font-weight: 900;
+}
+.dl-feature-body h4 { margin: 0 0 6px; font-size: clamp(17px, 2.2vw, 21px); font-weight: 900; line-height: 1.4; }
+.dl-feature-body p { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.75; }
+.dl-feature-actions { display: flex; flex-wrap: wrap; gap: 9px; }
+.dl-feature-actions .btn { min-height: 44px; border-radius: 12px; font-size: 13px; padding-inline: 18px; }
+.btn.copied { border-color: rgba(78, 214, 160, .5) !important; color: #6de7b5 !important; }
+
 /* ================= الأدوات: تبويبات وبحث ================= */
 .dl-tabs { width: 100%; max-width: 520px; gap: 8px; padding: 5px; margin-bottom: 18px; }
 .dl-tabs button { min-height: 54px; gap: 2px; border-radius: 13px; }
@@ -245,11 +307,93 @@ body::after { display: none !important; }
 .tool-download.is-done { background: linear-gradient(135deg, #4ee6a8, #20a877) !important; color: #05291b !important; }
 .tools-empty { padding: 30px 16px; font-size: 14px; }
 
-/* PRO */
-.pro-pane { margin-bottom: 20px; }
-.pro-lock { padding: 28px 20px; border-radius: 20px; }
-.pro-grid { gap: 14px; }
-.pro-grid .pro-item { border-radius: 16px; }
+/* ================= صندوق PRO ================= */
+.pro-pane { margin: 4px 0 22px; }
+.pro-loading { display: grid; justify-items: center; gap: 10px; padding: 34px 16px; color: var(--muted); font-size: 13px; }
+.pro-loading span {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 3px solid rgba(var(--orange-rgb), .18); border-top-color: var(--orange);
+  animation: loaderSpin .8s linear infinite;
+}
+.pro-loading p { margin: 0; }
+.pro-lock {
+  max-width: none !important; margin: 0; padding: 34px 24px;
+  border-radius: 22px !important; text-align: center;
+  border: 1px dashed rgba(var(--orange-rgb), .45) !important;
+  background: linear-gradient(135deg, rgba(var(--orange-rgb), .13), rgba(255,255,255,.025)) !important;
+}
+.pro-lock-icon {
+  display: grid; place-items: center; width: 66px; height: 66px; margin: 0 auto 14px;
+  border-radius: 20px; font-size: 30px;
+  background: rgba(var(--orange-rgb), .14); border: 1px solid rgba(var(--orange-rgb), .3);
+}
+.pro-lock h3 { margin: 0 0 8px; font-size: 20px; font-weight: 900; }
+.pro-lock p { max-width: 520px; margin: 0 auto 18px; color: var(--muted); font-size: 13.5px; line-height: 1.8; }
+.pro-lock .btn { min-height: 46px; border-radius: 12px; }
+.pro-lock .pro-upgrade { text-align: right; margin-top: 18px; }
+
+.pro-upgrade {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px 14px;
+  margin-bottom: 16px; padding: 18px;
+  border-radius: 18px; border: 1px solid rgba(var(--orange-rgb), .28);
+  background: linear-gradient(120deg, rgba(var(--orange-rgb), .12), rgba(255,255,255,.02));
+}
+.pro-upgrade > span {
+  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 22px;
+  background: rgba(var(--orange-rgb), .15); border: 1px solid rgba(var(--orange-rgb), .3);
+}
+.pro-upgrade h3 { margin: 0 0 3px; font-size: 16px; font-weight: 900; }
+.pro-upgrade p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+.pro-upgrade-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 9px; }
+.pro-upgrade-actions .btn { min-height: 42px; border-radius: 11px; font-size: 13px; }
+.pro-ok {
+  display: inline-block; margin-bottom: 16px; padding: 8px 16px; border-radius: 99px;
+  background: rgba(78, 214, 160, .11); border: 1px solid rgba(78, 214, 160, .3);
+  color: #6de7b5; font-size: 12.5px; font-weight: 800;
+}
+.pro-subtitle { margin: 16px 0 10px; font-size: 15px; font-weight: 900; }
+.pro-status { margin: 0 0 14px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+.pro-empty { padding: 26px 16px; border-radius: 16px; text-align: center; color: var(--muted); font-size: 13.5px; background: rgba(255,255,255,.035); border: 1px dashed var(--line-strong); }
+
+.pro-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.pro-grid .pro-item {
+  display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.11) !important;
+  background: linear-gradient(155deg, rgba(255,255,255,.07), rgba(255,255,255,.02)) !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.18) !important;
+}
+.pro-grid .pro-item:hover { transform: none !important; border-color: rgba(var(--orange-rgb), .4) !important; box-shadow: 0 14px 32px rgba(0,0,0,.26) !important; }
+.pro-grid .pro-item .card-img { width: 100%; height: 130px; object-fit: cover; border-radius: 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+.pro-item-body { display: flex; flex-direction: column; gap: 8px; flex: 1; padding: 16px; }
+.pro-item-badge {
+  align-self: flex-start; padding: 4px 9px; border-radius: 8px;
+  background: rgba(var(--orange-rgb), .13); color: var(--orange-2);
+  font-size: 10px; font-weight: 900;
+}
+.pro-item h4 { margin: 0; font-size: 15.5px; font-weight: 900; line-height: 1.45; }
+.pro-item p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.7; }
+.pro-item-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 6px; }
+.pro-item-actions .btn { min-height: 38px; border-radius: 10px; font-size: 12px; padding-inline: 12px; }
+.pro-secret {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 6px;
+  padding: 8px 10px; border-radius: 11px;
+  background: rgba(0,0,0,.24); border: 1px solid rgba(255,255,255,.06);
+  font-size: 11px;
+}
+.pro-secret > span { color: var(--muted); font-weight: 800; white-space: nowrap; }
+.pro-secret code {
+  direction: ltr; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11.5px; color: var(--text);
+}
+.pro-secret .text-btn {
+  min-height: 28px; padding: 4px 8px; border-radius: 8px;
+  background: rgba(255,255,255,.07); font-size: 10.5px;
+}
+.pro-secret .text-btn:hover { background: rgba(255,255,255,.13); }
+.pro-secret .text-btn.copy { color: var(--orange-2); }
+.pro-secret .text-btn.copied { color: #6de7b5 !important; }
 
 /* ================= الآراء / الأسئلة / التواصل ================= */
 .review { padding: 20px; }
@@ -401,6 +545,29 @@ body::after { display: none !important; }
   .tool-card { padding: 18px; gap: 9px; }
   .tool-card p { min-height: 0; }
   .tool-download { min-height: 50px; }
+
+  /* مركز التحميل في الموبايل */
+  .download-shell { padding: 16px; border-radius: 20px; }
+  .download-shell-head { gap: 10px; padding-bottom: 16px; margin-bottom: 16px; }
+  .dl-shell-icon { flex-basis: 44px; width: 44px; height: 44px; border-radius: 13px; font-size: 20px; }
+  .dl-shell-title h3 { font-size: 17px; }
+  .dl-shell-title p { font-size: 12px; }
+  .dl-shell-chip { display: none; }
+  .dl-feature { grid-template-columns: 1fr; gap: 12px; padding: 10px; border-radius: 17px; }
+  .dl-feature-img { height: 140px; }
+  .dl-feature-body { padding: 4px 6px 8px; }
+  .dl-feature-actions { flex-direction: column; }
+  .dl-feature-actions .btn { width: 100%; min-height: 46px; }
+  .pro-lock { padding: 26px 16px; }
+  .pro-lock h3 { font-size: 18px; }
+  .pro-upgrade { padding: 14px; grid-template-columns: auto 1fr; }
+  .pro-upgrade-actions { flex-direction: column; }
+  .pro-upgrade-actions .btn { width: 100%; }
+  .pro-grid { grid-template-columns: 1fr; }
+  .pro-secret { grid-template-columns: 1fr 1fr; gap: 5px 8px; }
+  .pro-secret code { grid-column: 1 / -1; grid-row: 2; padding: 5px 8px; border-radius: 7px; background: rgba(0,0,0,.3); }
+  .pro-secret .text-btn { min-height: 32px; }
+  .pro-item-actions .btn { flex: 1; }
 
   /* الآراء والأسئلة والتواصل */
   .review-cta { flex-direction: column; align-items: stretch; text-align: center; gap: 14px; }

@@ -68,6 +68,112 @@
     }
   }
 
+  /* ---------- مركز التحميل: إعدادات البطاقة والتبويبات من اللوحة ---------- */
+  function safeImg(v) {
+    var s = String(v || "").trim();
+    if (!s) return "";
+    if (/^data:image\/(png|jpe?g|webp|gif);base64,[a-z0-9+\/=]+$/i.test(s)) return s;
+    if (/^(https?:\/\/|\/|\.\/|\.\.\/)/i.test(s)) return s;
+    return /^[a-zA-Z0-9_\-./]+$/.test(s) ? s : "";
+  }
+
+  function activateTab(name) {
+    var tabs = $("#dlTabs");
+    if (!tabs) return;
+    var btn = tabs.querySelector('[data-tab="' + name + '"]');
+    if (!btn || btn.hidden) return;
+    $$("button", tabs).forEach(function (x) {
+      var active = x === btn;
+      x.classList.toggle("active", active);
+      x.setAttribute("aria-selected", String(active));
+    });
+    var pro = name === "pro";
+    var sec = $("#tools");
+    if (sec) sec.classList.toggle("show-pro", pro);
+    var pane = $("#proPane"), free = $("#freePane");
+    if (pane) pane.hidden = !pro;
+    if (free) free.hidden = pro;
+  }
+
+  function applyDownloadSettings(S) {
+    S = S || (window.TWINS_DATA && window.TWINS_DATA.settings) || {};
+    var feature = $("#dlFeature");
+    if (feature) {
+      var on = S.dl_feature_on === true;
+      feature.hidden = !on;
+      if (on) {
+        var img = $("#dlFeatureImg");
+        var src = safeImg(S.dl_feature_image);
+        if (img) {
+          img.hidden = !(S.dl_feature_show_image !== false && src);
+          if (!img.hidden) {
+            img.onerror = function () { img.hidden = true; };
+            img.src = src;
+          }
+        }
+        var link = $("#dlFeatureLink");
+        var url = /^https?:\/\//i.test(String(S.dl_feature_url || "").trim()) ? String(S.dl_feature_url).trim() : "";
+        if (link) {
+          link.hidden = !(url && S.dl_feature_show_link !== false);
+          if (url) link.href = url;
+        }
+        var copy = $("#dlFeatureCopy");
+        var text = String(S.dl_feature_copy || "").trim();
+        if (copy) {
+          copy.hidden = !(text && S.dl_feature_show_copy !== false);
+          copy.setAttribute("data-copy-text", text);
+        }
+      }
+    }
+
+    var tabs = $("#dlTabs");
+    if (!tabs) return;
+    var freeBtn = tabs.querySelector('[data-tab="free"]');
+    var proBtn = tabs.querySelector('[data-tab="pro"]');
+    if (freeBtn) freeBtn.hidden = S.dl_show_free === false;
+    if (proBtn) proBtn.hidden = S.dl_show_pro === false;
+    tabs.hidden = S.dl_show_free === false && S.dl_show_pro === false;
+    if (tabs.hidden) {
+      var pane = $("#proPane"), free = $("#freePane");
+      if (pane) pane.hidden = true;
+      if (free) free.hidden = false;
+    } else if (freeBtn && freeBtn.hidden) activateTab("pro");
+    else if (proBtn && proBtn.hidden) activateTab("free");
+  }
+
+  document.addEventListener("twins:settings", function (e) { applyDownloadSettings(e.detail); });
+  applyDownloadSettings();
+
+  /* ---------- زر نسخ البطاقة المميزة ---------- */
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("#dlFeatureCopy");
+    if (!btn) return;
+    var text = btn.getAttribute("data-copy-text") || "";
+    if (!text) return;
+    var label = btn.querySelector("span");
+    function setLabel(v) { if (label) label.textContent = v; else btn.textContent = v; }
+    function done() {
+      var old = btn.getAttribute("data-label") || (label ? label.textContent : "انسخ الرابط");
+      btn.setAttribute("data-label", old);
+      setLabel("تم النسخ ✓");
+      btn.classList.add("copied");
+      setTimeout(function () { setLabel(old); btn.classList.remove("copied"); }, 1600);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { legacyCopy(text, btn, done); });
+    else legacyCopy(text, btn, done);
+  });
+
+  function legacyCopy(text, btn, done) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { btn.textContent = "انسخ يدوياً"; }
+    document.body.removeChild(ta);
+  }
+
   /* ---------- زر التحميل: حالة واضحة بعد الضغط ---------- */
   document.addEventListener("click", function (e) {
     var btn = e.target.closest(".tool-download");

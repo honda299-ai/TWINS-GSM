@@ -140,6 +140,9 @@
     var ogi = $("#ogImage");
     var seoImg = safeImg(S.seo_image);
     if (ogi && seoImg && seoImg.indexOf("data:") !== 0) ogi.setAttribute("content", seoImg);
+
+    // إشارة للطبقات الإضافية (مركز التحميل) عشان تطبّق إعداداتها فور وصولها من اللوحة.
+    document.dispatchEvent(new CustomEvent("twins:settings", { detail: S }));
   }
 
   var icons = {

@@ -229,7 +229,7 @@
       </div>
     </section>
 
-    <!-- Tools -->
+    <!-- Tools / Download center -->
     <section class="section section-alt" id="tools" data-section="tools">
       <div class="container">
         <div class="section-head">
@@ -240,34 +240,62 @@
           <p data-cms="sec_tools_sub">أدوات وملفات نستخدمها في الشغل، متاحة لك تنزلها وتستخدمها بسهولة.</p>
         </div>
 
-        <div class="dl-tabs" id="dlTabs" role="tablist" aria-label="نوع التحميل">
-          <button type="button" role="tab" class="active" data-tab="free" aria-selected="true"><b>⬇ تحميل عادي</b><small>أدوات مجانية للأعضاء</small></button>
-          <button type="button" role="tab" data-tab="pro" aria-selected="false"><b>👑 تحميل PRO</b><small>أدوات وحسابات حصرية</small></button>
-        </div>
-        <div class="pro-pane" id="proPane" hidden></div>
-
-        <div class="tools-toolbar">
-          <label class="search-box">
-            <span aria-hidden="true">⌕</span>
-            <input type="search" id="toolsSearch" placeholder="دوّر على أداة…" aria-label="البحث في الأدوات" />
-          </label>
-          <div class="filter-bar compact" id="toolFilters" role="group" aria-label="تصفية الأدوات"></div>
-        </div>
-
-        <div class="tools-gate" id="toolsGate" hidden>
-          <span class="gate-icon" aria-hidden="true">🔒</span>
-          <div>
-            <h3 data-cms="gate_title">التحميل للأعضاء المسجلين فقط</h3>
-            <p data-cms="gate_text">سجّل الدخول أو اعمل حساب جديد عشان تشوف الأدوات والأسعار وتاريخ تحميلاتك.</p>
+        <div class="download-shell" id="downloadShell">
+          <div class="download-shell-head">
+            <span class="dl-shell-icon" aria-hidden="true">⬇</span>
+            <div class="dl-shell-title">
+              <span data-cms="dl_head_badge">DOWNLOAD CENTER / مركز التحميل</span>
+              <h3 data-cms="dl_head_title">كل أدواتك وتحميلاتك في مكان واحد</h3>
+              <p data-cms="dl_head_text">اختر من التحميل العادي، أو ادخل على محتوى PRO الحصري.</p>
+            </div>
+            <span class="dl-shell-chip">✓ محدّث ومضمون</span>
           </div>
-          <div class="gate-actions">
-            <a class="btn btn-primary" href="account.html">دخول ←</a>
-            <a class="btn btn-ghost" href="account.html?mode=register">إنشاء حساب جديد</a>
+
+          <div class="dl-feature" id="dlFeature" hidden>
+            <img class="dl-feature-img" id="dlFeatureImg" alt="" hidden />
+            <div class="dl-feature-body">
+              <span class="dl-feature-label" data-cms="dl_feature_label">توصية اليوم</span>
+              <h4 data-cms="dl_feature_title">أحدث أداة من TWINS GSM</h4>
+              <p data-cms="dl_feature_text">اضغط على الزر للتحميل مباشرة، أو انسخ الرابط واستخدمه وقت ما تحب.</p>
+              <div class="dl-feature-actions">
+                <a class="btn btn-primary" id="dlFeatureLink" href="#" target="_blank" rel="noopener noreferrer" hidden><span data-cms="dl_feature_btn">حمّل الآن</span> ↗</a>
+                <button class="btn btn-ghost" type="button" id="dlFeatureCopy" hidden><span data-cms="dl_feature_copy_label">انسخ الرابط</span></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="dl-tabs" id="dlTabs" role="tablist" aria-label="نوع التحميل">
+            <button type="button" role="tab" class="active" data-tab="free" aria-selected="true"><b>⬇ تحميل عادي</b><small>أدوات مجانية للأعضاء</small></button>
+            <button type="button" role="tab" data-tab="pro" aria-selected="false"><b>👑 تحميل PRO</b><small>أدوات وحسابات حصرية</small></button>
+          </div>
+
+          <div class="pro-pane" id="proPane" hidden></div>
+
+          <div class="free-pane" id="freePane">
+            <div class="tools-toolbar">
+              <label class="search-box">
+                <span aria-hidden="true">⌕</span>
+                <input type="search" id="toolsSearch" placeholder="دوّر على أداة…" aria-label="البحث في الأدوات" />
+              </label>
+              <div class="filter-bar compact" id="toolFilters" role="group" aria-label="تصفية الأدوات"></div>
+            </div>
+
+            <div class="tools-gate" id="toolsGate" hidden>
+              <span class="gate-icon" aria-hidden="true">🔒</span>
+              <div>
+                <h3 data-cms="gate_title">التحميل للأعضاء المسجلين فقط</h3>
+                <p data-cms="gate_text">سجّل الدخول أو اعمل حساب جديد عشان تشوف الأدوات والأسعار وتاريخ تحميلاتك.</p>
+              </div>
+              <div class="gate-actions">
+                <a class="btn btn-primary" href="account.html">دخول ←</a>
+                <a class="btn btn-ghost" href="account.html?mode=register">إنشاء حساب جديد</a>
+              </div>
+            </div>
+
+            <div class="tools-grid" id="toolsGrid"></div>
+            <p class="tools-empty" id="toolsEmpty" hidden>مفيش أدوات مطابقة لبحثك. جرّب كلمة تانية.</p>
           </div>
         </div>
-
-        <div class="tools-grid" id="toolsGrid"></div>
-        <p class="tools-empty" id="toolsEmpty" hidden>مفيش أدوات مطابقة لبحثك. جرّب كلمة تانية.</p>
       </div>
     </section>
 
