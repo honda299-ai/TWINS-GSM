@@ -60,17 +60,17 @@
         function bad(er) { A.toast(A.errMsg(er), true); }
         if (id === "mBlock") {
           var nb = !u.blocked;
-          A.col("users").doc(uid).set({ blocked: nb, blockedAt: ts }, { merge: true }).then(function () { return nb ? A.col("memberships").doc(uid).set({ active: false }, { merge: true }) : null; }).then(function () { done(nb ? "تم حظر الحساب" : "تم فك الحظر"); }).catch(bad);
+          A.col("users").doc(uid).set({ blocked: nb, blockedAt: ts }, { merge: true }).then(function () { return nb ? A.col("memberships").doc(uid).set({ active: false }, { merge: true }) : null; }).then(function () { A.log(nb ? "block" : "unblock", em, ""); done(nb ? "تم حظر الحساب" : "تم فك الحظر"); }).catch(bad);
         }
         if (id === "mReset") firebase.auth().sendPasswordResetEmail(u.email).then(function () { A.toast("اتبعت رابط إعادة التعيين"); }).catch(bad);
-        if (id === "mPartner") A.confirm("تعيين شريك؟", em + " هيدخل لوحة التحكم (لازم أنت الأدمن الأساسي).", { ok: "تعيين" }).then(function (ok) { if (ok) A.col("admins").doc(em).set({ email: em, active: true, createdAt: ts }).then(function () { A.toast("تم التعيين"); }).catch(bad); });
+        if (id === "mPartner") A.confirm("تعيين شريك؟", em + " هيدخل لوحة التحكم (لازم أنت الأدمن الأساسي).", { ok: "تعيين" }).then(function (ok) { if (ok) A.col("admins").doc(em).set({ email: em, active: true, createdAt: ts }).then(function () { A.log("partner", em, ""); A.toast("تم التعيين"); }).catch(bad); });
         if (id === "mDelete") A.confirm("حذف الحساب نهائياً؟", "هتتمسح بيانات " + em + " وطلباته وتحميلاته وعضويته، ويتحظر. (حذف تسجيل الدخول نفسه من Firebase Console ← Authentication).", { ok: "حذف نهائي" }).then(function (ok) {
           if (!ok) return;
           Promise.all([A.col("requests").where("uid", "==", uid).get(), A.col("downloads").where("uid", "==", uid).get()]).then(function (s) {
             var b = A.db.batch(); s.forEach(function (q) { q.docs.forEach(function (d) { b.delete(d.ref); }); });
             b.delete(A.col("memberships").doc(uid)); b.set(A.col("users").doc(uid), { email: u.email || "", name: "", blocked: true, deleted: true, role: "member", createdAt: ts });
             return b.commit();
-          }).then(function () { done("تم حذف الحساب"); }).catch(bad);
+          }).then(function () { A.log("delete_user", em, ""); done("تم حذف الحساب"); }).catch(bad);
         });
 
         if (ev.target.id === "mSave") {
@@ -79,7 +79,7 @@
           var doc = { email: u.email || "", name: u.name || "", level: lvl, active: $("#mActive").checked, note: $("#mNote").value.trim().slice(0, 300), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
           if (!m.startAt && lvl === "pro") doc.startAt = firebase.firestore.FieldValue.serverTimestamp();
           if (ex) doc.expiresAt = firebase.firestore.Timestamp.fromDate(new Date(ex + "T23:59:59"));
-          A.col("memberships").doc(uid).set(doc, { merge: true }).then(function () { A.toast("تم الحفظ"); A.modal.close(); load(); }).catch(function (er) { A.toast(A.errMsg(er), true); });
+          A.col("memberships").doc(uid).set(doc, { merge: true }).then(function () { A.log("membership", u.email, lvl + (ex ? " حتى " + ex : "") + (doc.active ? "" : " (موقوفة)")); A.toast("تم الحفظ"); A.modal.close(); load(); }).catch(function (er) { A.toast(A.errMsg(er), true); });
         }
       };
     }
@@ -127,7 +127,7 @@
     $("#cF").addEventListener("change", draw);
     $("#cList").addEventListener("click", function (e) {
       var s = e.target.closest("[data-s]"), x = e.target.closest("[data-x]");
-      if (s) A.col("comments").doc(s.getAttribute("data-id")).update({ status: s.getAttribute("data-s") }).then(function () { A.toast("تم"); load(); }).catch(function (er) { A.toast(A.errMsg(er), true); });
+      if (s) A.col("comments").doc(s.getAttribute("data-id")).update({ status: s.getAttribute("data-s") }).then(function () { A.log("comment", s.getAttribute("data-id"), s.getAttribute("data-s")); A.toast("تم"); load(); }).catch(function (er) { A.toast(A.errMsg(er), true); });
       if (x) A.confirm("حذف التعليق؟", "هيتمسح نهائياً.", { ok: "حذف" }).then(function (ok) { if (ok) A.col("comments").doc(x.getAttribute("data-x")).delete().then(function () { A.toast("تم الحذف"); load(); }); });
     });
     load();

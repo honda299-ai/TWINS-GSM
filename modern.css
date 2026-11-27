@@ -237,3 +237,31 @@ input,select,textarea{background:rgba(255,255,255,.06)!important;border:1px soli
   .overview-grid{grid-template-columns:repeat(2,1fr)}
   .account-grid{grid-template-columns:1fr!important}
 }
+
+/* ===================== محادثة الطلبات ===================== */
+.chat{display:flex;flex-direction:column;gap:10px;max-height:46vh;min-height:140px;overflow:auto;padding:14px;margin:12px 0;border-radius:18px;background:rgba(0,0,0,.28);border:1px solid var(--line)}
+.chat-empty{margin:auto;color:var(--muted);font-size:14px}
+.msg{max-width:82%;padding:10px 14px;border-radius:18px;line-height:1.6;word-break:break-word}
+.msg p{margin:0;white-space:pre-wrap}.msg small{display:block;margin-top:4px;font-size:11px;opacity:.7}
+.msg.mine{align-self:flex-start;background:linear-gradient(135deg,var(--orange-2),var(--orange-dark));color:#1a0d00;border-end-start-radius:6px}
+.msg.theirs{align-self:flex-end;background:rgba(255,255,255,.09);border:1px solid var(--line);border-end-end-radius:6px}
+.tpl{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.tpl button{padding:6px 12px;border-radius:99px;border:1px solid var(--line-strong);background:rgba(255,255,255,.05);color:var(--muted);font:600 12px Cairo,sans-serif;cursor:pointer}
+.tpl button:hover{border-color:var(--orange);color:var(--text)}
+.req-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.req-note{padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px dashed var(--line-strong);color:var(--muted);margin:8px 0}
+.unread-dot{display:inline-block;width:9px;height:9px;margin-inline-end:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 4px rgba(var(--orange-rgb),.25)}
+.req-row.unread{border-color:rgba(var(--orange-rgb),.55)!important;background:rgba(var(--orange-rgb),.07)!important}
+.last-msg{white-space:normal;color:var(--muted)}
+#reqList2{display:grid;gap:12px;margin-top:12px}
+.req-card{padding:16px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.req-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.req-card-head small{display:block;color:var(--muted)}
+.steps-track{display:flex;list-style:none;margin:14px 0 8px;padding:0}
+.steps-track li{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;font-size:12px;color:var(--muted)}
+.steps-track li::before{content:"";position:absolute;top:13px;inset-inline:-50% 50%;height:2px;background:var(--line-strong)}
+.steps-track li:first-child::before{display:none}
+.steps-track li.done::before,.steps-track li.now::before{background:var(--orange)}
+.steps-track i{position:relative;z-index:1;width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:var(--surface);border:2px solid var(--line-strong);font-style:normal;font-weight:800}
+.steps-track li.done i{background:var(--orange);border-color:var(--orange);color:#1a0d00}.steps-track li.now i{border-color:var(--orange);color:var(--orange-2)}.steps-track li.now span,.steps-track li.done span{color:var(--text)}
+.chat-send{display:flex;gap:8px;align-items:flex-end}.chat-send textarea{flex:1}
+@media(max-width:640px){.msg{max-width:92%}.chat{max-height:50vh}}

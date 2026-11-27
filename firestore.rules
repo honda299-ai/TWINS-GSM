@@ -93,8 +93,30 @@ service cloud.firestore {
     match /requests/{id} {
       allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid && request.resource.data.status == 'جديد' && notBlocked();
-      allow update: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid && request.resource.data.status == resource.data.status);
+      // العميل يقدر يحدّث مؤشرات المحادثة فقط (مش الحالة ولا بيانات الطلب)
+      allow update: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastFrom', 'lastMessageAt', 'lastText', 'unreadAdmin', 'unreadCustomer']));
       allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+    }
+
+    // محادثة الطلب: العميل صاحب الطلب + الأدمن فقط. الرسائل ماتتعدّلش.
+    match /requests/{id}/messages/{mid} {
+      allow read: if isAdmin() || (request.auth != null && get(/databases/$(database)/documents/requests/$(id)).data.uid == request.auth.uid);
+      allow create: if request.auth != null && notBlocked()
+        && request.resource.data.text is string && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 1000
+        && ((isAdmin() && request.resource.data.from == 'admin')
+          || (request.resource.data.from == 'customer' && request.resource.data.uid == request.auth.uid
+              && get(/databases/$(database)/documents/requests/$(id)).data.uid == request.auth.uid));
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // سجل النشاط: إضافة فقط من الأدمن، والقراءة للأدمن
+    match /activity/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.by == request.auth.token.email;
+      allow update, delete: if false;
     }
 
     // السوبر أدمن: صلاحية كاملة (قراءة/كتابة/حذف) على كل حاجة حالية ومستقبلية
