@@ -10,7 +10,9 @@
     function paint() { b.textContent = root.getAttribute("data-theme") === "light" ? "🌙" : "☀️"; }
     b.onclick = function () { var n = root.getAttribute("data-theme") === "light" ? "dark" : "light"; root.setAttribute("data-theme", n); try { localStorage.setItem(K, n); } catch (e) {} paint(); };
     paint();
-    var slot = document.querySelector(".site-header .header-account");
-    if (slot) slot.parentNode.insertBefore(b, slot); else { b.classList.add("floating"); document.body.appendChild(b); }
+    var slot = document.querySelector(".site-header .header-account"), bar = document.querySelector(".admin-topbar");
+    if (slot) slot.parentNode.insertBefore(b, slot);
+    else if (bar) { b.classList.add("in-bar"); bar.appendChild(b); }
+    else { b.classList.add("floating"); document.body.appendChild(b); }
   });
 })();
