@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>TWINS GSM | حلول السوفت وير والشبكات</title>
   <meta name="description" content="TWINS GSM — مركز متخصص في صيانة سوفت وير الموبايلات، فك الحمايات، إصلاح الشبكات، وتوفير أدوات GSM للمحترفين." />
   <meta name="theme-color" content="#08090b" />
@@ -17,9 +17,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="modern.css" />
+  <link rel="stylesheet" href="redesign.css" />
+  <noscript><style>.page-loader,.mobile-dock{display:none!important}</style></noscript>
 </head>
 <body>
   <a class="skip-link" href="#main">تخطَّ إلى المحتوى</a>
+
+  <div class="page-loader" id="pageLoader" aria-label="جاري التحميل" role="status">
+    <div class="loader-inner">
+      <span class="loader-logo" aria-hidden="true"></span>
+      <span class="loader-ring" aria-hidden="true"></span>
+      <span class="loader-bar" aria-hidden="true"></span>
+      <span class="loader-text">جاري تجهيز TWINS GSM...</span>
+    </div>
+  </div>
 
   <div class="announce" id="announceBar" hidden>
     <a id="announceLink" href="#"><span data-cms="announce_text"></span></a>
@@ -42,6 +53,10 @@
         <a href="#tools" data-cms="nav_tools">الأدوات</a>
         <a href="#reviews" data-cms="nav_reviews">الآراء</a>
         <a href="#contact" data-cms="nav_contact">تواصل معنا</a>
+        <div class="nav-login">
+          <a class="btn btn-primary btn-sm" href="account.html">دخول</a>
+          <a class="btn btn-ghost btn-sm" href="account.html?mode=register">إنشاء حساب</a>
+        </div>
       </nav>
 
       <a class="btn btn-ghost btn-sm header-account" id="accountBtn" href="account.html">حسابي</a>
@@ -74,6 +89,7 @@
               <span data-cms="hero_cta1">ابدأ طلبك الآن</span> <span aria-hidden="true">←</span>
             </a>
             <a class="btn btn-ghost" href="#work" data-cms="hero_cta2">شاهد أعمالنا</a>
+            <a class="btn btn-outline hero-login" href="account.html">👤 دخول / إنشاء حساب</a>
           </div>
           <div class="hero-trust">
             <div class="avatars" aria-hidden="true"><span>A</span><span>M</span><span>T</span><span>+</span></div>
@@ -240,7 +256,10 @@
             <h3 data-cms="gate_title">التحميل للأعضاء المسجلين فقط</h3>
             <p data-cms="gate_text">سجّل الدخول أو اعمل حساب جديد عشان تشوف الأدوات والأسعار وتاريخ تحميلاتك.</p>
           </div>
-          <a class="btn btn-primary" href="account.html">دخول / تسجيل ←</a>
+          <div class="gate-actions">
+            <a class="btn btn-primary" href="account.html">دخول ←</a>
+            <a class="btn btn-ghost" href="account.html?mode=register">إنشاء حساب جديد</a>
+          </div>
         </div>
 
         <div class="tools-grid" id="toolsGrid"></div>
@@ -317,6 +336,13 @@
     </div>
   </footer>
 
+  <nav class="mobile-dock" id="mobileDock" aria-label="اختصارات سريعة">
+    <a href="#top" data-dock="top" class="active"><i aria-hidden="true">⌂</i><span>الرئيسية</span></a>
+    <a href="#services" data-dock="services"><i aria-hidden="true">⚙</i><span>الخدمات</span></a>
+    <a href="#tools" data-dock="tools"><i aria-hidden="true">⬇</i><span>الأدوات</span></a>
+    <a href="account.html" data-dock="account"><i aria-hidden="true">👤</i><span>حسابي</span></a>
+  </nav>
+
   <a class="float-wa" id="floatWa" href="#" target="_blank" rel="noopener noreferrer" aria-label="تواصل عبر واتساب" hidden>
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11 11 0 0 0 3.1 17.6L2 22l4.5-1.2A11 11 0 1 0 20.5 3.5Zm-8.5 17a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-2.7.7.7-2.6-.2-.3a9.1 9.1 0 1 1 7.1 3.7Zm5-6.8c-.3-.1-1.7-.8-2-.9s-.5-.1-.7.2-.8.9-1 1.1-.4.2-.7.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.5.1-.6l.5-.6.2-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.4 1 2.8 1.2 3 .2.3 2.1 3.2a9.6 9.6 0 0 0 3.4 3c1.3.5 1.8.6 2.4.5.8-.1 1.7-.7 2-1.4s.3-1.2.2-1.4-.3-.1-.6-.2Z"/></svg>
     <span data-cms="float_wa_text">كلمنا واتساب</span>
@@ -339,5 +365,6 @@
   <script src="comments.js" defer></script>
   <script src="pro-tab.js" defer></script>
   <script src="modern.js" defer></script>
+  <script src="ui-enhancements.js" defer></script>
 </body>
 </html>
