@@ -33,6 +33,8 @@
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeMenu();
   });
+  var navClose = document.getElementById("navClose");
+  if (navClose) navClose.addEventListener("click", closeMenu);
 
   /* ---------- شريط التنقل السفلي ---------- */
   var dock = $("#mobileDock");
