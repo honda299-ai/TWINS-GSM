@@ -195,3 +195,45 @@ input,select,textarea{background:rgba(255,255,255,.06)!important;border:1px soli
 .tool-card .tool-download{width:100%;justify-content:center;margin-top:auto}
 .pro-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important}
 .pro-grid .pro-item{text-align:center;align-items:center}
+
+/* ===================== v6 — بسيط + موبايل/كمبيوتر ===================== */
+.auth-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:14px 0}
+.auth-divider::before,.auth-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.login-card .btn-google{margin:0 0 4px}
+.detail-box{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;padding:12px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:13px}
+.detail-box span{display:block;color:var(--muted);font-size:11px}.detail-box code{direction:ltr;display:block;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+
+/* كمبيوتر */
+@media(min-width:1100px){.container{max-width:1200px}.quick-grid{gap:18px}.section{padding-block:96px}}
+
+/* موبايل: موقع */
+@media(max-width:640px){
+  body{font-size:15px}
+  .container{padding-inline:16px}
+  .header-account{display:none}
+  .hero{padding-block:40px 20px}.hero h1{font-size:34px}
+  .hero-actions .btn{flex:1 1 100%}
+  .quick-tile{padding:18px 10px}.quick-tile span{width:48px;height:48px;font-size:24px}
+  .section{padding-block:44px}.section h2{font-size:24px}
+  .section-head{flex-direction:column;align-items:flex-start;gap:6px}
+  .dl-tabs{max-width:none}.dl-tabs button small{display:none}
+  .tools-grid,.pro-grid{grid-template-columns:repeat(2,1fr)!important;gap:10px}
+  .tool-card{padding:14px 10px}.tool-card p{display:none}.tool-card h3{font-size:15px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)!important}
+  .stat{padding:18px 10px}
+}
+/* موبايل: لوحة التحكم + الحساب */
+@media(max-width:860px){
+  .admin-topbar{padding:10px 14px}.admin-topbar h1{font-size:18px}
+  .admin-content{padding:12px}
+  .panel-head h2{font-size:20px}
+  .item-row{padding:12px;gap:10px}
+  .item-actions .btn{flex:1}
+  .toolbar{flex-direction:column}.toolbar>*{width:100%}
+  .btn,.btn-sm{min-height:44px}
+  .modal{padding:0;place-items:end center}
+  .modal-box{width:100%!important;max-height:92vh;border-radius:24px 24px 0 0!important;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+  .modal-actions .btn{flex:1}
+  .overview-grid{grid-template-columns:repeat(2,1fr)}
+  .account-grid{grid-template-columns:1fr!important}
+}

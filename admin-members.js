@@ -40,12 +40,16 @@
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><button type="button" class="btn btn-ghost btn-sm" data-add="30">+30 يوم</button><button type="button" class="btn btn-ghost btn-sm" data-add="90">+90 يوم</button><button type="button" class="btn btn-ghost btn-sm" data-add="365">+سنة</button></div>' +
         '<label><input type="checkbox" id="mActive"> العضوية مفعّلة</label>' +
         '<label>ملاحظة (خاصة بيك)<textarea id="mNote" rows="2"></textarea></label>' +
-        '<div class="danger-zone"><b>إجراءات الحساب</b><div><button type="button" class="btn btn-ghost btn-sm" id="mBlock">' + (u.blocked ? "فك الحظر" : "حظر الحساب") + '</button><button type="button" class="btn btn-ghost btn-sm" id="mReset">إعادة تعيين الباسورد</button><button type="button" class="btn btn-ghost btn-sm" id="mPartner">تعيين كشريك أدمن</button><button type="button" class="btn btn-ghost btn-sm" id="mDelete">حذف الحساب</button></div></div>' +
+        '<div class="detail-box" id="mDetail">جاري تحميل التفاصيل…</div><div class="danger-zone"><b>إجراءات الحساب</b><div><button type="button" class="btn btn-ghost btn-sm" id="mBlock">' + (u.blocked ? "فك الحظر" : "حظر الحساب") + '</button><button type="button" class="btn btn-ghost btn-sm" id="mReset">إعادة تعيين الباسورد</button><button type="button" class="btn btn-ghost btn-sm" id="mPartner">تعيين كشريك أدمن</button><button type="button" class="btn btn-ghost btn-sm" id="mDelete">حذف الحساب</button></div></div>' +
         '<div class="modal-actions"><button class="btn btn-primary" id="mSave" type="button">حفظ</button><button class="btn btn-ghost" id="mCancel" type="button">إلغاء</button></div>');
       var tem = (u.email || "").toLowerCase(), sup = A.user && (A.user.email || "").toLowerCase() === PRIM;
       var self = (A.user && A.user.uid === uid) || tem === PRIM;
       if (self || (!sup && adminSet[tem])) { ["mBlock", "mDelete"].forEach(function (i) { var x = $("#" + i); if (x) x.remove(); }); }
       if (!sup) { var pb = $("#mPartner"); if (pb) pb.remove(); }
+      var fmtT = function (t) { var d = dt(t); return d ? d.toLocaleString("ar-EG") : "—"; };
+      Promise.all([A.col("requests").where("uid", "==", uid).get(), A.col("downloads").where("uid", "==", uid).get()]).then(function (s) {
+        $("#mDetail").innerHTML = '<div><span>UID</span><code>' + esc(uid) + '</code></div><div><span>تاريخ التسجيل</span>' + fmtT(u.createdAt) + '</div><div><span>آخر دخول</span>' + fmtT(u.lastLoginAt) + '</div><div><span>الطلبات</span>' + s[0].size + '</div><div><span>التحميلات</span>' + s[1].size + '</div><div><span>الحالة</span>' + (u.blocked ? "محظور" : "نشط") + '</div>';
+      }).catch(function () { $("#mDetail").textContent = "تعذّر تحميل التفاصيل"; });
       $("#mLevel").value = m.level === "pro" ? "pro" : "none"; $("#mActive").checked = m.active !== false; $("#mNote").value = m.note || "";
       $("#modalBox").onclick = function (ev) {
         var a = ev.target.getAttribute && ev.target.getAttribute("data-add");

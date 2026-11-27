@@ -68,6 +68,7 @@
           auth.signOut().then(function () { alert("تم إيقاف هذا الحساب. تواصل مع الدعم."); });
         });
       }
+      if (d.exists) db.collection("users").doc(u.uid).set({ lastLoginAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }).catch(function () {});
       render(u);
     }).catch(function () { render(u); });
   });

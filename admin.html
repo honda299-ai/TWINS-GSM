@@ -26,6 +26,8 @@
       <h1>لوحة التحكم</h1>
       <p>سجّل الدخول بحساب الأدمن أو حساب شريك معتمد.</p>
 
+      <button type="button" class="btn-google" id="adminGoogle">الدخول بحساب Google</button>
+      <div class="auth-divider"><span>أو بالبريد</span></div>
       <label>الإيميل
         <input type="email" id="adminEmail" autocomplete="username" required placeholder="name@example.com" />
       </label>
@@ -38,7 +40,7 @@
       <button class="btn btn-primary btn-block" type="submit" id="loginBtn">دخول ←</button>
       <p class="login-error" id="loginError" role="alert" hidden></p>
       <p class="login-ok" id="loginOk" role="status" hidden></p>
-      <button type="button" class="btn btn-ghost btn-block" id="adminGoogle">الدخول بحساب Google</button>
+      
       <div class="login-links">
         <button type="button" class="link-btn" id="forgotBtn">نسيت كلمة المرور؟</button>
         <a class="back-link" href="index.html">← الرجوع للموقع</a>

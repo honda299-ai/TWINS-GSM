@@ -96,5 +96,10 @@ service cloud.firestore {
       allow update: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid && request.resource.data.status == resource.data.status);
       allow delete: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
     }
+
+    // السوبر أدمن: صلاحية كاملة (قراءة/كتابة/حذف) على كل حاجة حالية ومستقبلية
+    match /{document=**} {
+      allow read, write: if isSuper();
+    }
   }
 }
