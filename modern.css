@@ -357,3 +357,23 @@ input,select,textarea{background:rgba(255,255,255,.06)!important;border:1px soli
 .tpl{margin:8px 0 0}
 .modal-box{overflow-y:auto;-webkit-overflow-scrolling:touch}
 @media(max-width:640px){.theme-btn.floating{width:38px;height:38px}body{padding-bottom:60px}}
+
+/* كروت PRO قابلة للضغط + نافذة التفاصيل */
+.pro-item[data-pro]{cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:start}
+.pro-item[data-pro]:hover{transform:translateY(-3px);border-color:rgba(var(--orange-rgb),.6)!important}
+.pro-ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:rgba(var(--orange-rgb),.15)}
+.pro-item b{font-size:16px}.pro-item small{color:var(--muted)}
+.pro-open{margin-top:auto;padding-top:8px;color:var(--orange-2);font-weight:800;font-size:14px}
+.pro-modal{position:fixed;inset:0;z-index:998;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:pmIn .2s ease}
+.pm-box{position:relative;width:min(480px,100%);max-height:90vh;overflow:auto;padding:24px;border-radius:24px;background:var(--surface);border:1px solid var(--line-strong);box-shadow:0 30px 80px rgba(0,0,0,.5);display:grid;gap:12px}
+.pm-x{position:absolute;top:12px;inset-inline-start:12px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:var(--text);cursor:pointer;font-size:16px}
+.pm-img{width:100%;max-height:220px;object-fit:cover;border-radius:16px}
+.pm-box h3{margin:8px 0 0;font-size:22px}.pm-notes{margin:0;color:var(--muted);white-space:pre-wrap}.pm-none{margin:0;color:var(--muted);padding:12px;border-radius:12px;background:rgba(255,255,255,.05)}
+.pm-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
+.pm-row span{color:var(--muted);min-width:56px}.pm-row code{direction:ltr;flex:1;overflow:hidden;text-overflow:ellipsis}
+[data-theme=light] .pm-row{background:rgba(15,23,42,.05)}
+@keyframes pmIn{from{opacity:0}to{opacity:1}}
+@media(max-width:640px){.pro-modal{place-items:end center;padding:0}.pm-box{border-radius:24px 24px 0 0;width:100%}}
+.text-btn{padding:6px 12px;border-radius:999px;border:1px solid var(--line-strong);background:rgba(255,255,255,.06);color:var(--text);font:700 12px Cairo,sans-serif;cursor:pointer}
+.text-btn:hover{border-color:var(--orange);color:var(--orange-2)}
+[data-theme=light] .text-btn{background:#fff}

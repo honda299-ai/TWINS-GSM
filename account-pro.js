@@ -10,11 +10,7 @@
     return val ? '<div>' + esc(label) + ': <code data-v="' + esc(val) + '" class="mask">••••••••</code> <button type="button" class="text-btn" data-show>إظهار</button> <button type="button" class="text-btn" data-copy>نسخ</button></div>' : "";
   }
   function itemsHtml(items) {
-    return items.filter(function (x) { return x.active !== false; }).sort(function (a, b) { return (a.order || 0) - (b.order || 0); }).map(function (i) {
-      return '<div class="pro-item"><b>' + esc(i.title) + '</b>' + (i.notes ? '<small>' + esc(i.notes) + '</small>' : "") +
-        (i.url && /^https?:\/\//i.test(i.url) ? '<div><a class="btn btn-ghost btn-sm" target="_blank" rel="noopener noreferrer" href="' + esc(i.url) + '">فتح / تحميل ↗</a></div>' : "") +
-        secret("اليوزر", i.username) + secret("الباسورد", i.password) + '</div>';
-    }).join("");
+    return items.filter(function (x) { return x.active !== false; }).sort(function (x, y) { return (x.order || 0) - (y.order || 0); }).map(function (i) { return TWINS_PRO_CARD(i); }).join("");
   }
   function render(user) {
     var card = $("#proCard"), body = $("#proBody"), badge = $("#proBadge");
@@ -46,12 +42,8 @@
       db.collection("proVault").get().then(function (s) {
         var items = s.docs.map(function (x) { return x.data(); }).filter(function (x) { return x.active !== false; })
           .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
-        $("#vault").innerHTML = items.length ? items.map(function (i) {
-          return '<div class="pro-item"><b>' + esc(i.title) + '</b>' + (i.notes ? '<small>' + esc(i.notes) + '</small>' : "") +
-            (i.url && /^https?:\/\//i.test(i.url) ? '<div><a class="btn btn-ghost btn-sm" target="_blank" rel="noopener noreferrer" href="' + esc(i.url) + '">فتح / تحميل ↗</a></div>' : "") +
-            secret("اليوزر", i.username) + secret("الباسورد", i.password) + '</div>';
-        }).join("") : "لسه مفيش محتوى PRO.";
-      }).catch(function () { $("#vault").textContent = "مش مسموح لك بعرض المحتوى."; });
+        $("#vault").innerHTML = items.length ? items.map(function (i) { return TWINS_PRO_CARD(i); }).join("") : "لسه مفيش محتوى PRO.";
+      }).catch(function (e) { $("#vault").textContent = e && e.code === "permission-denied" ? "الصلاحيات رفضت القراءة — انشر firestore.rules وتأكد من تأكيد إيميلك." : "تعذّر تحميل المحتوى."; });
     }).catch(function () { body.textContent = "تعذّر تحميل العضوية."; });
   }
   document.addEventListener("click", function (e) {

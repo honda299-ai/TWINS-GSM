@@ -1,0 +1,63 @@
+/* TWINS GSM — لوحة التحكم: ألوان هادئة موحّدة وحركة سلسة */
+.admin-body{
+  --bg:#0e1218;--bg-alt:#0e1218;--surface:#161c26;--surface-2:#1c2431;--line:rgba(255,255,255,.07);--line-strong:rgba(255,255,255,.13);
+  --text:#e9edf4;--muted:#94a0b4;--muted-2:#6b778c;--ok:#3ecf9a;--warn:#f2b04c;--bad:#ff7b7b;
+  background:var(--bg)!important;color:var(--text);scroll-behavior:smooth}
+[data-theme=light] .admin-body{--bg:#f2f4f8;--bg-alt:#f2f4f8;--surface:#ffffff;--surface-2:#f0f3f8;--line:rgba(15,23,42,.08);--line-strong:rgba(15,23,42,.15);--text:#111827;--muted:#5b6578;--muted-2:#8b95a8}
+body.admin-body::before,body.admin-body::after{display:none!important}
+
+/* هيكل */
+.admin-body .admin-sidebar{background:var(--surface)!important;border-inline-end:1px solid var(--line)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+.admin-body .admin-topbar{background:color-mix(in srgb,var(--bg) 88%,transparent)!important;border-bottom:1px solid var(--line)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.admin-body .nav-group,.admin-body .group-title{color:var(--muted-2);font-size:11px;letter-spacing:1.2px;font-weight:800}
+.admin-body .admin-nav button,.admin-body .admin-nav a{border-radius:12px;color:var(--muted);transition:background .18s ease,color .18s ease}
+.admin-body .admin-nav button:hover,.admin-body .admin-nav a:hover{background:var(--surface-2)!important;color:var(--text)}
+.admin-body .admin-nav .active{background:rgba(var(--orange-rgb),.12)!important;color:var(--orange-2)!important;box-shadow:none!important;position:relative}
+.admin-body .admin-nav .active::before{content:"";position:absolute;inset-inline-end:0;top:22%;bottom:22%;width:3px;border-radius:3px;background:var(--orange)}
+.admin-body .user-pill{background:rgba(var(--orange-rgb),.1);border:1px solid rgba(var(--orange-rgb),.28);color:var(--orange-2)}
+
+/* كروت: مسطّحة بحواف رفيعة (من غير جلاس ولا ألوان متداخلة) */
+.admin-body .box,.admin-body .item-row,.admin-body .ov-card,.admin-body .form-card,.admin-body .login-card,.admin-body .media-item,.admin-body .mini-row,.admin-body .toolbar select,.admin-body .search-box,.admin-body .req-note,.admin-body .detail-box{
+  background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:16px;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.admin-body .item-row{transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.admin-body .item-row:hover,.admin-body .ov-card:hover{border-color:var(--line-strong)!important;background:var(--surface-2)!important;transform:none}
+.admin-body .ov-card{transition:border-color .18s ease,transform .18s ease}.admin-body .ov-card:hover{transform:translateY(-2px)}
+.admin-body .ov-card b,.admin-body .ov-card strong{color:var(--orange-2)}
+.admin-body .req-row.unread{border-color:rgba(var(--orange-rgb),.45)!important;background:rgba(var(--orange-rgb),.06)!important}
+.admin-body .modal-box,.admin-body .pm-box{background:var(--surface)!important;border:1px solid var(--line-strong)!important;box-shadow:0 30px 80px rgba(0,0,0,.45)!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+.admin-body .modal{background:rgba(5,8,12,.66)}
+.admin-body .chat{background:var(--bg)!important}
+.admin-body .msg.theirs{background:var(--surface-2)!important}
+
+/* حقول وأزرار */
+.admin-body input:not([type=checkbox]):not([type=radio]),.admin-body select,.admin-body textarea{background:var(--surface-2)!important;border:1px solid var(--line)!important;color:var(--text);transition:border-color .18s,box-shadow .18s}
+.admin-body input:focus,.admin-body select:focus,.admin-body textarea:focus{border-color:var(--orange)!important;box-shadow:0 0 0 3px rgba(var(--orange-rgb),.18)!important;outline:0}
+.admin-body .btn{transition:background .18s,border-color .18s,transform .12s,box-shadow .18s}
+.admin-body .btn:active{transform:scale(.98)}
+.admin-body .btn-primary{background:var(--orange)!important;color:#1b0e00!important;box-shadow:0 4px 14px rgba(var(--orange-rgb),.22)!important}
+.admin-body .btn-primary:hover{background:var(--orange-2)!important;transform:none}
+.admin-body .btn-ghost{background:var(--surface-2)!important;border:1px solid var(--line)!important;color:var(--text)}
+.admin-body .btn-ghost:hover{border-color:var(--line-strong)!important;background:var(--surface)!important}
+.admin-body .icon-btn{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;color:var(--muted)}
+.admin-body .icon-btn.danger:hover,.admin-body .btn-danger{color:var(--bad);border-color:rgba(255,123,123,.4)!important;background:rgba(255,123,123,.08)!important}
+
+/* حالات */
+.admin-body .pill{border:1px solid transparent}
+.admin-body .pill.ok{background:rgba(62,207,154,.12);color:var(--ok);border-color:rgba(62,207,154,.25)}
+.admin-body .pill.warn{background:rgba(242,176,76,.12);color:var(--warn);border-color:rgba(242,176,76,.25)}
+.admin-body .pill.new{background:rgba(var(--orange-rgb),.12);color:var(--orange-2);border-color:rgba(var(--orange-rgb),.25)}
+.admin-body .chips button,.admin-body .tabs button{background:var(--surface);border:1px solid var(--line);color:var(--muted);border-radius:999px;transition:all .18s}
+.admin-body .chips button.active,.admin-body .tabs button.active{background:rgba(var(--orange-rgb),.14);border-color:rgba(var(--orange-rgb),.4);color:var(--orange-2)}
+.admin-body .danger-zone{background:rgba(255,123,123,.05);border-color:rgba(255,123,123,.25)}
+.admin-body .toast{background:var(--surface-2);border:1px solid var(--line-strong);border-radius:14px}
+
+/* انتقال سلس بين الأقسام + سكرول أنيق */
+@keyframes admFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.admin-body .admin-content>*{animation:admFade .28s ease both}
+.admin-body *{scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+@media (prefers-reduced-motion:reduce){.admin-body .admin-content>*{animation:none}}
+
+/* صفحة الدخول للأدمن */
+.admin-body .login-card{border-radius:24px;padding:28px}
+.admin-body .search-box input{background:transparent!important;border:0!important;box-shadow:none!important}
+.admin-body .search-box:focus-within{border-color:var(--orange)!important;box-shadow:0 0 0 3px rgba(var(--orange-rgb),.18)!important}

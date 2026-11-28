@@ -38,12 +38,9 @@
           var items = s.docs.map(function (x) { return x.data(); }).filter(function (x) { return x.active !== false; }).sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
           var left = exp ? Math.ceil((exp - new Date()) / 864e5) : 0;
           pane.innerHTML = '<div class="pro-ok">' + (isAdm ? "👑 صلاحية أدمن — وصول كامل" : "👑 عضويتك PRO نشطة — باقي " + left + " يوم") + '</div><div class="pro-grid">' +
-            (items.length ? items.map(function (i) {
-              return '<div class="pro-item">' + (i.image && /^(data:image\/|https:\/\/)/.test(i.image) ? '<img class="card-img" src="' + esc(i.image) + '" alt="" loading="lazy" />' : "") + '<b>' + esc(i.title) + '</b>' + (i.notes ? '<small>' + esc(i.notes) + '</small>' : "") +
-                (i.url && /^https?:\/\//i.test(i.url) ? '<a class="btn btn-primary btn-sm" target="_blank" rel="noopener noreferrer" href="' + esc(i.url) + '">فتح / تحميل ↗</a>' : "") + secret("اليوزر", i.username) + secret("الباسورد", i.password) + '</div>';
-            }).join("") : '<div class="empty-state">لسه مفيش محتوى PRO. هيتضاف قريب.</div>') + '</div>';
+            (items.length ? items.map(function (i) { return TWINS_PRO_CARD(i); }).join("") : '<div class="empty-state">لسه مفيش محتوى PRO. هيتضاف قريب.</div>') + '</div>';
         });
-      }).catch(function () { if (me === token) lock("⚠️", "تعذّر التحميل", "حاول تاني بعد شوية.", ""); });
+      }).catch(function (e) { if (me !== token) return; lock("⚠️", "تعذّر تحميل المحتوى", e && e.code === "permission-denied" ? "الصلاحيات رفضت القراءة. تأكد إن قواعد Firestore (firestore.rules) اتنشرت، وإن إيميلك متأكَّد وعضويتك PRO سارية." : "حاول تاني بعد شوية.", ""); });
   }
 
   tabs.addEventListener("click", function (e) {

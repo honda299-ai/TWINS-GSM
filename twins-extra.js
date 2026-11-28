@@ -62,3 +62,48 @@
     o.onclick = function () { o.remove(); }; document.body.appendChild(o);
   });
 })();
+
+/* ---- كروت وتفاصيل محتوى PRO (الكارت كله قابل للضغط) ---- */
+(function () {
+  "use strict";
+  var REG = window.__proItems = [];
+  function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  window.TWINS_FIXURL = function (u) {
+    u = String(u || "").trim(); if (!u) return "";
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = "https://" + u.replace(/^\/\//, "");
+    return /^https?:\/\/[^\s"'<>]+$/i.test(u) ? u : "";
+  };
+  function img(i) { return i.image && /^(data:image\/|https:\/\/)/.test(i.image) ? i.image : ""; }
+  window.TWINS_PRO_CARD = function (i) {
+    var k = REG.push(i) - 1, im = img(i);
+    return '<div class="pro-item" role="button" tabindex="0" data-pro="' + k + '">' + (im ? '<img class="card-img" src="' + esc(im) + '" alt="" loading="lazy">' : '<div class="pro-ico">🔐</div>') +
+      '<b>' + esc(i.title) + '</b>' + (i.notes ? '<small>' + esc(i.notes).slice(0, 90) + '</small>' : "") +
+      '<span class="pro-open">' + (window.TWINS_FIXURL(i.url) ? "فتح / تحميل ←" : "عرض التفاصيل ←") + '</span></div>';
+  };
+  function row(l, v) {
+    return v ? '<div class="pm-row"><span>' + l + '</span><code data-v="' + esc(v) + '">••••••••</code><button type="button" class="text-btn" data-pm-show>إظهار</button><button type="button" class="text-btn" data-pm-copy>نسخ</button></div>' : "";
+  }
+  function openModal(i) {
+    var u = window.TWINS_FIXURL(i.url), im = img(i), o = document.createElement("div");
+    o.className = "pro-modal";
+    o.innerHTML = '<div class="pm-box" role="dialog" aria-modal="true"><button type="button" class="pm-x" aria-label="إغلاق">✕</button>' + (im ? '<img class="pm-img" src="' + esc(im) + '" alt="">' : "") +
+      '<h3>' + esc(i.title) + '</h3>' + (i.notes ? '<p class="pm-notes">' + esc(i.notes) + '</p>' : "") +
+      (u ? '<a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="' + esc(u) + '">فتح / تحميل ↗</a>' : '<p class="pm-none">مفيش رابط تحميل لهذا العنصر. التفاصيل اللي تحت هي المتاحة.</p>') +
+      row("اليوزر", i.username) + row("الباسورد", i.password) + '</div>';
+    o.addEventListener("click", function (e) {
+      var t = e.target;
+      if (t === o || t.classList.contains("pm-x")) { o.remove(); return; }
+      var c = t.parentNode && t.parentNode.querySelector && t.parentNode.querySelector("code");
+      if (t.hasAttribute && t.hasAttribute("data-pm-show") && c) { var h = c.textContent.charAt(0) === "•"; c.textContent = h ? c.dataset.v : "••••••••"; t.textContent = h ? "إخفاء" : "إظهار"; }
+      if (t.hasAttribute && t.hasAttribute("data-pm-copy") && c && navigator.clipboard) navigator.clipboard.writeText(c.dataset.v).then(function () { t.textContent = "تم ✓"; });
+    });
+    document.body.appendChild(o);
+  }
+  function go(e) {
+    var c = e.target.closest && e.target.closest("[data-pro]"); if (!c) return;
+    if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault(); var i = REG[+c.getAttribute("data-pro")]; if (i) openModal(i);
+  }
+  document.addEventListener("click", go); document.addEventListener("keydown", go);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { var m = document.querySelector(".pro-modal"); if (m) m.remove(); } });
+})();
